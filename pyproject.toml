@@ -1,0 +1,27 @@
+[project]
+name = "xleda"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }
+]
+
+requires-python = ">=3.14"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "pyarrow>=24.0.0",
+    "seaborn>=0.13.2",
+    "xlwings>=0.35.2",
+]
+
+
+[project.scripts]
+my-package = "xleda:main"
+
+
+[build-system]
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
