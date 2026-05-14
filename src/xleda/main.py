@@ -13,16 +13,12 @@ from xlwings import Range
 
 
 # Field Analysis template
-template_file = Path(r'src/xleda/xleda_template.xlsm')
+template_file = Path(__file__).parent / "xleda_template.xlsm"
 
 
 # Set matplotlib theme
 mpl.use('Agg') 
 plt.style.use("dark_background")
-
-# # Sample data
-# df = sns.load_dataset('titanic')
-
 
 
 
@@ -172,7 +168,7 @@ def add_small_multiple(fig: Figure, target_range: Range):
     The small chart is 90% of the size of the cell and is centered.
 
     Args:
-        plot (Axes): A matplotlib axes object
+        fig (Figure): A matplotlib Figure object
         target_range (Range): An Excel cell
     """
 
@@ -250,23 +246,31 @@ def add_plots(input_df: pd.DataFrame, input_wb: xw.Book, plot_color: str):
         composition_range = composition_range.offset(0, 1)
 
 
-def create_workbook(input_df: pd.DataFrame, name: str, theme_color: str = '#053476', large_report=False) -> xw.Book:
+def create_workbook(input_df: pd.DataFrame, 
+                    name: str, 
+                    theme_color: str = '#053476', 
+                    large_report=False, 
+                    overwrite: bool = False,
+                    close_wb: bool = False) -> xw.Book | None:
     
     """Creates a Field Analysis workbook from a given dataframe
 
     Args:
         input_df (pd.DataFrame): Pandas dataframe to base the Field Analysis on
-        name (str): Title of the workook
-        theme_color (str, optional): _description_. Defaults to '#053476'.
-        large_report (bool, optional): _description_. Defaults to False.
+        name (str): Title of the workbook
+        theme_color (str, optional): Theme color for the main worksheeet and the plots.  Defaults to '#053476'.
+        large_report (bool, optional): Raises default limts of 100 columns/100,000 rows to 16,000 columns/1,000,000 rows. Defaults to False
+        overwrite (bool, optional): Whether to overwrite existing workbook with the same name. Defaults to False.
+        close_wb: bool = Whether to close the created workbook once created.  Defaults to False
+        
+        ) -> xw.Book | None:
 
     Returns:
-        _type_: An xlwings workbook object
+        xw.Book: An xlwings workbook object
+
     """
 
 
-
-    
     # --------------------------------------------------
     # Setup Source Data
 
@@ -321,116 +325,156 @@ def create_workbook(input_df: pd.DataFrame, name: str, theme_color: str = '#0534
     # Set Template Path
     field_analysis_path = (Path().cwd() / name).with_suffix('.xlsm')
 
-    # Delete Old Field Analysis if it Exists
-    # TODO: Throw an error for exising files in the future
-    field_analysis_path.unlink(missing_ok=True)
+    
+    # Handle existing files as appropriate
+    if field_analysis_path.is_file() and not overwrite:
+        print(f"""There is already a workbook named {field_analysis_path} 
+              Use overwrite=True or rename/remove the existing workbook""")
+        return
+    elif field_analysis_path.is_file() and overwrite:
+        try:
+            field_analysis_path.unlink(missing_ok=True)
+        except PermissionError:
+            print("Error: The workbook cannot be overwrittten while open.")
+            return
 
     # Create a copy of the template and open it
     shutil.copy(template_file, field_analysis_path)
     
 
-    with xw.App(visible=True, add_book=False) as app:
+    # --------------------------------------------------
+    # Initialize Template
+
+    app = xw.App(visible=not close_wb, add_book=False)
+
+    wb = app.books.open(field_analysis_path, read_only=False)
+    field_analysis_ws = wb.sheets("Field Analysis")
+    field_analysis_ws.range("FieldAnalysisTheme").color = theme_color
+    field_analysis_ws.range("Dimensions").value = f"rows = {rows}, columns = {columns}"
+    
+                    
+
+    # --------------------------------------------------
+    # Format Field Analysis sections
+
+    # Format placeholders
+    format_from = field_analysis_ws.range('FormatRange')
+    format_to = field_analysis_ws.range('FormatRange').offset(0,1).resize(None, columns-2)
+    format_from.api.Copy()
+    format_to.api.Select()
+    field_analysis_ws.api.Paste()
+    
+    
+    # Clear clipboard, set selection to top, and add header values
+    wb.app.api.CutCopyMode = False
+    field_analysis_ws.range('Headers_Start').api.Select()
+    headers = source_df.columns.to_list() + ["Record Hash"]
+    field_analysis_ws.range('Headers_Start').value = headers
 
 
 
-        # --------------------------------------------------
-        # Initialize Template
 
-        wb = app.books.open(field_analysis_path, read_only=False)
-        field_analysis_ws = wb.sheets("Field Analysis")
-        field_analysis_ws.range("FieldAnalysisTheme").color = theme_color
-        field_analysis_ws.range("Dimensions").value = f"rows = {rows}, columns = {columns}"
+
+
+    # --------------------------------------------------
+    # Add Field Analysis sections
+
+    field_analysis_ws.range('Overview')[0, 0].value = overview_df.values
+    field_analysis_ws.range('Composition')[0, 0].value = composition_df.values
+    field_analysis_ws.range('Summary_Stats')[0, 0].value = summary_stats_df.values
+    field_analysis_ws.range('Percentiles')[0, 0].value = percentiles_df.values
+
+
+    # --------------------------------------------------
+    # Add Plots
+
+    add_plots(input_df=source_df, input_wb=wb, plot_color=theme_color)
+
+
+
+    # --------------------------------------------------
+    # Setup Source Data table
+
+
+    # Add fields to Source Data to track individual records
+    source_df.insert(loc=0, column='Mark For Removal', value='False')
+    source_df['Record Hash'] = pd.util.hash_pandas_object(source_df, index=False)
+
+    # Update tbl_SourceData with source data, format "Mark For Removal" column
+    source_table = field_analysis_ws.tables['tbl_SourceData']
+    source_table.update(source_df, index=False)
+    source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0]) # type: ignore
+
+    # Set "Record Hash" to LightHeader for contrast with source data fields
+    last_header = field_analysis_ws.tables('tbl_SourceData').header_row_range.last_cell # type: ignore
+    field_analysis_ws.range('LightHeader').copy(destination=last_header)
+    last_header.value = "Record Hash"
+    last_header.columns.autofit()
+
+
+    # --------------------------------------------------
+    # Adjust Named Ranges for Field Action Formulas 
         
-                        
+    field_analysis_ws.range('tbl_SourceData[Record Hash]').name = 'RecordHashes'
+    field_analysis_ws.range('FieldRange').resize(row_size=1, column_size=len(headers)-1).name = 'FieldRange'
 
-        # --------------------------------------------------
-        # Format Field Analysis sections
-
-        # Format placeholders
-        format_from = field_analysis_ws.range('FormatRange')
-        format_to = field_analysis_ws.range('FormatRange').offset(0,1).resize(None, columns-2)
-        format_from.api.Copy()
-        format_to.api.Select()
-        field_analysis_ws.api.Paste()
-        
-        
-        # Clear clipboard, set selection to top, and add header values
-        wb.app.api.CutCopyMode = False
-        field_analysis_ws.range('Headers_Start').api.Select()
-        headers = source_df.columns.to_list() + ["Record Hash"]
-        field_analysis_ws.range('Headers_Start').value = headers
+    for i in range(1, 7):
+        excel_range = 'FieldAction' + str(i)
+        field_analysis_ws.range(excel_range).resize(row_size=1, column_size=len(headers)-1).name = excel_range
 
 
+    
+    # --------------------------------------------------
+    # Initialize Field Analysis UI
 
+    # Show/Hide Data Size Warning
+    if warning:
+        field_analysis_ws.range("Warning").value = warning_msg
+        field_analysis_ws.range("Warning").api.EntireRow.Hidden = not warning
 
+    # Collapse subsections
+    for excel_range in ['Composition', 'Summary_Stats', 'Percentiles', 'Field_Actions', 'Field_Action_Lists']:
+        field_analysis_ws.range(excel_range).api.EntireRow.Hidden = True
 
+    
+    
+    # --------------------------------------------------
+    # Save workbook, close if required, and return it
 
-        # --------------------------------------------------
-        # Add Field Analysis sections
-
-        field_analysis_ws.range('Overview')[0, 0].value = overview_df.values
-        field_analysis_ws.range('Composition')[0, 0].value = composition_df.values
-        field_analysis_ws.range('Summary_Stats')[0, 0].value = summary_stats_df.values
-        field_analysis_ws.range('Percentiles')[0, 0].value = percentiles_df.values
-
-
-        # --------------------------------------------------
-        # Add Plots
-
-        add_plots(input_df=source_df, input_wb=wb, plot_color=theme_color)
+    wb.save(field_analysis_path)
 
 
 
-        # --------------------------------------------------
-        # Setup Source Data table
+    if close_wb:
+        wb.close()
+        app.quit()
 
 
-        # Add fields to Source Data to track individual records
-        source_df.insert(loc=0, column='Mark For Removal', value='False')
-        source_df['Record Hash'] = pd.util.hash_pandas_object(source_df, index=False)
-
-        # Update tbl_SourceData with source data, format "Mark For Removal" column
-        source_table = field_analysis_ws.tables['tbl_SourceData']
-        source_table.update(source_df, index=False)
-        source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0]) # type: ignore
-
-        # Set "Record Hash" to LightHeader for contrast with source data fields
-        last_header = field_analysis_ws.tables('tbl_SourceData').header_row_range.last_cell # type: ignore
-        field_analysis_ws.range('LightHeader').copy(destination=last_header)
-        last_header.value = "Record Hash"
-        last_header.columns.autofit()
+    print(f"{field_analysis_path} created")
+          
+    return wb
 
 
-        # --------------------------------------------------
-        # Adjust Named Ranges for Field Action Formulas 
-            
-        field_analysis_ws.range('tbl_SourceData[Record Hash]').name = 'RecordHashes'
-        field_analysis_ws.range('FieldRange').resize(row_size=1, column_size=len(headers)-1).name = 'FieldRange'
+def export_analysis(input_wb: xw.Book) -> dict[str, list[str]]:
 
-        for i in range(1, 7):
-            excel_range = 'FieldAction' + str(i)
-            field_analysis_ws.range(excel_range).resize(row_size=1, column_size=len(headers)-1).name = excel_range
+    """Exports notes and action lists from an xleda field analysis workbook
 
+    Args:
+        input_wb (xw.Book): _description_
 
-        
-        # --------------------------------------------------
-        # Initialize Field Analysis UI
+    Returns:
+        dict[str, list[str]]: _description_
+    """
 
-        # Show/Hide Data Size Warning
-        if warning:
-            field_analysis_ws.range("Warning").value = warning_msg
-            field_analysis_ws.range("Warning").api.EntireRow.Hidden = not warning
+    target_ws = input_wb.sheets('Field Analysis')
 
-        # Collapse subsections
-        for excel_range in ['Composition', 'Summary_Stats', 'Percentiles', 'Field_Actions', 'Field_Action_Lists']:
-            field_analysis_ws.range(excel_range).api.EntireRow.Hidden = True
+    export_dict = {}    
+    
+    actions = target_ws.range('Actions').value
+    action_lists = target_ws.range('ActionLists').value
 
-       
-        
-        # --------------------------------------------------
-        # Save and return wb
-
-        wb.save(field_analysis_path)
-        return wb
+    for i in range(len(actions)):
+        export_dict[i] = action_lists[i]
 
 
+    return export_dict
