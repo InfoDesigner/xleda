@@ -66,11 +66,11 @@ export_dict = xleda_wb.export_analysis()
 
 	* Anything not marked as `False` will be included in each list.   
 
-	* The `Mark For Removal` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that field [below](#**Record%20Lists**)
+	* The `Mark For Removal` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that field [below](#record-list-details)
 
 	* You can rename `Mark For Removal` or any `Field Action` to `Anything You Want` and the list will be renamed to `anything_you_want`.
 
-	* You can see your lists in the `Field Actions Lists` section or you can use `export_analysis()` to get them into python.
+	* You can see your lists in the `Field Actions Lists` section or you can [use `export_analysis()`](#export-analysis) to get them into python.
 
 <center>
 	<figure> 
@@ -97,7 +97,7 @@ export_dict = xleda_wb.export_analysis()
 </center>
 
 
-## **Record Lists**
+## **Record List Details**
 
 * Although your data isn't edited by this tool, there are two additional columns added to support being able to create a list of records for further processing.
 
@@ -130,5 +130,5 @@ export_dict = xleda_wb.export_analysis()
 
 * `large_report=True` raises the limits to Excel's limits of 1,000,000 rows and 16,000 columns.  The closer your are to this limit, the longer it will take to produce. 
 
-* This was tested with a lot of different datasets on an average machine.  One of the largest tested was a 600 column/1,200 row df that took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\African Soil.xlsm").
+* This was tested with a lot of different datasets on an average machine.  One of the largest tested was a 600 column/1,200 row df that took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here](examples/African%20Soil.xlsm).
 
