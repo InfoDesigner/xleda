@@ -13,9 +13,15 @@ wheels/
 # Ignore archive
 archive
 
-# Ignore created workbooks
+
+
+# Ignore test files
 /*.xlsm
+/*.py
+
+# Ignore IDE settings, test script
 .vscode/settings.json
 .vscode/launch.json
 xleda.code-workspace
 outside_package.py
+.obsidian/*
