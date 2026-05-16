@@ -25,3 +25,4 @@ archive
 xleda.code-workspace
 outside_package.py
 .obsidian/*
+*.ipynb
