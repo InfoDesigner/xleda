@@ -1,4 +1,3 @@
-# Imports, vars, config
 import seaborn as sns
 import pandas as pd
 import shutil
@@ -12,46 +11,180 @@ from matplotlib.figure import Figure
 import xlwings as xw
 from xlwings import Range
 
-
 from rich.progress import (
     Progress, BarColumn, TextColumn, 
-    TimeElapsedColumn, TaskProgressColumn,
-    TaskID)
+    TimeElapsedColumn, TaskID)
+from rich.console import Console
+from rich.style import Style
+
 
 import time
 
 
 
+# --------------------------------------------------
+# Setup/global variables
 
+# Rich console
+console = Console()
 
 # Field Analysis template
 template_file = Path(__file__).parent / "xleda_template.xlsm"
 
+separator = "\n" + ("-" * 100) + "\n"
 
 # Set matplotlib theme
 mpl.use("Agg")
 plt.style.use("dark_background")
 
 
-class FieldAnalysis():
-    def __init__(self, input_df: pd.DataFrame, name: str, theme_color: str = "#053476", large_report: bool = False, overwrite: bool = False, close_wb: bool = False,):
 
-        self.source_df: pd.DataFrame = input_df.copy()
-        self.name = name
-        self.theme_color = theme_color
-        self.large_report = large_report
-        self.overwrite = overwrite
-        self.close_wb = close_wb
+class FieldAnalysis():
+
+    """
+    A class that represents an xleda Field Analysis workbook.
+
+    Methods:
+
+        create_workbook: Creates an xdleda workbook from a given dataframe. Workbook 
+                         is saved in current directory
+
+        export_analysis: Export notes, lists, data from an xleda field analysis workbook
+
+    """
+
+    def __init__(self, 
+                 input_df: pd.DataFrame, 
+                 name: str, 
+                 theme_color: str = "#053476", 
+                 large_report: bool = False, 
+                 overwrite: bool = False, 
+                 close_wb: bool = False,):
+
+        """Configures an xleda workbook
+
+        Args:
+
+            name (str): Name of the workbook to be created.
+
+            theme_color (str): A hexidecimal color used for charts/accent color.  Dark colors work better.
+
+            large_report (bool): Used to override default limits of 100,000 rows/100 columns. Sets limits to 1,000,000 rows/16,000 columns. 
+
+            overwrite (bool): Whether to overwrite existing reports with the same name.
+
+            close_wb (bool): Whether to close the workbook after it has been created.
+        
+        """
+
+        # Set base properties
+        self.name: str = name
+        self.large_report: bool = large_report
+        self.overwrite: bool = overwrite
+        self.close_wb: bool = close_wb
+        self.theme_color: str = theme_color
+        self.input_df: pd.DataFrame = input_df.copy()
+
+        # Configure Theme
+        self.theme_style: Style = Style(color=self.theme_color[:7])
+        self.silver_style = Style(color='#C0C0C0')
+        self.black_text: bool = self._use_black_text()
+
+
+        # Add placeholder properties
+        self.warning_msg: str = ""
+        self.warning: bool = False
+        self.rows = len(input_df)
+        self.columns = len(input_df.columns)
+        self.wb: xw.Book | None = None
+        self.field_analysis_ws: xw.Sheet | None = None
+
 
 
         # Set Template Path
-        self.field_analysis_path = (Path().cwd() / self.name).with_suffix(".xlsm")
-
+        self.field_analysis_path: Path = (Path().cwd() / self.name).with_suffix(".xlsm")
+        
         # Configure Source Data
-        self._configure_source_data()
+        self.source_df: pd.DataFrame = self._configure_source_data()
 
         # Create base analysis
-        self.base_analysis = self._create_base_analysis()
+        self.base_analysis: pd.DataFrame = self._create_base_analysis()
+
+
+    def _use_black_text(self) -> bool:
+        """
+        Converts theme color to RGB and calculates 
+        whether black text is required.
+
+        """
+
+        # Remove '#' if present and convert hex to RGB
+        hex_color = self.theme_color.lstrip('#')
+
+        r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        
+        # Standard formula for perceived brightness
+        brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255
+        
+        # Use black text for light backgrounds, white for dark ones
+
+        return brightness > 0.5
+
+
+
+    def _configure_source_data(self) -> pd.DataFrame:
+        
+        """
+        Configures source data for analysis and subsamples it if necessary
+
+
+        Returns:
+            source_df: A pandas dataframe object
+        
+        """
+
+
+        # --------------------------------------------------
+        # Configure variables
+
+        rows = self.rows
+        columns = self.columns
+        df = self.input_df
+
+        above_default = rows > 100_000 or columns > 100
+        above_limit = rows > 16_000 or columns > 1_000_000
+          
+
+        # Source data is above default limits
+        if above_default and not self.large_report and not above_limit:
+
+            self.warning = True
+            self.warning_msg = "This is only showing a sample because it is larger than the limits of 100,000 rows/100 columns"
+            rows = min(rows, 100_000)
+            columns = min(columns, 100)
+            
+
+        # Source data is larger than Excel's limits
+        elif above_limit:
+
+            self.warning = True
+            self.warning_msg = "This is only showing a sample because it is larger than the limits of 1,000,000 rows/16,000 columns"
+            rows = min(rows, 1_000_000)
+            columns = min(columns, 16_000)
+
+
+        # Subsample df if needed, record adjusted rows/columns
+        df = (df.iloc[:, :columns].sample(n=rows).sort_index())
+
+        self.rows = rows
+        self.columns = columns
+
+        # Add fields to Source Data to track individual records
+        df.insert(loc=0, column="Record List", value="False")
+        df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
+
+        return df
+
 
 
     def _create_base_analysis(self) -> pd.DataFrame:
@@ -62,8 +195,6 @@ class FieldAnalysis():
         # Collect metadata
 
         df = self.source_df.iloc[:, 1:-1]
-
-
 
         # Order of output fields
         col_order = ["Data type", "Memory Usage", "Memory Usage %", "Distinct", "Distinct %", "Count", "Count %", "Missing", "Missing %", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR", ]
@@ -112,7 +243,139 @@ class FieldAnalysis():
 
         return summary_df
 
-    def _create_composition_table(self, input_df: pd.DataFrame) -> Figure:
+
+
+
+    def _create_blank_template(self, progress: Progress, task_id: TaskID):
+
+        """
+        Creates a blank Field Analysis template, overwriting if necessary
+
+        """
+
+        
+        progress.update(task_id, completed=1, refresh=True)
+
+
+        # Return an error if there's an existing file and no overwrite flag
+
+        if self.field_analysis_path.is_file() and not self.overwrite:
+            
+            console.print(f"[bold red]Error: There is already a workbook named {self.field_analysis_path}![/bold red]")
+            console.print("Use overwrite=True or rename/remove the existing workbook")
+
+            return None
+
+        # Delete the file if there's an overwrite flag, return error if it's open
+
+        elif self.field_analysis_path.is_file() and self.overwrite:
+            try:
+                self.field_analysis_path.unlink(missing_ok=True)
+
+            except PermissionError:
+                console.print("[bold red]Error: The workbook cannot be overwritten while open![/bold red]")
+                return None
+
+        
+        # Create a blank copy of the template
+        shutil.copy(template_file, self.field_analysis_path)
+
+        progress.update(task_id, completed=5, refresh=True)
+
+
+
+    def _configure_template(self, progress: Progress, task_id: TaskID):
+        """
+        Set template theme and format placeholders
+
+        """
+
+        wb = self.wb
+        assert wb is not None
+        
+        self.field_analysis_ws = wb.sheets("Field Analysis")
+        ws = self.field_analysis_ws
+
+
+
+        # Set Theme and dimentions in workbook
+        ws.range("FieldAnalysisTheme").color = self.theme_color
+        if self.black_text:
+            ws.range("FieldAnalysisTheme").font.color = '#000000'
+
+        ws.range("Dimensions").value = f"rows = {self.rows}, columns = {self.columns}"
+
+        progress.update(task_id, completed=6, refresh=True)
+
+
+        # Format metadata placeholders 
+        format_from = ws.range("FormatRange")
+        format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-2))
+        format_from.api.Copy()
+        format_to.api.Select()
+        ws.api.Paste()
+
+        progress.update(task_id, completed=8, refresh=True)
+
+
+        # Clear clipboard, set selection to top, and add header values
+        wb.api.CutCopyMode = False
+        ws.range("Headers_Start").api.Select()
+        headers = self.source_df.columns.to_list()[1:]
+        ws.range("Headers_Start").value = headers
+
+        progress.update(task_id, completed=10, refresh=True)
+
+
+
+    def _add_metadata(self, progress: Progress, task_id: TaskID):
+
+        """
+        Add base analysis to Field Analysis workbook
+
+        """
+
+        # Set variables
+        ws = self.field_analysis_ws
+        df = self.base_analysis
+        assert ws is not None
+
+        progress.update(task_id, completed=1, refresh=True)
+
+
+
+
+        # Split base analysis into Field Analysis sections
+        overview_df = df.loc[["Data type", "Distinct %", "Missing %", "Memory Usage %"]]
+        composition_df = df.loc[["Memory Usage", "Distinct", "Count", "Missing"]]
+        summary_stats_df = df.loc[["Mean", "Median", "Mode", "Standard Deviation", "Variance"]]
+        percentiles_df = df.loc[["Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]]
+
+        progress.update(task_id, completed=5, refresh=True)
+
+
+
+        # Add Field Analysis sections to workbook
+        ws.range("Overview")[0, 0].value = overview_df.values
+        ws.range("Composition")[0, 0].value = composition_df.values
+        ws.range("Summary_Stats")[0, 0].value = summary_stats_df.values
+        ws.range("Percentiles")[0, 0].value = percentiles_df.values
+
+        progress.update(task_id, completed=10, refresh=True)
+
+
+
+
+    def _create_composition_plot(self, input_df: pd.DataFrame) -> Figure:
+        """Creates a composition table from a dataframe
+
+        Args:
+            input_df (pd.DataFrame): A 1 column dataframe.
+
+        Returns:
+            Figure: A matplotlib Figure object
+        """
+
 
 
         # --------------------------------------------------
@@ -143,7 +406,7 @@ class FieldAnalysis():
         y_pos = range(len(categories))[::-1]
 
         # Add bars to plot
-        bars = ax.barh(y_pos, values, color=self.theme_color, height=0.5)  # noqa: F841
+        bars = ax.barh(y_pos, values, color=self.theme_color, height=0.5, edgecolor='silver')  # noqa: F841
 
         
         # --------------------------------------------------
@@ -187,7 +450,18 @@ class FieldAnalysis():
 
         return fig
 
-    def _create_histogram(self, input_df: pd.DataFrame) -> Figure:
+
+
+    def _create_histogram_plot(self, input_df: pd.DataFrame) -> Figure:
+
+        """Creates a histogram from a dataframe
+
+        Args:
+            input_df (pd.DataFrame): A 1 column dataframe.
+
+        Returns:
+            Figure: A matplotlib Figure object
+        """
 
 
         # --------------------------------------------------
@@ -222,10 +496,12 @@ class FieldAnalysis():
 
         return fig
 
-    def _add_small_multiple(self, fig: Figure, target_range: Range):
+
+
+    def _add_small_plot(self, fig: Figure, target_range: Range):
         """
-        Adds a small chart to an Excel cell.
-        The small chart is 90% of the size of the cell and is centered.
+        Adds a small chart to an Excel cell that is centered 
+        at 90% of the size of the cell
 
         Args:
             fig (Figure): A matplotlib Figure object
@@ -260,24 +536,32 @@ class FieldAnalysis():
         except AttributeError:
             pass
 
+
+
     def _add_plots(self, progress: Progress, task_id: TaskID):
-        """Adds plots for each column of a pandas dataframe to an Excel range
+        
+        """Adds plots to an Excel range
 
         Args:
             input_wb (xw.Workbook): Target Workbook for plots
+            progress (Progress): A rich Progress object
+            task_id: A rich TaskID object
+
         """
 
         # --------------------------------------------------
         # Setup workbook objects
 
         
-        
+        ws = self.field_analysis_ws
 
-        field_analysis_ws = self.wb.sheets("Field Analysis")
+        assert ws is not None
+
+
 
         # Set initial ranges for added plots
-        histogram_range = field_analysis_ws.range("Histogram")
-        composition_range = field_analysis_ws.range("CompositionTable")
+        histogram_range = ws.range("Histogram")
+        composition_range = ws.range("CompositionTable")
 
         for col in self.source_df.iloc[:, 1:-1].columns:
 
@@ -285,9 +569,9 @@ class FieldAnalysis():
             # --------------------------------------------------
             # Add Composition Multiple
 
-            composition_table = self._create_composition_table(self.source_df[[col]])
+            composition_table = self._create_composition_plot(self.source_df[[col]])
             
-            self._add_small_multiple(target_range=composition_range, fig=composition_table)
+            self._add_small_plot(target_range=composition_range, fig=composition_table)
 
             if pd.api.types.is_numeric_dtype(self.source_df[col]):
 
@@ -296,8 +580,8 @@ class FieldAnalysis():
                 # --------------------------------------------------
                 # Add Histogram Multiple
 
-                histogram = self._create_histogram(self.source_df[[col]])
-                self._add_small_multiple(target_range=histogram_range, fig=histogram)
+                histogram = self._create_histogram_plot(self.source_df[[col]])
+                self._add_small_plot(target_range=histogram_range, fig=histogram)
 
 
 
@@ -307,309 +591,339 @@ class FieldAnalysis():
             histogram_range = histogram_range.offset(0, 1)
             composition_range = composition_range.offset(0, 1)
 
-            progress.update(task_id, advance=1)
-
-    def _configure_source_data(self):
-
-        # --------------------------------------------------
-        # Setup Source Data
-
-        # Evaluate dimensions and subsample if necessary
-        rows = len(self.source_df)
-        columns = len(self.source_df.columns)
-
-        above_default = rows > 100_000 or columns > 100
-        above_limit = rows > 16_000 or columns > 1_000_000
-        self.warning_msg = ""
-
-        # Source data is below defaults or within Excel limits with large_report = True
-        if not above_default or (self.large_report and not above_limit):
-            self.warning = False
-            self.warning_msg = ""
-
-        # Source data is being sub sampled to fit below defaults
-        elif above_default and not self.large_report:
-            self.warning = True
-            self.warning_msg = "This is only showing a sample because it is larger than the limits of 100,000 rows/100 columns"
-            rows = min(rows, 100_000)
-            columns = min(columns, 100)
-            self.source_df = (self.source_df.iloc[:, :columns].sample(n=rows).sort_index())
-
-        # Source data is being sub sampled to fit within Excel's limits
-        elif above_limit:
-            self.warning = True
-            self.warning_msg = "This is only showing a sample because it is larger than the limits of 1,000,000 rows/16,000 columns"
-            rows = min(rows, 1_000_000)
-            columns = min(columns, 16_000)
-            self.source_df = (self.source_df.iloc[:, :columns].sample(n=rows).sort_index())
-
-        # Record adjusted rows/columns 
-        self.rows = rows
-        self.columns = columns
-
-        # Add fields to Source Data to track individual records
-        self.source_df.insert(loc=0, column="Mark For Removal", value="False")
-        self.source_df["Record Hash"] = pd.util.hash_pandas_object(self.source_df, index=False)
+            progress.update(task_id, advance=1, refresh=True)
 
 
 
-    def create_workbook(self) -> None:
-        """Creates a Field Analysis workbook from a given dataframe.  
+    
 
-           Workbook is saved in current directory
+
+
+
+    def _add_source_data(self, progress: Progress, task_id: TaskID):
 
         """
+        Adds source data to the Field Analysis workbook
+
+        """
+
+        # --------------------------------------------------
+        # Set variables
+
+        ws = self.field_analysis_ws
+        assert ws is not None
+        progress.update(task_id, completed=1, refresh=True)
+
+
+        # --------------------------------------------------
+        # Add source data, format cells in Record List column
+
+        source_table = ws.tables["tbl_SourceData"]
+        source_table.update(self.source_df, index=False)
+        if source_table.data_body_range is not None:
+            source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0]) 
+
+        progress.update(task_id, completed=5, refresh=True)
+
+
+
+        # --------------------------------------------------
+        # Set Record Hash to LightHeader for contrast with source data fields
+
+        last_header = source_table.header_row_range.last_cell  # type: ignore
+        ws.range("LightHeader").copy(destination=last_header)
+        last_header.value = "Record Hash"
+        
+        last_header.columns.autofit()
+
+        progress.update(task_id, completed=10, refresh=True)
+
+
+
+    def _iniialize_ui(self, progress: Progress, task_id: TaskID):
+
+        """
+        Initializes the Field Analysis UI for use
+
+        """
+
+        # Set variables
+        ws = self.field_analysis_ws
+        wb = self.wb
+        assert ws, wb is not None
+
+        progress.update(task_id, completed=1, refresh=True)
+
+
+
+        # Adjust Named Ranges for Field List Formulas
+        ws.range("tbl_SourceData[Record Hash]").name = "RecordHashes"
+        ws.range("FieldRange").resize(row_size=1, column_size=self.columns - 2).name = "FieldRange"
+        ws.range("Notes").resize(row_size=1, column_size=self.columns - 2).name = "Notes"
+
+        for i in range(1, 7):
+            excel_range = "FieldList" + str(i)
+            ws.range(excel_range).resize(row_size=1, column_size=self.columns - 2).name = excel_range
+
+        progress.update(task_id, completed=5, refresh=True)
+
+
+        # Show/Hide Data Size Warning
+        if self.warning:
+            ws.range("Warning").value = self.warning_msg
+            ws.range("Warning").api.EntireRow.Hidden = not self.warning
+
+
+        # Collapse subsections
+        for excel_range in ["Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists",]:
+            ws.range(excel_range).api.EntireRow.Hidden = True
+
+        progress.update(task_id, completed=10, refresh=True)
+
+
+        # --------------------------------------------------
+        # Save workbook
+
+        wb.save(self.field_analysis_path)
+
+
+
+    def create_workbook(self) -> xw.Book | None:
+        """
+        Creates an xdleda workbook from a given dataframe.  
+
+        Workbook is saved in current directory
+        
+        Returns:
+            wb: An xlwings Book object
+        
+        """
+
+
 
         # --------------------------------------------------
         # Setup progress bars
 
 
         start_time = time.time()
-        print(f"Process started at {time.strftime("%H:%M:%S")}")
-
-        with Progress(
-            TextColumn("[bold blue]{task.description}"),
-            BarColumn(),
-            TaskProgressColumn(),
-            "•",
-            TimeElapsedColumn(), # Displays elapsed time
-            ) as progress:
-            
-            # 1. Register tasks to get IDs
-            task_create_template = progress.add_task("[indigo]Creating Template...", total=10)
-            task_add_metadata = progress.add_task("[indigo]Adding Metadata...", total=10)
-            task_add_plots = progress.add_task("[indigo]Adding Plots...", total=self.columns)
-            task_add_source_data = progress.add_task("[indigo]Adding Source Data...", total=10)
-            task_initialize_ui = progress.add_task("[indigo]Initializing UI...", total=10)
-
+        
+      
+        # Initial output
+        console.print(separator + f"\n Process started at {time.strftime("%H:%M:%S")}", style=self.theme_style)
+        console.print(f"\n Preparing an xleda workbook with {self.name} data \n", style=self.theme_style)
         
 
-            # --------------------------------------------------
-            # Create Field Analysis Workbook
-
-            progress.update(task_create_template, completed=1)
+        # Configure progress bar table
+        with Progress(TextColumn("{task.description}", style=self.theme_style),
+                      BarColumn(pulse_style=self.silver_style, style=self.silver_style, complete_style=self.theme_style),
+                      TextColumn("{task.percentage:>3.0f}%", style=self.theme_style),
+                      "|",
+                      TimeElapsedColumn(), # Displays elapsed time
+                      console=console,
+                      ) as progress:
             
-            # Handle existing files as appropriate
-            if self.field_analysis_path.is_file() and not self.overwrite:
-                print(f"""There is already a workbook named {self.field_analysis_path} 
-                Use overwrite=True or rename/remove the existing workbook""")
-                return None
 
-            elif self.field_analysis_path.is_file() and self.overwrite:
-                try:
-                    self.field_analysis_path.unlink(missing_ok=True)
+            # Register tasks to get IDs
+            task_create_template = progress.add_task("[self.theme_color]Creating Template...", total=10)
+            task_add_metadata = progress.add_task("[self.theme_color]Adding Metadata...", total=10)
+            task_add_plots = progress.add_task("[self.theme_color]Adding Plots...", total=self.columns)
+            task_add_source_data = progress.add_task("[self.theme_color]Adding Source Data...", total=10)
+            task_initialize_ui = progress.add_task("[self.theme_color]Initializing UI...", total=10)
 
-                except PermissionError:
-                    print("Error: The workbook cannot be overwrittten while open.")
-                    return None
-
-            
-            # Create a copy of the template and open it
-            shutil.copy(template_file, self.field_analysis_path)
-            
-            progress.update(task_create_template, completed=5)
 
 
             # --------------------------------------------------
             # Initialize Template
-
-            app = xw.App(visible=not self.close_wb, add_book=False)
-
-            self.wb = app.books.open(self.field_analysis_path, read_only=False)
-
-            field_analysis_ws = self.wb.sheets("Field Analysis")
-            field_analysis_ws.range("FieldAnalysisTheme").color = self.theme_color
-            field_analysis_ws.range("Dimensions").value = f"rows = {self.rows}, columns = {self.columns}"
-
-            progress.update(task_create_template, completed=10)
+ 
+            self._create_blank_template(progress=progress, task_id=task_create_template)
 
 
 
-            # --------------------------------------------------
-            # Split base analysis into Field Analysis sections
+            with xw.App(visible=False, add_book=False) as app:
 
-            progress.update(task_add_metadata, completed=1)
+                self.wb = app.books.open(self.field_analysis_path, read_only=False)
+                self.field_analysis_ws = self.wb.sheets('Field Analysis')
 
-            overview_df = self.base_analysis.loc[["Data type", "Distinct %", "Missing %", "Memory Usage %"]]
-            composition_df = self.base_analysis.loc[["Memory Usage", "Distinct", "Count", "Missing"]]
-            summary_stats_df = self.base_analysis.loc[["Mean", "Median", "Mode", "Standard Deviation", "Variance"]]
-            percentiles_df = self.base_analysis.loc[["Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]]
+                
+                # --------------------------------------------------
+                # Configure the template
 
-            progress.update(task_add_metadata, completed=2)
-
-
-
-            # --------------------------------------------------
-            # Format Field Analysis sections
-
-            # Format placeholders
-            format_from = field_analysis_ws.range("FormatRange")
-            format_to = (field_analysis_ws.range("FormatRange").offset(0, 1).resize(None, self.columns-2))
-            format_from.api.Copy()
-            format_to.api.Select()
-            field_analysis_ws.api.Paste()
-
-            # Clear clipboard, set selection to top, and add header values
-            self.wb.app.api.CutCopyMode = False
-            field_analysis_ws.range("Headers_Start").api.Select()
-            headers = self.source_df.columns.to_list()[1:]
-            field_analysis_ws.range("Headers_Start").value = headers
-
-            progress.update(task_add_metadata, completed=6)
+                self._configure_template(progress=progress, task_id=task_create_template)
 
 
 
-            # --------------------------------------------------
-            # Add Field Analysis sections
+                # --------------------------------------------------
+                # Add Field Analysis sections
 
-            field_analysis_ws.range("Overview")[0, 0].value = overview_df.values
-            field_analysis_ws.range("Composition")[0, 0].value = composition_df.values
-            field_analysis_ws.range("Summary_Stats")[0, 0].value = summary_stats_df.values
-            field_analysis_ws.range("Percentiles")[0, 0].value = percentiles_df.values
-
-            progress.update(task_add_metadata, completed=10)
+                self._add_metadata(progress=progress, task_id=task_add_metadata)
 
 
 
-            # --------------------------------------------------
-            # Add Plots
+                # --------------------------------------------------
+                # Add Plots
 
-            self._add_plots(task_id=task_add_plots, progress=progress)
-
-
-
-            # --------------------------------------------------
-            # Setup Source Data table
-
-            progress.update(task_add_source_data, completed=1)
-
-            # Update tbl_SourceData with source data, format "Mark For Removal" column
-            source_table = field_analysis_ws.tables["tbl_SourceData"]
-            source_table.update(self.source_df, index=False)
-            source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0])  # type: ignore
-
-            progress.update(task_add_source_data, completed=5)
-
-            # Set "Record Hash" to LightHeader for contrast with source data fields
-            last_header = field_analysis_ws.tables("tbl_SourceData").header_row_range.last_cell  # type: ignore
-            field_analysis_ws.range("LightHeader").copy(destination=last_header)
-            last_header.value = "Record Hash"
-            last_header.columns.autofit()
-
-            progress.update(task_add_source_data, completed=10)
+                self._add_plots(task_id=task_add_plots, progress=progress)
 
 
 
-            # --------------------------------------------------
-            # Adjust Named Ranges for Field Action Formulas
+                # --------------------------------------------------
+                # Setup Source Data table
 
-            field_analysis_ws.range("tbl_SourceData[Record Hash]").name = "RecordHashes"
-            field_analysis_ws.range("FieldRange").resize(row_size=1, column_size=len(headers) - 1).name = "FieldRange"
-            field_analysis_ws.range("Notes").resize(row_size=1, column_size=len(headers) - 1).name = "Notes"
-
-            for i in range(1, 7):
-                excel_range = "FieldAction" + str(i)
-                field_analysis_ws.range(excel_range).resize(row_size=1, column_size=len(headers) - 1).name = excel_range
+                self._add_source_data(progress=progress, task_id=task_add_source_data)
 
 
 
-            # --------------------------------------------------
-            # Initialize Field Analysis UI
+                # --------------------------------------------------
+                # Initialize the UI
 
-            progress.update(task_initialize_ui, completed=1)
-
-            # Show/Hide Data Size Warning
-            if self.warning:
-                field_analysis_ws.range("Warning").value = self.warning_msg
-                field_analysis_ws.range("Warning").api.EntireRow.Hidden = not self.warning
-
-            progress.update(task_initialize_ui, completed=5)
+                self._iniialize_ui(progress=progress, task_id=task_initialize_ui)
 
 
-            # Collapse subsections
-            for excel_range in ["Composition", "Summary_Stats", "Percentiles", "Field_Actions", "Field_Action_Lists",]:
-                field_analysis_ws.range(excel_range).api.EntireRow.Hidden = True
 
 
-            progress.update(task_initialize_ui, completed=7)
-
-            # --------------------------------------------------
-            # Save workbook, close if required, and return it
-
-            self.wb.save(self.field_analysis_path)
-
-            if self.close_wb:
-                self.wb.close()
-                app.quit()
-
-
-            progress.update(task_initialize_ui, completed=10)
 
         
         # Print exit message/file path
         duration = time.time() - start_time
 
-        print(f"Process completed after {int(duration)} seconds")
-
-        print(f"{self.field_analysis_path}")
-
-
-
-    def export_analysis(self, close_wb: bool =False) -> dict[str, list[str]]:
+        console.print(f"\n xleda workbook created in {int(duration)} seconds \n \n", style=self.theme_style)
+        console.print(f"location: \n {self.field_analysis_path} \n" + separator, style=self.theme_style)
         
-        """Exports notes and action lists from an xleda field analysis workbook
 
-        Args:
-            close_wb: Leave the analysis workbook open after import or not.  Default is False
+        return self.wb
+    
+
+
+    def export_analysis(self) -> dict[str, dict[str, list] | pd.DataFrame]:
+        
+        """Export notes, lists, data from an xleda field analysis workbook
 
         Returns:
-            dict[str, list[str]]: Dictionary of exported notes and action lists
+
+            export_dict: Dictionary of exported lists, notes, and data.
+
+            export_dict['notes']: Any lists showing in the compiled lists section
+            
+            export_dict['lists']: Any field notes you've added
+
+            export_dict['source_data']: Unaltered source data with `Record Hash`/`Record List` columns added.
+
+            export_dict['altered_source_data']: Source data from the workbook that includes any edits made such 
+                as removing records, renaming fields, etc.  Note that data types will likely change in the 
+                round-trip translation.
 
         """
-
-
+        
+        
         # --------------------------------------------------
-        # Setup vars
-
-
-        # app = xw.App(visible=not close_wb, add_book=False)
-        wb = xw.books.open(self.field_analysis_path)
-
-        target_ws = wb.sheets("Field Analysis")
+        # Setup placeholder vars
 
         export_dict = {}
-        notes_dict = {}
+        notes = {}
+        lists = {}
+
 
 
         # --------------------------------------------------
-        # Export Notes/action lists from workbook
+        # Configure output
 
-        field_notes = target_ws.range("Notes").value
-        fields = target_ws.range("FieldRange").value
 
-        action_names = target_ws.range("Field_Action_Lists").value
-        action_lists = target_ws.range("ActionLists").value[:-1]
+        start_time = time.time()
+        console.print(f"Process started at {time.strftime("%H:%M:%S")}", style=self.theme_style)
         
-        
-    
-        # --------------------------------------------------
-        # Add Notes to export_dict
 
-        for (i, note) in enumerate(field_notes):
-            if note != "Notes":
-                notes_dict[fields[i]] = note
-
-        export_dict['notes'] = notes_dict
-
-
-        # --------------------------------------------------
-        # Add action_lists to export_dict
-
-        for (i, action) in enumerate(action_names):
+        # Configure progress bar table
+        with Progress(TextColumn("{task.description}", style=self.theme_style),
+                      BarColumn(pulse_style=self.silver_style, style=self.silver_style, complete_style=self.theme_style),
+                      TextColumn("{task.percentage:>3.0f}%", style=self.theme_style),
+                      "|",
+                      TimeElapsedColumn(), # Displays elapsed time
+                      console=console,
+                      ) as progress:
             
-            if action:
-                action_name = action[:-3]
-                export_dict[action_name] = ast.literal_eval(action_lists[i])
+            # Register tasks to get IDs, show progress bar
+            export_analysis = progress.add_task("Exporting Analysis...", total=10)
+            progress.update(export_analysis, completed=1, refresh=True)
+
+
+
+            # --------------------------------------------------
+            # Setup vars
+
+            with xw.App(visible=False, add_book=False) as app:
+
+                wb = app.books.open(self.field_analysis_path)
+                ws = wb.sheets("Field Analysis")
+
+
+                progress.update(export_analysis, completed=5, refresh=True)
+
+
+
+                # --------------------------------------------------
+                # Export lists/notes from workbook
+
+
+                # Notes/Fields
+                field_notes = ws.range("Notes").value
+                fields = ws.range("FieldRange").value
+
+                # Compiled Lists
+                compiled_lists_names = ws.range("Compiled_Lists").value
+                compiled_lists = ws.range("Compiled_Lists").offset(0, 1).value
+                
+                progress.update(export_analysis, completed=7, refresh=True)
+            
+
+
+                # --------------------------------------------------
+                # Clean up/add notes to export_dict
+
+                for (i, note) in enumerate(field_notes):
+                    if note != "Notes":
+                        notes[fields[i]] = note
+
+                export_dict['notes'] = notes
+
+                progress.update(export_analysis, completed=8, refresh=True)
+
+
+
+                # --------------------------------------------------
+                # Clean up/add lists to export_dict
+
+                for (i, list_name) in enumerate(compiled_lists_names):
+                    
+                    if list_name:
+                        lists[list_name[:-3]] = ast.literal_eval(compiled_lists[i])
+
+                export_dict['lists'] = lists
+
+                progress.update(export_analysis, completed=9, refresh=True)
+
+
+
+                # --------------------------------------------------
+                # Add Data sets to export_dict
+                
+                # Source Data
+                export_dict['source_data'] = self.source_df
+
+
+                # Altered Source Data
+                export_dict['altered_source_data'] = ws.tables['tbl_SourceData'].range.options(pd.DataFrame, index=False).value
+
+
+                progress.update(export_analysis, completed=10, refresh=True)
+
+        
+        
+        # --------------------------------------------------
+        # Print output
+        
+        duration = time.time() - start_time
+        console.print(separator + f"Export completed after {int(duration)} seconds", style=self.theme_style)
+
 
 
         return export_dict
