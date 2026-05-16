@@ -1,30 +1,26 @@
 # **xleda is a Microsoft Excel powered EDA tool for Python data.**
 
-* Easily produces a Microsoft Excel workbook from a pandas dataframe that is highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
+* Produces a Microsoft Excel workbook from a pandas dataframe that is highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
 
-* Microsoft Excel is great for EDA:
-
-	* Visually explore your data, navigate with your keyboard, take notes, mark fields/records for editing, share your workbook with other contributors.
+* Visually explore your data, navigate with your keyboard, take field/record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.
 
 * See [some example xleda workbooks](examples).
-
 
 <center>
 	<figure> 
 		<img src="docs/img/top_view.gif" width="700" alt="Example Top View"> 
-		<figcaption>An xleda workbook made with with Titanic passenger data.</figcaption> 
+		<figcaption>An xleda workbook made with Titanic passenger data.</figcaption> 
 	</figure>
 </center>
 
-# **xleda is Not a Data Transformation Tool**
-
-* This is not intended to edit your data.  It is simply a way to quickly get Python data into Microsoft Excel so that you can see, document, and understand it.
 
 # **Requirements/Compatibility**
 
-* Requires Microsoft Excel.  Should work for most MS Office SKUs.
+* Requires Microsoft Excel to create the workbook. 
 
-* It has been tested on Windows though it should also work on MacOS.
+* It has been tested on Windows though it should also work on MacOS.  
+
+* xleda workbooks should work in anything that reads Microsoft Excel workbooks.
 
 
 # **Quick Start**
@@ -38,17 +34,17 @@ from xleda import FieldAnalysis
 df = sns.load_dataset("titanic")  
 
 # Configures an xleda workbook
-xleda_wb = FieldAnalysis(input_df=df,
-                         name="Titanic",
-                         theme_color="#053476",
-                         overwrite=True)
+xleda = FieldAnalysis(input_df=df,
+                      name="Titanic",
+                      theme_color="#053476",
+                      overwrite=True)
 
 # Creates the workbook
-xleda_wb.create_workbook()
+wb = xleda.create_workbook()
   
 
-# Imports your analysis back into Python
-export_dict = xleda_wb.export_analysis()
+# Imports your data/analysis back into Python
+export_dict = xleda.export_analysis()
 
 ```
 
@@ -61,25 +57,9 @@ export_dict = xleda_wb.export_analysis()
 
 ## **Theme Color**
 
-* `theme_color` sets the primary color of the charts and the color of the headings in the workbook.  
-
-* Because this tool creates workbooks in dark mode, choose a dark color though any hex color will technically work.
-
+* `theme_color` sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice.  
+  
 ## **Field/Record Lists**
-
-* The `Field Lists` helps you create lists of the fields in your data.  
-
-	* Anything not marked as `False` will be included in each list.   
-
-	* The `Record List` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that field [below](#**Record%20List%20Details**)
-
-	* You can see your lists in the `Field Actions Lists` section or you can use `export_analysis()` to get them into Python.
-
-	* You can rename `Record List` or any `FieldList` to `Anything You Want` and the list will be renamed to `anything_you_want`.
-
-	* The Compiled Lists section formats your lists as python lists for easy copy/pasting.
-
-	* Caution: Altering the Field Analysis worksheet may offset some of the few formulas in this workbook which compile your lists.   Spot check them before using them if you have.
 
 
 <center>
@@ -89,10 +69,26 @@ export_dict = xleda_wb.export_analysis()
 	</figure>
 </center>
 
+* The `Field Lists` section helps you create lists of the fields in your data.  
+
+	* Anything not marked as `False` will be included in each list.   
+
+	* The `Record List` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that [below](#**Record%20List%20Details**)
+
+	* You can see your lists in the `Compiled Lists` section.  
+
+	* You can rename `Record List` or any `Field List` to `Anything You Want` and the list will be renamed to `anything_you_want`.
+
+	* The Compiled Lists section formats your lists as python lists for easy copy/pasting.
+
+	* You can use `export_analysis()` to get your lists, and other things, back into Python.  See details [below](##%20**Exporting%20back%20into%20Python**).
+
+	** *Altering the Field Analysis worksheet may offset some of the few formulas in this workbook which compile your lists.   Spot check them before using them if you have.* **
+
 <center>
 	<figure> 
 		<img src="docs/img/completed_field_analysis.webp" width="606" alt="Field Actions"> 
-		<figcaption>Example of a completed field analysis of Titanic passenger data.</figcaption> 
+		<figcaption>A completed xleda workbook of Titanic passenger data.</figcaption> 
 	</figure>
 </center>
 
@@ -106,16 +102,18 @@ export_dict = xleda_wb.export_analysis()
 
 ## **Exporting back into Python**
 
-*  `xleda_wb.export_analysis()` exports the notes/lists/data from your workbook into Python.  
+* `export_analysis()` exports your xleda analysis back into Python.  
  
-* This function assumes you haven't altered the structure of your workbook such as adding rows/columns.  It is provided as a convenience and is otherwise unsupported.  
+* This function assumes you haven't altered the structure of your workbook such as adding rows/columns.  
 
 * The dictionary includes:
 
 	* `lists`: Any lists showing in the compiled lists section
 	* `notes`: Any field notes you've added
 	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List` columns.
-	* `altered_source_data`: source data from the workbook that includes any manual edits you've made such as removing records, renaming fields, etc.  Note that data types will likely change in the round-trip translation.
+	* `altered_source_data`: source data from the workbook that includes any manual edits you've made such as removing records, renaming fields, etc. 
+
+	 ** *Note that data types will likely change in the round-trip translation.* **
 
 
 <center>
@@ -129,7 +127,7 @@ export_dict = xleda_wb.export_analysis()
 
 ## **Limits with Large Data Sets**
 
-* This creates EDA workbooks for most data sets in 10-20 seconds.
+* xleda creates workbooks for most data sets in 10-20 seconds.
 
 <center>
 	<figure> 
@@ -143,7 +141,7 @@ export_dict = xleda_wb.export_analysis()
 
 * `large_report=True` raises the limits to Excel's limits of 1,000,000 rows and 16,000 columns.  The closer your are to this limit, the longer it will take to produce. 
 
-* One of the largest data sets tested was a 600 column/1,200 row dataframe.  It took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\African Soil.xlsm").
+* One of the largest data sets tested was a 600 column/1,200 row dataframe.  It took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\african_soil.xlsm").
 
 
 ## **VBA Code**
