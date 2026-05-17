@@ -22,6 +22,11 @@ import time
 
 
 
+
+
+
+
+
 # --------------------------------------------------
 # Setup/global variables
 
@@ -109,6 +114,7 @@ class FieldAnalysis():
 
         # Create base analysis
         self.base_analysis: pd.DataFrame = self._create_base_analysis()
+
 
 
     def _use_black_text(self) -> bool:
@@ -245,7 +251,6 @@ class FieldAnalysis():
 
 
 
-
     def _create_blank_template(self, progress: Progress, task_id: TaskID):
 
         """
@@ -298,11 +303,14 @@ class FieldAnalysis():
 
 
 
-        # Set Theme and dimentions in workbook
-        ws.range("FieldAnalysisTheme").color = self.theme_color
-        if self.black_text:
-            ws.range("FieldAnalysisTheme").font.color = '#000000'
+        # Set Theme
+        for sheet in wb.sheets:
+            sheet.range("Theme").color = self.theme_color
+            if self.black_text:
+                sheet.range("Theme").font.color = '#000000'
 
+
+        # Add dimentions to workbook
         ws.range("Dimensions").value = f"rows = {self.rows}, columns = {self.columns}"
 
         progress.update(task_id, completed=6, refresh=True)
@@ -328,6 +336,55 @@ class FieldAnalysis():
 
 
 
+    def _add_overview(self, progress: Progress, task_id: TaskID):
+
+
+        progress.update(task_id, completed=1, refresh=True)
+
+
+        # --------------------------------------------------
+        # Setup variables and overview data
+
+
+        # Set variables
+        wb = self.wb
+        assert wb is not None
+        ws = wb.sheets("Overview")
+        df = self.input_df
+        
+        progress.update(task_id, completed=2, refresh=True)
+
+        overview_metadata = {'Rows': self.rows,
+                             'Columns': self.columns,
+                             'Memory Usage': f"{df.memory_usage(deep=True).sum()} bytes",
+                             'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
+                             'Missing %': float(df.isnull().mean().mean()),
+                             }
+
+        
+        # Configure overview df
+        df = self.base_analysis.T
+        df.insert(0, 'Field Notes', '')
+        df.insert(0, 'Definition', '')
+        df.insert(0, 'Field', df.index)
+
+        progress.update(task_id, completed=3, refresh=True)
+
+
+        # --------------------------------------------------
+        # Add metadata/overview table, configure the Field Notes column 
+
+        ws.range("Metadata").options(transpose=True).value = list(overview_metadata.values())
+
+        overview_table = ws.tables["tbl_Overview"]
+        overview_table.update(df, index=False)
+        ws.range('tbl_Overview[Field Notes]')[0].formula = r'=IF(INDEX(Notes,1,ROW(A1))="Notes","",INDEX(Notes,1,ROW(A1)))'
+        
+        
+        progress.update(task_id, completed=4, refresh=True)
+
+
+
     def _add_metadata(self, progress: Progress, task_id: TaskID):
 
         """
@@ -339,10 +396,6 @@ class FieldAnalysis():
         ws = self.field_analysis_ws
         df = self.base_analysis
         assert ws is not None
-
-        progress.update(task_id, completed=1, refresh=True)
-
-
 
 
         # Split base analysis into Field Analysis sections
@@ -362,7 +415,6 @@ class FieldAnalysis():
         ws.range("Percentiles")[0, 0].value = percentiles_df.values
 
         progress.update(task_id, completed=10, refresh=True)
-
 
 
 
@@ -538,7 +590,7 @@ class FieldAnalysis():
 
 
 
-    def _add_plots(self, progress: Progress, task_id: TaskID):
+    def _add_small_plots(self, progress: Progress, task_id: TaskID):
         
         """Adds plots to an Excel range
 
@@ -595,11 +647,6 @@ class FieldAnalysis():
 
 
 
-    
-
-
-
-
     def _add_source_data(self, progress: Progress, task_id: TaskID):
 
         """
@@ -650,7 +697,8 @@ class FieldAnalysis():
         # Set variables
         ws = self.field_analysis_ws
         wb = self.wb
-        assert ws, wb is not None
+        assert ws is not None
+        assert wb is not None
 
         progress.update(task_id, completed=1, refresh=True)
 
@@ -658,12 +706,12 @@ class FieldAnalysis():
 
         # Adjust Named Ranges for Field List Formulas
         ws.range("tbl_SourceData[Record Hash]").name = "RecordHashes"
-        ws.range("FieldRange").resize(row_size=1, column_size=self.columns - 2).name = "FieldRange"
-        ws.range("Notes").resize(row_size=1, column_size=self.columns - 2).name = "Notes"
+        ws.range("FieldRange").resize(row_size=1, column_size=self.columns).name = "FieldRange"
+        ws.range("Notes").resize(row_size=1, column_size=self.columns).name = "Notes"
 
-        for i in range(1, 7):
+        for i in range(1, 9):
             excel_range = "FieldList" + str(i)
-            ws.range(excel_range).resize(row_size=1, column_size=self.columns - 2).name = excel_range
+            ws.range(excel_range).resize(row_size=1, column_size=self.columns).name = excel_range
 
         progress.update(task_id, completed=5, refresh=True)
 
@@ -751,6 +799,11 @@ class FieldAnalysis():
                 self._configure_template(progress=progress, task_id=task_create_template)
 
 
+                #---------------------------------------------------
+
+                self._add_overview(progress=progress, task_id=task_add_metadata)
+
+
 
                 # --------------------------------------------------
                 # Add Field Analysis sections
@@ -762,7 +815,7 @@ class FieldAnalysis():
                 # --------------------------------------------------
                 # Add Plots
 
-                self._add_plots(task_id=task_add_plots, progress=progress)
+                self._add_small_plots(task_id=task_add_plots, progress=progress)
 
 
 
@@ -822,6 +875,8 @@ class FieldAnalysis():
         notes = {}
         lists = {}
 
+        # TODO: Add definitons
+
 
 
         # --------------------------------------------------
@@ -861,7 +916,7 @@ class FieldAnalysis():
 
 
                 # --------------------------------------------------
-                # Export lists/notes from workbook
+                # Export lists/notes/defintions from workbook
 
 
                 # Notes/Fields
@@ -873,7 +928,17 @@ class FieldAnalysis():
                 compiled_lists = ws.range("Compiled_Lists").offset(0, 1).value
                 
                 progress.update(export_analysis, completed=7, refresh=True)
-            
+
+
+
+                # --------------------------------------------------
+                # Export, clean up, add definitions to export_dict
+                
+                definitions = wb.sheets("Overview").range(
+                    'tbl_Overview[[#Data], [Field]:[Definition]]').options(dict).value
+                definitions = {k: v for k, v in definitions.items() if v is not None}
+                export_dict['definitions'] = definitions
+
 
 
                 # --------------------------------------------------
@@ -909,7 +974,6 @@ class FieldAnalysis():
                 # Source Data
                 export_dict['source_data'] = self.source_df
 
-
                 # Altered Source Data
                 export_dict['altered_source_data'] = ws.tables['tbl_SourceData'].range.options(pd.DataFrame, index=False).value
 
@@ -925,5 +989,43 @@ class FieldAnalysis():
         console.print(separator + f"Export completed after {int(duration)} seconds", style=self.theme_style)
 
 
-
         return export_dict
+
+
+
+    def add_plot(self, title: str, figure: Figure):
+        """Adds an additonal plot worksheet
+
+        Args:
+            title (str): Title of the worksheet
+            figure (Figure): A matplotlib figure object
+        """
+
+        
+        console.print("Adding additonal plot... \n", style=self.theme_style)
+
+        with xw.App(visible=False, add_book=False) as app:
+
+
+            # Open workbook, create a copy of the ws template
+            wb = app.books.open(self.field_analysis_path)
+            ws = wb.sheets("SinglePlot").copy(name=title)
+            ws.visible = True
+
+            # Set target range and title value
+            plot_range = ws.range("SinglePlot")
+            ws.range("SinglePlotTitle").value = title
+            
+            ws.pictures.add(figure, 
+                            name=title, 
+                            update=True,
+                            left=plot_range.left, 
+                            top=plot_range.top)
+            
+            wb.save()
+
+        console.print(f"{title} plot added to {self.field_analysis_path} \n", style=self.theme_style)
+
+
+
+    

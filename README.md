@@ -2,6 +2,8 @@
 
 * Produces a Microsoft Excel workbook from a pandas dataframe that is highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
 
+* There are some amazing EDA tools for Python.  You shouldn't have to start from scratch to include Microsoft Excel among them.
+
 * Visually explore your data, navigate with your keyboard, take field/record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.
 
 * See [some example xleda workbooks](examples).
@@ -83,7 +85,7 @@ export_dict = xleda.export_analysis()
 
 	* You can use `export_analysis()` to get your lists, and other things, back into Python.  See details [below](##%20**Exporting%20back%20into%20Python**).
 
-	** *Altering the Field Analysis worksheet may offset some of the few formulas in this workbook which compile your lists.   Spot check them before using them if you have.* **
+	* Altering the Field Analysis worksheet may offset the formulas which compile your lists.   Spot check them before using them if you have.
 
 <center>
 	<figure> 
@@ -110,8 +112,10 @@ export_dict = xleda.export_analysis()
 
 	* `lists`: Any lists showing in the compiled lists section
 	* `notes`: Any field notes you've added
+	* `definitions`: Any field definitions you've added.
 	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List` columns.
 	* `altered_source_data`: source data from the workbook that includes any manual edits you've made such as removing records, renaming fields, etc. 
+	
 
 	 ** *Note that data types will likely change in the round-trip translation.* **
 
@@ -143,6 +147,25 @@ export_dict = xleda.export_analysis()
 
 * One of the largest data sets tested was a 600 column/1,200 row dataframe.  It took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\african_soil.xlsm").
 
+
+## **Extensible**
+
+* A convenience function, `add_plot`, is included to add additional worksheets with a plot of your choosing after creating your workbook.   The workbook from the example below can be found here. 
+
+```python
+# Style the additional plots (optional)
+plt.style.use("dark_background")
+
+# Create additional plots
+pair_plots = sns.pairplot(df, hue="species").figure
+null_matrix = msno.matrix(df).get_figure()
+ 
+# Adds the additional plots to worksheets named 'title'
+xleda.add_plot(title="Pair Plots", figure=pair_plots)
+xleda.add_plot(title="Null Matrix", figure=null_matrix)
+```
+
+* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  xlwings is recommended if you need more. 
 
 ## **VBA Code**
 

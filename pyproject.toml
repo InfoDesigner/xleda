@@ -9,6 +9,12 @@ authors = [
 license = {text = "Apache-2.0"} 
 
 requires-python = ">=3.14"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+
 dependencies = [
     "ipywidgets>=8.1.8",
     "matplotlib>=3.10.9",
@@ -30,7 +36,13 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "dython>=0.7.12",
     "faker>=40.15.0",
+    "missingno>=0.5.2",
     "notebook>=7.5.6",
     "pyarrow>=24.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/InfoDesigner/xleda"
+Issues = "https://github.com/InfoDesigner/xleda/issues"
