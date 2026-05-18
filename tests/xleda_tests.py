@@ -72,11 +72,8 @@ for i, fake_df in enumerate(fake_dfs):
 
     timing['start'] = start
 
-    create_workbook(input_df=fake_df,
-                    close_wb=True, 
-                    large_report=True, 
-                    name=fake_df_names[i]
-                    )
+
+
     
     timing['end'] = time.time() - start
 

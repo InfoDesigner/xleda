@@ -26,3 +26,4 @@ xleda.code-workspace
 outside_package.py
 .obsidian/*
 *.ipynb
+uv publish steps.md

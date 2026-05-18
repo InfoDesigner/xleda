@@ -7,11 +7,11 @@ Sub ToggleSection()
     Dim n As Variant
 
 
-    SubSections = Array("Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists")
+    SubSections = Array("Field_Notes", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists")
 
-    'Pull section name from text of selected shape
-    SectionName = ActiveSheet.Shapes(Application.Caller).TextFrame.Characters.Text
-   
+    'Pull section name from name of selected shape
+    SectionName = ActiveSheet.Shapes(Application.Caller).name
+
 
     'Toggle section visibility
     Hidden = Range(Replace(SectionName, " ", "_")).EntireRow.Hidden

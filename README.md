@@ -2,9 +2,9 @@
 
 * Produces a Microsoft Excel workbook from a pandas dataframe that is highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
 
-* There are some amazing EDA tools for Python.  You shouldn't have to start from scratch to include Microsoft Excel among them.
+* Visually explore your data, navigate with your keyboard, take field or record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.
 
-* Visually explore your data, navigate with your keyboard, take field/record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.
+* There are some amazing EDA tools for Python.  You shouldn't have to start from scratch to include Microsoft Excel among them.
 
 * See [some example xleda workbooks](examples).
 
@@ -28,26 +28,19 @@
 # **Quick Start**
 
 ```python
-import seaborn as sns
 from xleda import FieldAnalysis
-  
+import seaborn as sns
 
-# < Insert your data here >
-df = sns.load_dataset("titanic")  
+# < your dataframe goes here >
+df = sns.load_dataset("titanic")
+ 
 
-# Configures an xleda workbook
+# Configure xleda
 xleda = FieldAnalysis(input_df=df,
-                      name="Titanic",
-                      theme_color="#053476",
-                      overwrite=True)
+                      name="Titanic")
 
-# Creates the workbook
+# Create workbook
 wb = xleda.create_workbook()
-  
-
-# Imports your data/analysis back into Python
-export_dict = xleda.export_analysis()
-
 ```
 
 
@@ -60,7 +53,62 @@ export_dict = xleda.export_analysis()
 ## **Theme Color**
 
 * `theme_color` sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice.  
+
+<center>
+	<figure> 
+		<img src="docs/img/theme_colors.webp" width="400" alt="Export Dict"> 
+		<figcaption>theme_color affects the workbooks and default charts.  
+		</figcaption> 
+	</figure>
+</center>
+
+
+## **Add Additional Plots**
+
+* `xleda.add_plot()` will add additional worksheets with a plot of your choosing. 
+
+	* No styling/sizing of additional plots is performed.
+	
+	* The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found [here](examples\_Penguins (includes extra plots).xlsm).
+
+
+```python
+from xleda import FieldAnalysis
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import missingno as msno
   
+
+# Import example data
+df = penguins = sns.load_dataset("penguins")
+  
+
+# Style the additional plots (optional)
+plt.style.use("dark_background")
+
+
+# Create additional plots
+pair_plots = sns.pairplot(df, hue="species").figure
+null_matrix = msno.matrix(df).get_figure()
+
+
+# Resize the null matrix for good measure
+null_matrix.set_size_inches(9.35, 4.5) # type: ignore
+
+
+# Configures an xleda workbook
+xleda = FieldAnalysis(input_df=df,
+                      name="Penguins",
+                      theme_color="#4C4C4C",
+                      add_plots={'Pair Plots': pair_plots,
+                                 'Null Matrix': null_matrix})
+
+# Creates the workbook
+xleda.create_workbook()
+
+```
+
 ## **Field/Record Lists**
 
 
@@ -90,9 +138,10 @@ export_dict = xleda.export_analysis()
 <center>
 	<figure> 
 		<img src="docs/img/completed_field_analysis.webp" width="606" alt="Field Actions"> 
-		<figcaption>A completed xleda workbook of Titanic passenger data.</figcaption> 
+		<figcaption>A completed xleda workbook of Titanic passenger data that uses lists.</figcaption> 
 	</figure>
 </center>
+
 
 ## **Record List Details**
 
@@ -106,19 +155,19 @@ export_dict = xleda.export_analysis()
 
 * `export_analysis()` exports your xleda analysis back into Python.  
  
-* This function assumes you haven't altered the structure of your workbook such as adding rows/columns.  
+* All exported data comes from the Field Analysis worksheet.
+
+* It is assumed you haven't altered the structure of your workbook such as adding rows/columns. 
 
 * The dictionary includes:
 
-	* `lists`: Any lists showing in the compiled lists section
-	* `notes`: Any field notes you've added
+	* `description`: Dataframe description if you've added one
 	* `definitions`: Any field definitions you've added.
+	* `notes`: Any field notes you've added
+	* `lists`: Any lists showing in the compiled lists section
 	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List` columns.
 	* `altered_source_data`: source data from the workbook that includes any manual edits you've made such as removing records, renaming fields, etc. 
-	
-
-	 ** *Note that data types will likely change in the round-trip translation.* **
-
+		* ** *Note that data types will likely change in the round-trip translation.* **
 
 <center>
 	<figure> 
@@ -131,41 +180,23 @@ export_dict = xleda.export_analysis()
 
 ## **Limits with Large Data Sets**
 
-* xleda creates workbooks for most data sets in 10-20 seconds.
+* xleda creates workbooks for most data sets less than 20 seconds.  To ensure that they are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning if you hit a limit.
+
 
 <center>
 	<figure> 
 		<img src="docs/img/create_example.webp" width="400" alt="Export Dict"> 
-		<figcaption>The Air Quality example took only 7 seconds to create. 
+		<figcaption>The Penguin example from above that includes extra plots took only 7 seconds to create. 
 		</figcaption> 
 	</figure>
 </center>
 
-* To ensure that they are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning if you hit a limit.
-
 * `large_report=True` raises the limits to Excel's limits of 1,000,000 rows and 16,000 columns.  The closer your are to this limit, the longer it will take to produce. 
 
-* One of the largest data sets tested was a 600 column/1,200 row dataframe.  It took ~12 minutes to create but is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\african_soil.xlsm").
+* One of the larger/more complex data sets tested was a 600 column/1,200 row dataframe.  
+	* It took ~12 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
+	* It is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here]("examples\african_soil.xlsm").
 
-
-## **Extensible**
-
-* A convenience function, `add_plot`, is included to add additional worksheets with a plot of your choosing after creating your workbook.   The workbook from the example below can be found here. 
-
-```python
-# Style the additional plots (optional)
-plt.style.use("dark_background")
-
-# Create additional plots
-pair_plots = sns.pairplot(df, hue="species").figure
-null_matrix = msno.matrix(df).get_figure()
- 
-# Adds the additional plots to worksheets named 'title'
-xleda.add_plot(title="Pair Plots", figure=pair_plots)
-xleda.add_plot(title="Null Matrix", figure=null_matrix)
-```
-
-* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  xlwings is recommended if you need more. 
 
 ## **VBA Code**
 
@@ -177,4 +208,8 @@ xleda.add_plot(title="Null Matrix", figure=null_matrix)
 		<figcaption>Use row groupings to navigate if you can't use VBA.</figcaption> 
 	</figure>
 </center>
+
+## **Extensible**
+
+* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  [xlwings](https://www.xlwings.org/) is recommended if you need more. 
 
