@@ -307,7 +307,6 @@ class FieldAnalysis():
         
         self.field_analysis_ws = wb.sheets("Field Analysis")
         ws = self.field_analysis_ws
-        ws.activate()
 
 
         # Set Name
@@ -665,7 +664,6 @@ class FieldAnalysis():
         
         ws = self.field_analysis_ws
         assert ws is not None
-        ws.activate()
         
         
         # Set initial ranges for added plots
@@ -752,6 +750,7 @@ class FieldAnalysis():
         assert ws is not None
         assert wb is not None
 
+
         progress.update(task_id, completed=1, refresh=True)
 
 
@@ -836,7 +835,7 @@ class FieldAnalysis():
       
         # Initial output
         console.print(separator + f"\nPreparing an xleda workbook with {self.name} data", style=self.theme_style)
-        console.print(f"\nProcess started at {time.strftime("%H:%M:%S")}\n", style=self.theme_style)
+        console.print(f"\nProcess started at {time.strftime('%H:%M:%S')}\n", style=self.theme_style)
         
 
         # Configure progress bar table
@@ -970,7 +969,7 @@ class FieldAnalysis():
 
 
         start_time = time.time()
-        console.print(f"Process started at {time.strftime("%H:%M:%S")}", style=self.theme_style)
+        console.print(f"Process started at {time.strftime('%H:%M:%S')}", style=self.theme_style)
         
 
         # Configure progress bar table
