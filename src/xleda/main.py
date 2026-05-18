@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 import ast
 import sys
+import random
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -75,7 +76,9 @@ class FieldAnalysis():
 
             name (str): Name of the workbook to be created.
 
-            theme_color (str): A hexidecimal color used for charts/accent color.  Dark colors work better.
+            theme_color (str): A hexidecimal color used for charts/accent color.  
+                               Dark colors work better.    
+                               Use theme_color='random' for random colors.
 
             large_report (bool): Used to override default limits of 100,000 rows/100 columns. 
                                  Sets limits to 1,000,000 rows/16,000 columns. 
@@ -96,7 +99,12 @@ class FieldAnalysis():
         self.name: str = name
         self.large_report: bool = large_report
         self.overwrite: bool = overwrite
-        self.theme_color: str = theme_color
+
+        # Set theme
+        if theme_color == 'random':
+            self.theme_color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+        else:
+            self.theme_color: str = theme_color
         self.input_df: pd.DataFrame = input_df.copy()
         self.additional_plots: dict[str, Figure] | dict = add_plots
 
@@ -167,7 +175,7 @@ class FieldAnalysis():
         df = self.input_df
 
         above_default = rows > 100_000 or columns > 100
-        above_limit = rows > 16_000 or columns > 1_000_000
+        above_limit = rows > 1_000_000 or columns > 16_000
           
 
         # Source data is above default limits
@@ -218,6 +226,11 @@ class FieldAnalysis():
         rows_count = len(df)
         desc = df.describe(include="all", percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])
 
+
+        # Add missing describe entries if they don't exist
+        all_describe_fields = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'unique', 'top', 'freq', '5%', '95%']
+        desc = desc.reindex(all_describe_fields)
+
         # Add additional components into a DataFrame
         info_df = pd.DataFrame(
             {
@@ -252,9 +265,13 @@ class FieldAnalysis():
             "max": "Max",
             }
 
-        # Rename index fields, reorder, and filter return rows
+        # Rename index fields, reorder, filter rows
         summary_df = summary_df.rename(index=field_map)
         summary_df = summary_df.loc[row_order]
+
+        # convert to string to prevent issues with timedelta/random datatypes
+        summary_df = summary_df.astype(str)
+
 
         return summary_df
 
@@ -311,6 +328,7 @@ class FieldAnalysis():
 
         # Set Name
         ws.range("Name").value = self.name
+        ws.range("Name").columns.autofit()
 
         # Set Theme
         for sheet in wb.sheets:
@@ -326,11 +344,13 @@ class FieldAnalysis():
 
 
         # Format metadata placeholders 
-        format_from = ws.range("FormatRange")
-        format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-2))
-        format_from.api.Copy()
-        format_to.api.Select()
-        ws.api.Paste()
+        columns_to_format = self.columns-2
+        if columns_to_format:
+            format_from = ws.range("FormatRange")
+            format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-2))
+            format_from.api.Copy()
+            format_to.api.Select()
+            ws.api.Paste()
 
         progress.update(task_id, completed=8, refresh=True)
 
@@ -389,10 +409,9 @@ class FieldAnalysis():
 
 
         # --------------------------------------------------
-        # Set title, add metadata/overview table, configure the Field Notes column 
+        # Add metadata/overview table, configure the Field Notes/Definitions columns
 
         ws.range("Metadata").options(transpose=True).value = list(overview_metadata.values())
-
         overview_table = ws.tables["tbl_Overview"]
         overview_table.update(df, index=False)
         
@@ -624,9 +643,10 @@ class FieldAnalysis():
             ws = wb.sheets("SinglePlot").copy(name=title)
             ws.visible = True
 
-            # Set target range and title value
+            # Set target range, title, and autofit title range
             plot_range = ws.range("SinglePlot")
             ws.range("SinglePlotTitle").value = title
+            ws.range("SinglePlotTitle").columns.autofit()
             
             ws.pictures.add(fig, 
                             name=title, 
@@ -721,12 +741,19 @@ class FieldAnalysis():
         assert ws is not None
         progress.update(task_id, completed=1, refresh=True)
 
+        
+        # Convert df to string before writing to Excel to prevent 
+        # issues with timedelta/random datatypes
+        df = self.source_df.astype(str)
+
+        
+
 
         # --------------------------------------------------
         # Add source data, format cells in Record List column
 
         source_table = ws.tables["tbl_SourceData"]
-        source_table.update(self.source_df, index=False)
+        source_table.update(df, index=False)
         if source_table.data_body_range is not None:
             source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0]) 
 
@@ -783,6 +810,7 @@ class FieldAnalysis():
         
         # Autofit
         lower_hash.columns.autofit()
+
 
 
 

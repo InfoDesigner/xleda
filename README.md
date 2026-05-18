@@ -60,7 +60,7 @@ wb = xleda.create_workbook()
 
 ## **Theme Color**
 
-* `theme_color` sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice.<br>
+* `theme_color` sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice.  `theme_color=random` sets a random theme<br>
 
 <br>
 <p align="center">
