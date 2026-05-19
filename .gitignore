@@ -28,3 +28,4 @@ outside_package.py
 *.ipynb
 uv publish steps.md
 /example_data
+~$*
