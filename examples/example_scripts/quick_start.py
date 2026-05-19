@@ -12,7 +12,7 @@ xleda = FieldAnalysis(input_df=df,
                       overwrite=True)
 
 # Create workbook
-wb = xleda.create_workbook()
+xleda.create_workbook()
 
 
 # Export your analysis back into Python
