@@ -14,7 +14,7 @@
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.gif?raw=true"  width="700" alt="Example Top View"> 
 	<br>
-	<em>An xleda workbook made with Titanic passenger data.</em>
+	<em>An xleda workbook made with diamond data.</em>
 </p>
 <br><br>
 
@@ -44,7 +44,7 @@ xleda = FieldAnalysis(input_df=df,
                       name="Titanic")
 
 # Create workbook
-wb = xleda.create_workbook()
+xleda.create_workbook()
 
 ```
 
@@ -121,8 +121,6 @@ xleda.create_workbook()
 
 <br>
 
-
-
 ## **Field/Record Lists**
 
 
@@ -195,10 +193,9 @@ xleda.create_workbook()
 	<em>An example export from a completed field analysis on Titanic passenger data.</em>
 </p>
 <br><br>
+## **Performance**
 
-## **Limits with Large Data Sets**
-
-* xleda creates workbooks for most data sets less than 20 seconds.  To ensure that they are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning if you hit a limit.
+*  xleda creates workbooks for most data sets less than 20 seconds. 
 
 <br>
 <p align="center">
@@ -208,11 +205,20 @@ xleda.create_workbook()
 </p>
 <br><br>
 
+## **Limits with Large Data Sets**
+
+* To ensure workbooks are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning banner if you hit a limit.
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="400" alt="Create Example">
+</p><br>
+
 * `large_report=True` raises the limits to Excel's limits of 1,000,000 rows and 16,000 columns.  The closer your are to this limit, the longer it will take to produce. 
 
 * One of the larger/more complex data sets tested was a 600 column/1,200 row dataframe.  
 	* It took ~12 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
 	* It is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
+
 
 
 ## **VBA Code**

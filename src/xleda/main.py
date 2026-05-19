@@ -27,8 +27,6 @@ import time
 
 
 
-
-
 # --------------------------------------------------
 # Setup/global variables
 
@@ -68,6 +66,7 @@ class FieldAnalysis():
                  theme_color: str = "#05233E", 
                  large_report: bool = False, 
                  overwrite: bool = False, 
+                 wb_path: Path= Path().cwd(),
                  add_plots: dict[str, Figure] = {}):
 
         """Configures an xleda workbook
@@ -84,6 +83,9 @@ class FieldAnalysis():
                                  Sets limits to 1,000,000 rows/16,000 columns. 
                                  Defaults to False
 
+            wb_path (Path): Pathlib path of xleda workbook.  
+                            Defaults to current working directory.
+
             overwrite (bool): Whether to overwrite existing reports with the same name. 
                               Defaults to False
 
@@ -99,6 +101,10 @@ class FieldAnalysis():
         self.name: str = name
         self.large_report: bool = large_report
         self.overwrite: bool = overwrite
+        
+        # Set Template Path
+        self.wb_path: Path = (wb_path / self.name).with_suffix(".xlsm")
+
 
         # Set theme
         if theme_color == 'random':
@@ -121,10 +127,6 @@ class FieldAnalysis():
         self.columns = len(input_df.columns)
         self.wb: xw.Book | None = None
         self.field_analysis_ws: xw.Sheet | None = None
-        
-
-        # Set Template Path
-        self.field_analysis_path: Path = (Path().cwd() / self.name).with_suffix(".xlsm")
         
         # Configure Source Data
         self.source_df: pd.DataFrame = self._configure_source_data()
@@ -182,7 +184,7 @@ class FieldAnalysis():
         if above_default and not self.large_report and not above_limit:
 
             self.warning = True
-            self.warning_msg = "This is only showing a sample because it is larger than the limits of 100,000 rows/100 columns"
+            self.warning_msg = "This is only showing a sample because it is larger than the default limits of 100,000 rows/100 columns.  See documentation for details."
             rows = min(rows, 100_000)
             columns = min(columns, 100)
             
@@ -191,7 +193,7 @@ class FieldAnalysis():
         elif above_limit:
 
             self.warning = True
-            self.warning_msg = "This is only showing a sample because it is larger than the limits of 1,000,000 rows/16,000 columns"
+            self.warning_msg = "This is only showing a sample because it is larger than Excel's limits of 1,000,000 rows/16,000 columns.  See documentation for details."
             rows = min(rows, 1_000_000)
             columns = min(columns, 16_000)
 
@@ -287,9 +289,9 @@ class FieldAnalysis():
         
         # Return an error if there's an existing file and no overwrite flag
 
-        if self.field_analysis_path.is_file() and not self.overwrite:
-            
-            console.print(f"[bold red]Error: There is already a workbook named {self.field_analysis_path}![/bold red]")
+        if self.wb_path.is_file() and not self.overwrite:
+
+            console.print(f"[bold red]Error: There is already a workbook named {self.wb_path}![/bold red]")
             console.print("Use overwrite=True or rename/remove the existing workbook")
             
             sys.exit()
@@ -297,9 +299,9 @@ class FieldAnalysis():
 
         # Delete the file if there's an overwrite flag, return error if it's open
 
-        elif self.field_analysis_path.is_file() and self.overwrite:
+        elif self.wb_path.is_file() and self.overwrite:
             try:
-                self.field_analysis_path.unlink(missing_ok=True)
+                self.wb_path.unlink(missing_ok=True)
 
             except PermissionError:
                 
@@ -308,8 +310,9 @@ class FieldAnalysis():
                 sys.exit()
 
         
-        # Create a blank copy of the template
-        shutil.copy(template_file, self.field_analysis_path)
+        # Create parent directories if necessary and a blank copy of the template
+        self.wb_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(template_file, self.wb_path)
 
 
 
@@ -319,6 +322,7 @@ class FieldAnalysis():
 
         """
 
+        # Set vars
         wb = self.wb
         assert wb is not None
         
@@ -328,7 +332,7 @@ class FieldAnalysis():
 
         # Set Name
         ws.range("Name").value = self.name
-        ws.range("Name").columns.autofit()
+        
 
         # Set Theme
         for sheet in wb.sheets:
@@ -338,16 +342,18 @@ class FieldAnalysis():
 
 
         # Add dimentions to workbook
-        ws.range("Dimensions").value = f"rows = {self.rows}, columns = {self.columns}"
+        ws.range("Dimensions").options(transpose=True).value = [self.rows, self.columns]
+
+
 
         progress.update(task_id, completed=6, refresh=True)
 
 
         # Format metadata placeholders 
-        columns_to_format = self.columns-2
-        if columns_to_format:
+        columns_to_format = self.columns-3
+        if columns_to_format > 0:
             format_from = ws.range("FormatRange")
-            format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-2))
+            format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-3))
             format_from.api.Copy()
             format_to.api.Select()
             ws.api.Paste()
@@ -560,10 +566,10 @@ class FieldAnalysis():
         ax.set_axis_off()
 
         # Plot a histogram
-        sns.histplot( data=input_df, x=input_df.columns[0], color=self.theme_color, stat="density", alpha=0.5, ax=ax, )
+        sns.histplot( data=input_df, x=input_df.columns[0], color=self.theme_color, stat="density", alpha=0.5, ax=ax)
 
         # Layer the KDE line
-        sns.kdeplot(data=input_df, x=input_df.columns[0], color="silver", linewidth=3, ax=ax)
+        sns.kdeplot(data=input_df, x=input_df.columns[0], color="silver", linewidth=3, ax=ax, warn_singular=False)
 
         
         # --------------------------------------------------
@@ -823,8 +829,9 @@ class FieldAnalysis():
             ws.range("Warning").api.EntireRow.Hidden = not self.warning
 
 
-        # Collapse field analysis subsections
-        for excel_range in ["Field_Notes", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists"]:
+        # Activate Field Analysis Worksheet and collapse field analysis subsections
+        ws.activate()
+        for excel_range in ["Data_Description", "Field_Notes", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists"]:
             ws.range(excel_range).api.EntireRow.Hidden = True
 
 
@@ -834,13 +841,13 @@ class FieldAnalysis():
         # --------------------------------------------------
         # Save workbook
 
-        wb.save(self.field_analysis_path)
+        wb.save(self.wb_path)
 
         progress.update(task_id, completed=10, refresh=True)
 
 
 
-    def create_workbook(self) -> xw.Book | None:
+    def create_workbook(self):
         """
         Creates an xdleda workbook from a given dataframe.  
 
@@ -894,7 +901,7 @@ class FieldAnalysis():
 
                 
                 # Set vars
-                wb = app.books.open(self.field_analysis_path, read_only=False)
+                wb = app.books.open(self.wb_path, read_only=False)
                 self.wb = wb
                 self.field_analysis_ws = self.wb.sheets('Field Analysis')
                 
@@ -951,11 +958,10 @@ class FieldAnalysis():
                 console.print(f"    {plot}", style=self.theme_style)
         
         
-        console.print(f"\nlocation: \n    {self.field_analysis_path} \n" + separator, style=self.theme_style)
+        console.print(f"\nlocation: \n    {self.wb_path} \n" + separator, style=self.theme_style)
         
 
 
-        return wb
     
 
 
@@ -1020,7 +1026,7 @@ class FieldAnalysis():
 
             with xw.App(visible=False, add_book=False) as app:
 
-                wb = app.books.open(self.field_analysis_path)
+                wb = app.books.open(self.wb_path)
                 ws = wb.sheets("Field Analysis")
 
 

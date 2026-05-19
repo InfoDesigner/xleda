@@ -28,7 +28,7 @@ xleda = FieldAnalysis(input_df=df,
                       theme_color="#4C4C4C",
                       overwrite=True,
                       add_plots={'Pair Plots': pair_plots,
-                                #  'Null Matrix': null_matrix,   # type: ignore 
+                                 'Null Matrix': null_matrix,   # type: ignore 
                                  }) 
 
 
