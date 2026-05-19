@@ -72,7 +72,7 @@ xleda.create_workbook()
 
 ## **Add Additional Plots**
 
-* `xleda.add_plot()` will add additional worksheets with a plot of your choosing. 
+* `add_plots={'plotname': Figure, ...}` will add additional worksheets with plots of your choosing. 
 
 	* No styling/sizing of additional plots is performed.
 	
@@ -211,7 +211,7 @@ xleda.create_workbook()
 * To ensure workbooks are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning banner if you hit a limit.
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="400" alt="Create Example">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="800" alt="Create Example">
 </p><br>
 
 * `large_report=True` raises the limits to Excel's limits of 1,000,000 rows and 16,000 columns.  The closer your are to this limit, the longer it will take to produce. 
