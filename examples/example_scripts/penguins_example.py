@@ -15,7 +15,7 @@ plt.style.use("dark_background")
 
 # Create additional plots
 pair_plots = sns.pairplot(df, hue="species").figure
-null_matrix = msno.matrix(df).get_figure()
+null_matrix = msno.matrix(df).get_figure() # type: ignore
 
 
 # Resize the null matrix for good measure

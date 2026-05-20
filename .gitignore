@@ -27,3 +27,5 @@ outside_package.py
 .obsidian/*
 *.ipynb
 uv publish steps.md
+/example_data
+~$*
