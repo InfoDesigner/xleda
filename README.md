@@ -60,48 +60,27 @@ xleda.create_workbook()
 <br>
 
 
-## **Default Metadata/Charts**
+## **Basic Metadata**
 
-#### **Basic Metadata**
+* Most of the basic metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
 
-* xleda compiles the results of the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)** to provide basic metadata for each field<br><br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="800" alt="Basic Metadata"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="600" alt="Basic Metadata"> 
 	<br>
 	<em>Basic Metadata.</em>
 </p>
+
 
 #### **Overview**
 
 * The overview worksheet rotates the basic metadata 90 degrees so that you can sort/filter fields by their name, metadata, or notes/definitions/etc. <br>
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview.webp?raw=true"  width="800" alt="Composition Table"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview.webp?raw=true"  width="600" alt="Composition Table"> 
 	<br>
 	<em>Sorting fields from MLB data by memory usage.</em>
 </p>
 
-
-#### **Field Charts**
-
-xleda creates two charts per field in your dataframe
- 
-1. Composition Table: 
-	* Shows the top 5 values per column, their percentages, and the percentage of 'Other'  
-
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/composition_table.webp?raw=true"  width="150" alt="Composition Table"> 
-	<br>
-	<em>Composition Table showing position category for MLB data.</em>
-</p><br>
-2. Histogram:  
-	* Shows a histogram with a KDE plot, a vertical mean line, and min/max values so you can visualize the distribution and skew.
-
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/histogram.webp?raw=true"  width="150" alt="Player Heights"> 
-	<br>
-	<em>Histogram showing player heights for MLB data.</em>
-</p>
 
 
 ## **xleda Configuration**
@@ -133,7 +112,7 @@ xleda = FieldAnalysis(input_df=df,
 </p>
 <br><br>
 
-#### **Add Additional Plots** | Optional
+#### **add_plots** | Optional
 
 * `add_plots={'plotname': Figure, ...}` will add additional worksheets with plots of your choosing. 
 
@@ -253,9 +232,9 @@ xleda.create_workbook()
 
 	* `Record List`:  Used to create a list of `Record Hash` values.<br><br>
 
-## **Exporting back into Python**
+#### **Exporting back into Python**
 
-At some point, you'll likely need to get some of your analysis back into Python.  `export_analysis()` exports your notes, definitions, lists (all pictured below) and more back into Python.<br>
+* At some point, you'll likely need to get some of your analysis back into Python.  `export_analysis()` exports your notes, definitions, lists (all pictured below) and more back into Python.<br>
 <br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="606" alt="Completed Field Analysis">
@@ -263,7 +242,7 @@ At some point, you'll likely need to get some of your analysis back into Python.
 	<em>A completed xleda workbook of Titanic passenger showing definitions, notes, lists, etc.</em>
 </p>
 <br><br>
-#### **Export Details**
+##### **Export Details**
 
 * All exported data comes from the Field Analysis worksheet.
 
@@ -280,7 +259,7 @@ At some point, you'll likely need to get some of your analysis back into Python.
 
 		 ** *Note that data types will likely change in the round-trip translation.* **<br>
 		 
-#### **Example Export Code**
+##### **Example Export Code**
 ```python
 from xleda import FieldAnalysis
 
@@ -298,7 +277,7 @@ xleda_dict = xleda.export_analysis()
 
 <br>
 
-#### **Example Export Dictionary**
+##### **Example Export Dictionary**
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_analysis_export.webp?raw=true" width="500" alt="Export Dict">
