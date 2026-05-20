@@ -65,6 +65,11 @@ xleda.create_workbook()
 #### **Basic Metadata**
 
 * xleda compiles the results of the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)** to provide basic metadata for each field<br><br>
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="800" alt="Basic Metadata"> 
+	<br>
+	<em>Basic Metadata.</em>
+</p>
 
 #### **Overview**
 
