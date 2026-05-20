@@ -243,4 +243,4 @@ xleda.create_workbook()
 ---
 <br>
 
-<p align="center"><a href="https://pepy.tech/projects/xleda">xleda <img src="https://static.pepy.tech/personalized-badge/xleda?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREY&left_text=downloads" alt="PyPI Downloads"></a></p>
+<p align="center"><a href="https://pepy.tech/projects/xleda"><img src="https://static.pepy.tech/personalized-badge/xleda?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREY&left_text=downloads" alt="PyPI Downloads"></a></p>
