@@ -4,7 +4,9 @@ version = "0.8.15"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
+authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
 license = {text = "Apache-2.0"} 
+requires-python = ">=3.10"
 requires-python = ">=3.10"
 dependencies = [
     "ipywidgets>=7.7.1",
@@ -13,7 +15,42 @@ dependencies = [
     "pandas>=2.0",
     "rich>=13.0.0",
     "seaborn>=0.13.0",
+    "ipywidgets>=7.7.1",
+    "matplotlib>=3.6.0",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "rich>=13.0.0",
+    "seaborn>=0.13.0",
     "xlwings>=0.35.2",
+    ]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Legal Industry",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Telecommunications Industry",
+    "Natural Language :: English",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python",
+    "Programming Language :: Visual Basic",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Documentation",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Python Modules"
     ]
 classifiers = [
     "Programming Language :: Python :: 3.10",
@@ -58,6 +95,19 @@ build-backend = "uv_build"
 [project.urls]
 Homepage = "https://github.com/InfoDesigner/xleda"
 Issues = "https://github.com/InfoDesigner/xleda/issues"
+
+
+[dependency-groups]
+dev = [
+    "missingno>=0.4.0",
+    "notebook>=7.5.6",
+    "openml>=0.15.1",
+    "pyarrow>=24.0.0",
+]
+
+
+
+
 
 
 [dependency-groups]
