@@ -242,6 +242,7 @@ xleda.create_workbook()
 	<em>A completed xleda workbook of Titanic passenger showing definitions, notes, lists, etc.</em>
 </p>
 <br><br>
+
 ##### **Export Details**
 
 * All exported data comes from the Field Analysis worksheet.
@@ -308,8 +309,11 @@ xleda creates workbooks for most data sets less than 20 seconds.
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="800" alt="Create Example">
 </p><br>
-* One of the larger/more complex data sets tested was a 600 column/1,200 row dataframe.  
+
+* One of the more complex data sets tested was a 600 column/1,200 row dataframe.
+  
 	* It took ~12 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
+
 	* It is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
 
 
