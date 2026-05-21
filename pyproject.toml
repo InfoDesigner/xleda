@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.167"
+version = "0.8.168"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -68,6 +68,7 @@ Issues = "https://github.com/InfoDesigner/xleda/issues"
 
 [dependency-groups]
 dev = [
+    "faker>=40.18.0",
     "missingno>=0.4.0",
     "notebook>=7.5.6",
     "openml>=0.15.1",

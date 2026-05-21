@@ -813,11 +813,13 @@ class FieldAnalysis():
         lower_hash = ws.tables["tbl_SourceData"].header_row_range.last_cell  # type: ignore
         ws.range("LightHeader").copy(destination=lower_hash)
         lower_hash.value = "Record Hash"
+
+        
+        # Copy logo to last cell in FieldAnalysis Headers
+        wb.sheets("Overview").range("Logo").copy(destination=ws.range((3, lower_hash.column)))
         
         # Autofit
         lower_hash.columns.autofit()
-
-
 
 
         # --------------------------------------------------
