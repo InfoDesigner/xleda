@@ -2,6 +2,11 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/xleda.svg)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
+
+
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="InformationDesigner" data-color="#BD5FFF" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
+
 
 # **xleda is a Microsoft Excel powered EDA tool for Python data.**
 
