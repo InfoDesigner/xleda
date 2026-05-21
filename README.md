@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/license-Apache%20License%202.0-**blue**)](https://www.apache.org/licenses/LICENSE-2.0.txt)
-[![PyPI - Version](https://img.shields.io/pypi/v/xleda.svg)](https://pypi.org/project/xleda)
+[![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
