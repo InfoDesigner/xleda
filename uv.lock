@@ -3203,7 +3203,7 @@ wheels = [
 
 [[package]]
 name = "xleda"
-version = "0.8.161"
+version = "0.8.164"
 source = { editable = "." }
 dependencies = [
     { name = "ipywidgets" },
