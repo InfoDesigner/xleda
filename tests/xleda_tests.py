@@ -3,7 +3,7 @@ import numpy as np
 from faker import Faker
 import time
 
-from ..src.xleda import create_workbook
+from xleda import FieldAnalysis
 
 
 def create_fake_df(rows: int, cols: int) -> pd.DataFrame:
@@ -46,14 +46,24 @@ def create_fake_df(rows: int, cols: int) -> pd.DataFrame:
 
     return df
 
+
+
+print(f'Process started at {time.strftime("%I:%M %p")}')
+start = time.time()
+
+
 # Create Sample DFs to test against
 
-extra_large_row_df = create_fake_df(rows=1_000_000, cols=5)
+extra_large_row_df = create_fake_df(rows=1_000_001, cols=5)
 large_row_df = create_fake_df(rows=100_001, cols=5)
 extra_large_col_df = create_fake_df(rows=1_000_000, cols=5)
 large_col_df = create_fake_df(rows=100_001, cols=101)
 above_default_df = create_fake_df(rows=100_001, cols=101)
 below_default_df = create_fake_df(rows=50000, cols=16)
+
+
+end = time.time()
+print(f"df creation took {end - start} seconds")
 
 
 timings = []
@@ -69,17 +79,19 @@ for i, fake_df in enumerate(fake_dfs):
     start = time.time()
 
     timing['name'] = fake_df_names[i]
-
     timing['start'] = start
 
+    xleda = FieldAnalysis(input_df=fake_df,
+                          name=fake_df_names[i],
+                          overwrite=True)
+
+    xleda.create_workbook() 
 
 
-    
     timing['end'] = time.time() - start
-
     timings.append(timing)
 
 
 timings_df = pd.DataFrame.from_records(timings)
 
-print(timings_df)
+print(timings_df.to_string())
