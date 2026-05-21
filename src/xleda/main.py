@@ -692,10 +692,12 @@ class FieldAnalysis():
         assert ws is not None
         
         
-        # Set initial ranges for added plots
-        
+        # Set initial ranges for added plots and ensure they aren't hidden
         histogram_range = ws.range("Histogram")
         composition_range = ws.range("CompositionTable")
+        
+        histogram_range.api.EntireRow.Hidden = False
+        composition_range.api.EntireRow.Hidden = False
 
 
         # --------------------------------------------------
@@ -832,6 +834,8 @@ class FieldAnalysis():
         # Activate Field Analysis Worksheet and collapse field analysis subsections
         ws.activate()
         for excel_range in ["Data_Description", "Field_Notes", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists"]:
+            
+            ws.range(excel_range).offset(-2, -2).api.Orientation = 0
             ws.range(excel_range).api.EntireRow.Hidden = True
 
 
