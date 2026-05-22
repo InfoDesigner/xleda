@@ -314,7 +314,7 @@ xleda creates workbooks for most data sets less than 20 seconds.
 
 * One of the more complex data sets tested was a 600 column/1,200 row dataframe.
   
-	* It took ~12 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
+	* It took ~5 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
 
 	* It is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
 

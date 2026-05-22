@@ -724,6 +724,11 @@ wheels = [
 ]
 
 [[package]]
+name = "global-utils"
+version = "0.1.2"
+source = { editable = "../.Utilities" }
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3215,7 +3220,7 @@ wheels = [
 
 [[package]]
 name = "xleda"
-version = "0.8.172"
+version = "0.8.173"
 source = { editable = "." }
 dependencies = [
     { name = "ipywidgets" },
@@ -3232,6 +3237,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "faker" },
+    { name = "global-utils" },
     { name = "missingno" },
     { name = "notebook" },
     { name = "openml" },
@@ -3252,6 +3258,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "faker", specifier = ">=40.18.0" },
+    { name = "global-utils", editable = "../.Utilities" },
     { name = "missingno", specifier = ">=0.4.0" },
     { name = "notebook", specifier = ">=7.5.6" },
     { name = "openml", specifier = ">=0.15.1" },
