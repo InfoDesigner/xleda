@@ -3,9 +3,10 @@ name: Release
 on:
   push:
     tags:
-      # Publish on any tag starting with a `v`, e.g., v1.2.3
+      # Publish on any tag starting with a `v`, e.g., v1.2.3 on main branch
       - v*
-
+    branches:
+      - main
 jobs:
   pypi:
     name: Publish to PyPI
