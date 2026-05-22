@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.175"
+version = "0.8.176"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
