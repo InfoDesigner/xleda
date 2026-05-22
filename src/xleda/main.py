@@ -795,9 +795,13 @@ class FieldAnalysis():
         # Set record hash named range for Record List
         ws.range("tbl_SourceData[Record Hash]").name = "RecordHashes"
 
-        # Expand Record List ranges to fit number of columns
+        # Expand Field List ranges to fit number of columns
         for name_range in ["FieldRange", "Notes", "Definitions", "Headers"]:
             ws.range(name_range).resize(row_size=1, column_size=self.columns).name = name_range
+
+
+        # Set FieldLists range
+        ws.range("FieldLists").resize(row_size=None, column_size=self.columns + 1).name = "FieldLists"
 
 
         # Expand FieldList ranges to fit number of columns
@@ -815,10 +819,6 @@ class FieldAnalysis():
         lower_hash = ws.tables["tbl_SourceData"].header_row_range.last_cell  # type: ignore
         ws.range("LightHeader").copy(destination=lower_hash)
         lower_hash.value = "Record Hash"
-
-        
-        # Copy logo to last cell in FieldAnalysis Headers
-        wb.sheets("Overview").range("Logo").copy(destination=ws.range((3, lower_hash.column)))
         
         # Autofit
         lower_hash.columns.autofit()
@@ -833,12 +833,13 @@ class FieldAnalysis():
             ws.range("Warning").api.EntireRow.Hidden = not self.warning
 
 
-        # Activate Field Analysis Worksheet and collapse field analysis subsections
+        # Activate Field Analysis Worksheet, orient toggles, and collapse subsections
         ws.activate()
+        ws.range("Toggles").api.Orientation = 0
+        ws.range("TopToggle").api.Orientation = -90
+
         for excel_range in ["Data_Description", "Field_Notes", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists"]:
-            
-            ws.range(excel_range).offset(-2, -2).api.Orientation = 0
-            ws.range(excel_range).api.EntireRow.Hidden = True
+                        ws.range(excel_range).api.EntireRow.Hidden = True
 
 
         progress.update(task_id, completed=9, refresh=True)

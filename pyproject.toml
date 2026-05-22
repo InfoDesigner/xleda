@@ -75,4 +75,7 @@ dev = [
     "pyarrow>=24.0.0",
 ]
 
+[tool.uv.sources]
+global-utils = { path = "../.Utilities", editable = true }
+
 

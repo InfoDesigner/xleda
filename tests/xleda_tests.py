@@ -1,11 +1,30 @@
+from pathlib import Path
+import sys
 import pandas as pd
 import numpy as np
 from faker import Faker
-import time
+import shutil
 
-from xleda import FieldAnalysis
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from xleda import FieldAnalysis  # noqa: E402
+from tools import time_function  # noqa: E402
 
 
+
+
+# ------------------------------------------------------
+# Recreate output directory
+
+output_path =  Path().cwd() / 'tests' / 'all_sizes'
+output_path.mkdir(parents=True, exist_ok=True)
+
+if output_path.exists() and output_path.is_dir():
+    shutil.rmtree(output_path)
+
+@time_function
 def create_fake_df(rows: int, cols: int) -> pd.DataFrame:
     """Creates a df of fake mixed numeric/string data
 
@@ -21,77 +40,63 @@ def create_fake_df(rows: int, cols: int) -> pd.DataFrame:
     # Initialize Faker
     fake = Faker()
 
-    # Parameters
-    mean = 0
-    std_dev = 1
+    categories = [fake.word() for _ in range(20)]
+    names = [fake.name() for _ in range(20)]
+    numbers = np.random.randint(0, 10, size=20)
 
-    # Generate Data
-    initial_data = {
-        
-        # Fake categorical data
-        'category': [fake.word() for _ in range(rows)],
-
-        # Fake name data
-        'fake_name': [fake.name() for _ in range(rows)]
-        }
-
-    # Create DataFrame
-    df = pd.DataFrame(initial_data)
-
-    # Add extra numeric columns
-    for i in range(3, cols):
-        df[fake.word()] = np.random.normal(mean, std_dev, rows)
-
-
-
-    return df
-
-
-
-print(f'Process started at {time.strftime("%I:%M %p")}')
-start = time.time()
-
-
-# Create Sample DFs to test against
-
-extra_large_row_df = create_fake_df(rows=1_000_001, cols=5)
-large_row_df = create_fake_df(rows=100_001, cols=5)
-extra_large_col_df = create_fake_df(rows=1_000_000, cols=5)
-large_col_df = create_fake_df(rows=100_001, cols=101)
-above_default_df = create_fake_df(rows=100_001, cols=101)
-below_default_df = create_fake_df(rows=50000, cols=16)
-
-
-end = time.time()
-print(f"df creation took {end - start} seconds")
-
-
-timings = []
-
-
-fake_dfs = [extra_large_row_df , large_row_df , extra_large_col_df , large_col_df , above_default_df , below_default_df]
-fake_df_names = ['extra_large_row_df ', 'large_row_df ', 'extra_large_col_df ', 'large_col_df ', 'above_default_df ', 'below_default_df']
-
-
-for i, fake_df in enumerate(fake_dfs):
+    # Fake categorical data
+    initial_data = {'category': np.random.choice(categories, size=rows),
+                    'name': np.random.choice(names, size=rows),}
     
-    timing = {}
-    start = time.time()
+    # Fake numeric data
+    for i in range(3, cols):
+        initial_data[fake.word()] = np.random.choice(numbers, size=rows)
 
-    timing['name'] = fake_df_names[i]
-    timing['start'] = start
-
-    xleda = FieldAnalysis(input_df=fake_df,
-                          name=fake_df_names[i],
-                          overwrite=True)
-
-    xleda.create_workbook() 
+ 
+    # Return DataFrame
+    return pd.DataFrame(initial_data) 
 
 
-    timing['end'] = time.time() - start
-    timings.append(timing)
 
 
-timings_df = pd.DataFrame.from_records(timings)
 
-print(timings_df.to_string())
+@time_function
+def create_all_sizes():
+
+    
+    specs = {
+        'extra_large_df': {'rows': 1_000_001, 'cols': 16001},
+        'extra_large_row_df': {'rows': 1_000_001, 'cols': 5},
+        'extra_large_col_df': {'rows': 50_000, 'cols': 16001},
+        'large_df': {'rows': 100_001, 'cols': 101},
+        'large_row_df': {'rows': 100_001, 'cols': 5},
+        'large_col_df': {'rows': 50_000, 'cols': 101},
+        'below_default_df': {'rows': 50_000, 'cols': 16},
+    }
+
+    for name, kwargs in specs.items():
+        df = create_fake_df(**kwargs)
+
+
+        # Create without large report flag
+        small_xleda = FieldAnalysis(input_df=df,
+                                    theme_color='random',
+                                    name=name + '_small',
+                                    wb_path=output_path)
+        
+
+        # Create with large report flag
+        large_xleda = FieldAnalysis(input_df=df,
+                                    theme_color='random',
+                                    name=name + '_large',
+                                    wb_path=output_path,
+                                    large_report=True)
+        
+        small_xleda.create_workbook()
+        large_xleda.create_workbook()
+
+
+
+create_all_sizes()
+
+
