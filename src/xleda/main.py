@@ -25,8 +25,6 @@ import time
 
 
 
-
-
 # --------------------------------------------------
 # Setup/global variables
 
@@ -68,34 +66,42 @@ class FieldAnalysis():
                  overwrite: bool = False, 
                  wb_path: Path= Path().cwd(),
                  add_plots: dict[str, Figure] = {}):
-
+        
         """Configures an xleda workbook
 
-        Args:
+        Parameters
+        ----------
 
-            name (str): Name of the workbook to be created.
+        input_df : pd.DataFrame
+            A pandas dataframe of any size.  Will create an xleda workbook that is 100 columns, 100,000 rows by default.  
+            Use large_report=True to expand this to Excel's limits.
 
-            theme_color (str): A hexidecimal color used for charts/accent color.  
+        name : str
+            Name of the workbook to be created.
+
+        theme_color : str, optional
+            A hexidecimal color used for charts/accent color.  
                                Dark colors work better.    
-                               Use theme_color='random' for random colors.
+                               Use theme_color='random' for random colors, Defaults to "#05233E"
 
-            large_report (bool): Used to override default limits of 100,000 rows/100 columns. 
-                                 Sets limits to 1,000,000 rows/16,000 columns. 
-                                 Defaults to False
+        large_report : bool, optional
+            Used to override default limits of 100,000 rows/100 columns. 
+                                 Sets limits to 1,000,000 rows/16,000 columns, Defaults to False
 
-            wb_path (Path): Pathlib path of xleda workbook.  
-                            Defaults to current working directory.
+        overwrite : bool, optional
+            Whether to overwrite existing reports with the same name. , Defaults to False
 
-            overwrite (bool): Whether to overwrite existing reports with the same name. 
-                              Defaults to False
+        wb_path : Path, optional
+            Pathlib path directory of an xleda workbook, Defaults to current working directory
 
-            add_plots (dict[str, Figure]): Additional plots to be included 
-                Uses "{'plot1_name': Plot1Figure, 'plot2_name': Plot2Figure}" format.  
+        add_plots : dict[str, Figure], optional
+            Additional plots to be included 
+                Uses "{'plot1_name': Plot1Figure, 'plot2_name': Plot2Figure, ...}" format.  
                 Each entry will get it's own worksheet.  
-                No resizing or syling is done for plots added this way.
-
-        
+                No resizing or syling is done for plots added this way, Defaults to None
         """
+
+
 
         # Set base properties
         self.name: str = name
@@ -213,7 +219,15 @@ class FieldAnalysis():
 
 
     def _create_base_analysis(self) -> pd.DataFrame:
-        """Produces the base analysis dataframe for an input dataframe"""
+
+        """Produces the base analysis dataframe for an input dataframe
+
+        Returns
+        -------
+        pd.DataFrame
+            A dataframe with field metadata 
+        
+        """
 
 
         # --------------------------------------------------
@@ -320,6 +334,16 @@ class FieldAnalysis():
         """
         Set template theme and format placeholders
 
+        
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
+
         """
 
         # Set vars
@@ -375,6 +399,15 @@ class FieldAnalysis():
 
         """
         Adds an Overview worksheet that includes a transposed copy of the base analysis
+        
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
         
         """
 
@@ -435,6 +468,15 @@ class FieldAnalysis():
         """
         Add base analysis to Field Analysis workbook
 
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
+        
         """
 
         # Set variables
@@ -593,7 +635,7 @@ class FieldAnalysis():
 
 
 
-    def _add_small_plot(self, fig: Figure, target_range: Range):
+    def _add_small_plot(self, fig: Figure, target_range: Range, name: str):
         """
         Adds a small chart to an Excel cell that is centered 
         at 90% of the size of the cell
@@ -619,6 +661,7 @@ class FieldAnalysis():
 
         pic = target_range.sheet.pictures.add(
             fig,
+            name=name,
             left=target_left,
             top=target_top,
             width=target_width,
@@ -664,12 +707,18 @@ class FieldAnalysis():
 
     def _add_plots(self, progress: Progress, task_id: TaskID):
         
-        """Adds plots to an Excel range
+        """
+        Adds plots to an Excel range
+        
+        
+        Parameters
+        ----------
 
-        Args:
-            input_wb (xw.Workbook): Target Workbook for plots
-            progress (Progress): A rich Progress object
-            task_id: A rich TaskID object
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
 
         """
 
@@ -711,7 +760,7 @@ class FieldAnalysis():
 
             composition_table = self._create_composition_plot(self.source_df[[col]])
             
-            self._add_small_plot(target_range=composition_range, fig=composition_table)
+            self._add_small_plot(target_range=composition_range, fig=composition_table, name=f'composition_{col}')
 
             if pd.api.types.is_numeric_dtype(self.source_df[col]):
 
@@ -721,7 +770,7 @@ class FieldAnalysis():
                 # Add Histogram Multiple
 
                 histogram = self._create_histogram_plot(self.source_df[[col]])
-                self._add_small_plot(target_range=histogram_range, fig=histogram)
+                self._add_small_plot(target_range=histogram_range, fig=histogram, name=f'histogram_{col}')
 
 
 
@@ -739,6 +788,16 @@ class FieldAnalysis():
 
         """
         Adds source data to the Field Analysis workbook
+
+        
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
 
         """
 
@@ -775,7 +834,22 @@ class FieldAnalysis():
         """
         Initializes the Field Analysis UI for use
 
+        
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
+        
         """
+
+
+
+
+
 
         # --------------------------------------------------
         # Set variables
@@ -856,16 +930,12 @@ class FieldAnalysis():
 
     def create_workbook(self):
         """
+
         Creates an xdleda workbook from a given dataframe.  
 
         Workbook is saved in current directory
         
-        Returns:
-            wb: An xlwings Book object
-        
         """
-
-
 
         self._create_blank_template()
 
@@ -973,13 +1043,14 @@ class FieldAnalysis():
 
 
     def export_analysis(self) -> dict[str, dict[str, list] | pd.DataFrame]:
-        
+
         """
         Export an xleda field analysis
 
-        Returns:
-
-            Dictionary of exported items that includes:
+        Returns
+        -------
+        
+        Dictionary of exported items that includes:
 
             * `description`: Dataframe description if you've added one
             * `definitions`: Any field definitions you've added.
@@ -992,9 +1063,8 @@ class FieldAnalysis():
                                      records, renaming fields, etc. *Note that 
                                      data types will likely change in the round-trip
                                        translation.* **
-
         """
-        
+       
         
         # --------------------------------------------------
         # Setup placeholder vars

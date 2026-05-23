@@ -57,14 +57,10 @@ xleda.create_workbook()
 ```
 
 <br><br>
+## **Basic xleda Components**
+#### **Field Metadata**
 
-
-<br>
-
-
-## **Basic Metadata**
-
-* Most of the basic metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
+* Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="600" alt="Basic Metadata"> 
@@ -75,13 +71,46 @@ xleda.create_workbook()
 
 #### **Overview**
 
-* The overview worksheet rotates the basic metadata 90 degrees so that you can sort/filter fields by their name, metadata, or notes/definitions/etc. <br>
+* The `Overview` worksheet rotates the field metadata 90 degrees so that you can sort/filter fields by their name, metadata, or notes/definitions/etc. <br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview.webp?raw=true"  width="600" alt="Composition Table"> 
 	<br>
 	<em>Sorting fields from MLB data by memory usage.</em>
 </p>
+
+
+
+#### **Per Field Charts**
+
+Two charts are produced for each column in your dataframe.
+1. A composition table showing the top 5 values per column and their percentages.
+2. A histogram/KDE showing min/max, distribution, and mean
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/default_charts.webp?raw=true"  width="500" alt="Default Charts"> 
+	<br>
+	<em>Default charts for MLB player height.</em>
+</p>
+
+
+#### **Source Data Table**
+
+* A copy of your source data is included as an Excel table so you can visually inspect it, sort/filter it, etc. 
+
+* Includes a way to make lists of individual records.  More on that below.
+
+* Includes a way to round-trip your source data back into Python so that you can use Excel to replace values, delete records/columns/etc.  More on that below.
+
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/source_data.webp?raw=true"  width="600" alt="Source Data"> 
+	<br>
+	<em>Source Data Table for MLB player data.</em>
+</p>
+
+
+
 
 
 
@@ -177,8 +206,6 @@ xleda = FieldAnalysis(input_df=df,
 xleda.create_workbook()
 
 ```
-
-
 <br>
 
 #### **overwrite** | Optional
@@ -236,7 +263,7 @@ xleda.create_workbook()
 
 #### **Exporting back into Python**
 
-* At some point, you'll likely need to get some of your analysis back into Python.  `export_analysis()` exports your notes, definitions, lists (all pictured below) and more back into Python.<br>
+* At some point, you'll likely need to get some of your analysis back into Python.  `export_analysis()` exports your definitions, notes, lists, and more back into Python.<br>
 <br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="606" alt="Completed Field Analysis">
@@ -249,19 +276,17 @@ xleda.create_workbook()
 
 * All exported data comes from the Field Analysis worksheet.
 
-* It is assumed you haven't altered the structure of your workbook such as adding/deleting rows or columns. 
-
-* The dictionary includes:
+* The export dictionary includes:
 
 	* `description`: Dataframe description if you've added one
 	* `definitions`: Any field definitions you've added.
 	* `notes`: Any field notes you've added
 	* `lists`: Any lists showing in the compiled lists section
 	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List` columns.
-	* `altered_source_data`: source data from the workbook that includes any manual edits you've made such as removing records, renaming fields, etc. 
+	* `altered_source_data`: `Source Data Table` from the workbook that includes any manual edits you've made such as removing records, renaming fields, replacing values, etc. **
 
 		 ** *Note that data types will likely change in the round-trip translation.* **<br>
-		 
+
 ##### **Example Export Code**
 ```python
 from xleda import FieldAnalysis
@@ -290,7 +315,20 @@ xleda_dict = xleda.export_analysis()
 <br><br>
 
 
+##### **Exporting Cautions**
 
+
+###### **Spot Check your Lists**
+
+* Most of the few formulas in an xleda workbook are used to compile your lists. 
+
+* If you've added/deleted rows/columns, double-check that your lists show correctly in the `Compiled Lists` section  before using them downstream.
+
+###### **Round-Tripping Source Data Edits**
+
+* `altered_source_data` will likely change the field data types vs what was in the original dataframe.
+
+* The Source Data table shouldn't be renamed in Excel.  Any other edits such as deleting rows/columns, editing values, etc. are fine.
 
 
 ## **Performance**

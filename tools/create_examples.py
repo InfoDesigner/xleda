@@ -13,11 +13,12 @@ from xleda import FieldAnalysis
 from global_utils import time_function
 
 
+# Dataset lists
 seaborn_datasets = ['anagrams', 'anscombe', 'attention', 'brain_networks', 'car_crashes', 'diamonds', 'dots', 'dowjones', 'exercise', 'flights', 'fmri', 'geyser', 'glue', 'healthexp', 'iris', 'mpg', 'planets', 'seaice', 'taxis', 'tips']
 aoml_datasets = ['african_soil', 'air_bnb', 'mlb', 'nyc_taxi']
 
 
-
+# Path lists
 examples_path = Path() / 'examples'
 example_data_dir = examples_path / 'example_data'
 other_examples_path = examples_path / 'other_examples'
@@ -32,8 +33,9 @@ penguins = sns.load_dataset("penguins")
 titanic = sns.load_dataset("titanic")
 
 
-
-
+# Data for Titanic Example
+titanic_incompleted = examples_path / 'Titanic.xlsm'
+titanic_completed = examples_path / 'Titanic (Completed).xlsm'
 
 
 
@@ -158,15 +160,14 @@ def complete_titanic_wb():
     """
 
 
-    target_path = examples_path / 'Titanic.xlsm'
-    source_path = examples_path / 'Titanic (Completed).xlsm'
+    
 
 
     with xw.App(visible=False, add_book=False) as app:
 
 
-        source_wb = app.books.open(source_path)
-        target_wb = app.books.open(target_path)
+        source_wb = app.books.open(titanic_completed)
+        target_wb = app.books.open(titanic_incompleted)
         
         source_ws = source_wb.sheets("Field Analysis")
         target_ws = target_wb.sheets("Field Analysis")
@@ -192,7 +193,7 @@ def complete_titanic_wb():
 
         # Overwrite targetwb with source wb
         source_wb.close()
-        target_wb.save(source_path)
+        target_wb.save(titanic_completed)
 
 
 @time_function
@@ -223,5 +224,4 @@ if __name__ == '__main__':
     create_primary_examples()
     complete_titanic_wb()
     create_other_examples()
-
-    # create_openml_examples()
+    create_openml_examples()
