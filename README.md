@@ -109,10 +109,29 @@ Two charts are produced for each column in your dataframe.
 	<em>Source Data Table for MLB player data.</em>
 </p>
 
+#### **Blanks**
+
+* A pivot table configured to drill down into where blank values are.
+* The first 10 fields of the source data are added by default. 
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/blanks.webp?raw=true"  width="600" alt="Blanks"> 
+	<br>
+	<em>Blanks with Titanic survivor data.</em>
+</p>
 
 
+#### **Pivot**
 
+* A bare-bones pivot table ready to be configured.
+* The first 10 fields of the source data are added by default.
 
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/pivot.webp?raw=true"  width="600" alt="Pivot"> 
+	<br>
+	<em>Pivot using Titanic survivor data.</em>
+</p>
+<br>
 
 ## **xleda Configuration**
 
@@ -220,6 +239,12 @@ xleda.create_workbook()
 * The closer your are to this limit, the longer it will take to produce.   
 * See additional details in the performance section below.
 * Defaults to False
+
+#### **no_vba** | Optional
+
+* Creates the workbook as an xlsx file without VBA. 
+* Defaults to False
+
 <br>
 
 ## **Usage Notes**

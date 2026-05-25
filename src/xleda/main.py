@@ -5,6 +5,8 @@ from pathlib import Path
 import ast
 import sys
 import random
+import platform
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -12,6 +14,8 @@ from matplotlib.figure import Figure
 
 import xlwings as xw
 from xlwings import Range
+from xlwings.constants import HAlign, VAlign
+
 
 from rich.progress import (
     Progress, BarColumn, TextColumn, 
@@ -61,11 +65,12 @@ class FieldAnalysis():
     def __init__(self, 
                  input_df: pd.DataFrame, 
                  name: str, 
-                 theme_color: str = "#05233E", 
+                 theme_color: str = "#262626", 
                  large_report: bool = False, 
                  overwrite: bool = False, 
                  wb_path: Path= Path().cwd(),
-                 add_plots: dict[str, Figure] = {}):
+                 add_plots: dict[str, Figure] = {},
+                 no_vba: bool = False):
         
         """Configures an xleda workbook
 
@@ -99,17 +104,26 @@ class FieldAnalysis():
                 Uses "{'plot1_name': Plot1Figure, 'plot2_name': Plot2Figure, ...}" format.  
                 Each entry will get it's own worksheet.  
                 No resizing or syling is done for plots added this way, Defaults to None
+
+        no_vba : bool, optional
+            Will create the workbook as an xlsx file that has no VBA.
+
+
         """
 
 
-
         # Set base properties
+        self.os = platform.system()
         self.name: str = name
         self.large_report: bool = large_report
         self.overwrite: bool = overwrite
         
         # Set Template Path
-        self.wb_path: Path = (wb_path / self.name).with_suffix(".xlsm")
+        if no_vba:
+            self.wb_path: Path = (wb_path / self.name).with_suffix(".xlsx")
+        else:
+            self.wb_path: Path = (wb_path / self.name).with_suffix(".xlsm")
+        
 
 
         # Set theme
@@ -139,6 +153,7 @@ class FieldAnalysis():
 
         # Create base analysis
         self.base_analysis: pd.DataFrame = self._create_base_analysis()
+
 
 
 
@@ -210,8 +225,9 @@ class FieldAnalysis():
         self.rows = rows
         self.columns = columns
 
-        # Add fields to Source Data to track individual records
+        # Add fields to Source Data to track blanks and individual records
         df.insert(loc=0, column="Record List", value="False")
+        df['HasBlank'] = df.isnull().any(axis=1).astype(int)
         df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
 
         return df
@@ -233,7 +249,7 @@ class FieldAnalysis():
         # --------------------------------------------------
         # Collect metadata
 
-        df = self.source_df.iloc[:, 1:-1]
+        df = self.source_df.iloc[:, 1:-2]
 
         # Order of output fields
         row_order = ["Data type", "Memory Usage", "Memory Usage %", "Distinct", "Distinct %", "Count", "Count %", "Missing", "Missing %", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR", ]
@@ -300,7 +316,13 @@ class FieldAnalysis():
 
         """
 
-        
+
+        # Return an error if the OS isn't MacOS or Windows
+
+        if self.os not in ['Windows', 'Darwin']:
+            console.print("[bold red]Error: xleda requires Windows or MacOS[/bold red]")
+
+
         # Return an error if there's an existing file and no overwrite flag
 
         if self.wb_path.is_file() and not self.overwrite:
@@ -360,6 +382,7 @@ class FieldAnalysis():
 
         # Set Theme
         for sheet in wb.sheets:
+            
             sheet.range("Theme").color = self.theme_color
             if self.black_text:
                 sheet.range("Theme").font.color = '#000000'
@@ -783,6 +806,107 @@ class FieldAnalysis():
             progress.update(task_id, advance=1, refresh=True)
 
 
+    def _configure_pivots(self, progress: Progress, task_id: TaskID):
+            
+        """
+        Configures pivot tables
+        
+        
+        Parameters
+        ----------
+
+        progress : rich.progress.Progress
+            A Rich Progress object
+        
+        task_id: rich.Progress.TaskID
+            A Rich TaskID object
+
+        """
+
+
+        for pivot in ['Pivot', 'Blanks']:
+
+
+            # --------------------------------------------------
+            # Set vars and activate sheet
+
+            wb = self.wb
+            assert isinstance(wb, xw.Book)
+
+            ws = wb.sheets(pivot)
+            pt = ws.api.PivotTables('pvt_' + pivot)
+
+
+            # Fields to be added to the pivot tables
+            pivot_fields = self.input_df.columns[:min(10, self.columns)]
+            
+
+
+            # --------------------------------------------------
+            # Configure Pivot Table
+
+            
+            # Refresh the PivotCache on the first pivot
+            if pivot == 'Pivot':
+                pt.PivotCache.BackgroundQuery = False
+                pt.RefreshTable()
+            
+            
+            # Show field limit warning for datasets with >10 columns
+            if len(self.input_df.columns) <= 10:
+                ws.range("DefaultWarn").value = ''
+            else:
+                ws.range("DefaultWarn").value = 'Pivots only show first 10 fields by default'
+
+
+            # --------------------------------------------------
+            # Add fields to pivot table
+
+
+            for field in pivot_fields:
+
+                # Add field to row section of pivot table
+                pt.PivotFields(field).Orientation = xw.constants.PivotFieldOrientation.xlRowField
+                
+
+                # Remove subtotals if possible
+                try:
+                    pt.PivotFields(field).Subtotals = tuple(False for _ in range(12))
+                except Exception:
+                    pass
+
+                    
+                progress.update(task_id, advance=1, refresh=True)
+
+            
+            
+            # Collapse field if possible, starting from the end
+
+            for field in pivot_fields[::-1]:
+                try:
+                    pt.PivotFields(field).ShowDetail = False
+                except Exception:
+                    pass
+
+            
+            # Set ranges for formatting
+            pivot_range = ws.range(pt.TableRange1.Address)
+            pivot_headers = pivot_range[0,:]            
+            header_column = pivot_range[: , 0]
+
+            # Format pivot table
+            pivot_headers.api.WrapText = True
+            pivot_range.api.HorizontalAlignment = HAlign.xlHAlignCenter
+            pivot_range.api.VerticalAlignment = VAlign.xlVAlignCenter
+            header_column.api.HorizontalAlignment = HAlign.xlHAlignLeft
+            pivot_range.columns.autofit()
+
+
+            # if the sheet is Blanks, set last two pivot columns width to 15
+            if pivot == 'Blanks':
+                pivot_range[:, -2:].column_width = 15
+            
+
 
     def _add_source_data(self, progress: Progress, task_id: TaskID):
 
@@ -847,10 +971,6 @@ class FieldAnalysis():
         """
 
 
-
-
-
-
         # --------------------------------------------------
         # Set variables
 
@@ -890,12 +1010,12 @@ class FieldAnalysis():
         # Format Record Hash columns for contrast with source data
 
         # Set Record Hash in lower section to LightHeader        
-        lower_hash = ws.tables["tbl_SourceData"].header_row_range.last_cell  # type: ignore
+        lower_hash = ws.tables["tbl_SourceData"].header_row_range[-2:]  # type: ignore
         ws.range("LightHeader").copy(destination=lower_hash)
-        lower_hash.value = "Record Hash"
+        lower_hash.value = ['HasBlank', "Record Hash"]
         
         # Autofit
-        lower_hash.columns.autofit()
+        lower_hash.column_width = 15
 
 
         # --------------------------------------------------
@@ -965,6 +1085,7 @@ class FieldAnalysis():
             task_add_metadata = progress.add_task("[self.theme_color]Adding Metadata...", total=10)
             task_add_plots = progress.add_task("[self.theme_color]Adding Plots...", total=self.columns + len(self.additional_plots.keys()))
             task_add_source_data = progress.add_task("[self.theme_color]Adding Source Data...", total=10)
+            task_configure_pivots = progress.add_task("[self.theme_color]Configuring Pivot Tables...", total=min(self.columns, 10)*2)
             task_initialize_ui = progress.add_task("[self.theme_color]Initializing UI...", total=10)
 
 
@@ -1015,6 +1136,13 @@ class FieldAnalysis():
                 # Setup Source Data table
 
                 self._add_source_data(progress=progress, task_id=task_add_source_data)
+
+
+
+                # --------------------------------------------------
+                # Setup Source Data table
+
+                self._configure_pivots(progress=progress, task_id=task_configure_pivots)
 
 
 

@@ -149,6 +149,19 @@ def test_example_workbook(wb_path: Path, input_df: pd.DataFrame, extra_plots: li
             actual['extra_plots'] = [plot for plot in extra_plots if  # type: ignore
                                     plot in wb.sheet_names and 
                                     wb.sheets(plot).shapes(plot) is not None]
+            
+
+        # ---------------------------------------------
+        # Checks the pivot tables/sheets
+
+
+        expected['pivots'] = ['Blanks', 'Pivot']
+
+
+        actual['pivots'] = [pivot for pivot in expected if 
+                            wb.sheets(pivot).api.PivotTables('pvt_' + pivot) is not None]
+
+
         
     assert actual == expected
 
