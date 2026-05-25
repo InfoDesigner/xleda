@@ -19,7 +19,7 @@
 
 <br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.gif?raw=true"  width="700" alt="Example Top View"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="700" alt="Example Top View"> 
 	<br>
 	<em>An xleda workbook made with diamond data.</em>
 </p>
@@ -236,7 +236,7 @@ xleda.create_workbook()
 #### **large_report** | Optional
 
 * Raises the default dataframe size limits of 100,000 rows/100 columns to Excel's limits of 1,000,000 rows and 16,000 columns.  
-* The closer your are to this limit, the longer it will take to produce.   
+* The closer your are to this limit, the more RAM and time you'll need to produce a workbook.
 * See additional details in the performance section below.
 * Defaults to False
 
@@ -270,7 +270,7 @@ xleda.create_workbook()
 
 <br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.gif?raw=true" width="606" alt="Field Lists">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="606" alt="Field Lists">
 	<br>
 	<em>Easily create lists of fields in your data.</em>
 </p>
@@ -358,7 +358,7 @@ xleda_dict = xleda.export_analysis()
 
 ## **Performance**
 
-xleda creates workbooks for most data sets less than 20 seconds. 
+xleda creates workbooks for most data sets less than 20 seconds.   
 <br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/create_example.webp?raw=true" width="400" alt="Create Example">
@@ -385,11 +385,15 @@ xleda creates workbooks for most data sets less than 20 seconds.
 
 ## **VBA Code**
 
-* There is a small amount of VBA code in the template that makes the sections expand/collapse when you select them as pictured above.  If you can't or don't want to enable VBA, use row groupings as pictured below. <br>
+* There is a small amount of VBA code in the template that makes the sections expand/collapse when you select them as pictured above.  
+
+* If you can't or don't want to enable VBA, you can use row groupings to navigate as pictured below. 
+
+* In addition, you may want to create the report with `no_vba=True` which creates an  xlsx file that contains no VBA.<br>
 
 <br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.gif?raw=true" width="462" alt="Row Groupings">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.webp?raw=true" width="462" alt="Row Groupings">
 	<br>
 	<em>Use row groupings to navigate if you can't use VBA.</em>
 </p>
@@ -401,4 +405,6 @@ xleda creates workbooks for most data sets less than 20 seconds.
 
 
 
+## **Troubleshooting**
 
+* If your workbook appears with "Document Recovery", it's probably fine.  Neither a root cause or a consequence for ignoring this has been identified.

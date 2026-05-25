@@ -10,15 +10,6 @@ wheels/
 .venv
 
 
-# Ignore archive
-archive
-
-
-
-# Ignore test files
-/*.xlsm
-/*.py
-
 # Ignore IDE settings, test script
 .vscode/settings.json
 .vscode/launch.json
@@ -27,6 +18,9 @@ outside_package.py
 .obsidian/*
 *.ipynb
 uv publish steps.md
-/example_data
+
+# Ignore temporary excel files, other temp files
 ~$*
-/tests/all_sizes
+tests/all_sizes
+wip/
+/*.xlsm
