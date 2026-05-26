@@ -1,6 +1,5 @@
-import pandas as pd
 from pathlib import Path
-
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import missingno as msno
@@ -34,8 +33,8 @@ titanic = sns.load_dataset("titanic")
 
 
 # Data for Titanic Example
-titanic_incompleted = examples_path / 'Titanic.xlsm'
-titanic_completed = examples_path / 'Titanic (Completed).xlsm'
+titanic_incompleted: Path = examples_path / 'Titanic.xlsx'
+titanic_completed: Path = examples_path / 'Titanic (Completed).xlsx'
 
 
 
@@ -76,9 +75,9 @@ def create_primary_examples():
                                     'Null Matrix': null_matrix,
                                     }},
                      {'input_df': titanic,
-                      'name': "Titanic"}]
-
-
+                      'name': "Titanic",
+                      'no_vba': True}]
+    
 
     for example in aoml_examples:
 
@@ -87,6 +86,8 @@ def create_primary_examples():
                               **example)
         
         xleda.create_workbook()
+
+        
 
 
 @time_function
@@ -139,7 +140,7 @@ def create_openml_examples():
         # is not already being created with the primary examples.
         name = datafile.stem
 
-        if datafile.suffix == 'feather' and name not in aoml_datasets:
+        if datafile.suffix == '.feather' and name not in aoml_datasets:
 
 
             df = pd.read_feather(datafile)

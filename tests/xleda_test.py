@@ -8,7 +8,8 @@ import pytest
 import xlwings as xw
 
 from xleda import FieldAnalysis
-from tools.create_examples import seaborn_datasets, penguins, african_soil, titanic, titanic_completed
+
+from tools.create_examples import seaborn_datasets, penguins, african_soil, titanic, titanic_completed, titanic_incompleted
 
 
 examples_path = Path().cwd() / 'examples'
@@ -50,12 +51,14 @@ def test_examples_are_created():
     """
 
 
-    primary_examples = ['African Soil', 'Airbnb', 'MLB', 'Penguins', 'NYC Taxi', 'Titanic']
+    primary_examples = ['African Soil', 'Airbnb', 'MLB', 'Penguins', 'NYC Taxi']
 
-    primary_wbs = {'file': (examples_path / (dataset + '.xlsm')) for dataset in primary_examples}
-    seaborn_wbs = {'file': (examples_path / 'other_examples' / (dataset + '.xlsm')) for dataset in seaborn_datasets}
 
-    expected = primary_wbs | seaborn_wbs
+    xlsx_wbs = {'Titanic': titanic_incompleted, 'Completed Titanic': titanic_completed}
+    primary_wbs = {f'{dataset}': examples_path / (dataset + '.xlsm') for dataset in primary_examples}
+    seaborn_wbs = {f'{dataset}': examples_path / 'other_examples' / (dataset + '.xlsm') for dataset in seaborn_datasets}
+
+    expected = primary_wbs | seaborn_wbs | xlsx_wbs
 
     actual = {k: v for k, v in expected.items() if v.is_file()}
 

@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.180"
+version = "0.8.181"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -74,5 +74,11 @@ dev = [
 
 [tool.uv.sources]
 global-utils = { path = "../.Utilities", editable = true }
+
+[tool.pyrefly]
+project-includes = [
+    "src/**/*.py",
+    "tests/**/*.py",
+]
 
 

@@ -1,4 +1,4 @@
-import seaborn as sns
+import seaborn as sns  # type: ignore
 import pandas as pd
 import shutil
 from pathlib import Path
@@ -6,11 +6,11 @@ import ast
 import sys
 import random
 import platform
+import time
 
-
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-from matplotlib.figure import Figure
+import matplotlib.pyplot as plt  # type: ignore
+import matplotlib as mpl  # type: ignore
+from matplotlib.figure import Figure  # type: ignore
 
 import xlwings as xw
 from xlwings import Range
@@ -22,9 +22,7 @@ from rich.progress import (
     TimeElapsedColumn, TaskID)
 from rich.console import Console
 from rich.style import Style
-
-
-import time
+from .color_shaping import use_black_text, ensure_readable, is_vscode_notebook
 
 
 
@@ -32,8 +30,12 @@ import time
 # --------------------------------------------------
 # Setup/global variables
 
-# Rich console
-console = Console()
+# Adjust Rich console for notebook interfaces if necessary
+
+if is_vscode_notebook():
+    console = Console(force_terminal=False)
+else:
+    console = Console()
 
 # Field Analysis template
 template_file = Path(__file__).parent / "xleda_template.xlsm"
@@ -41,8 +43,8 @@ template_file = Path(__file__).parent / "xleda_template.xlsm"
 separator = "\n" + ("-" * 100) + "\n"
 
 # Set matplotlib theme
-mpl.use("Agg")
-plt.style.use("dark_background")
+mpl.use("Agg")  # type: ignore
+plt.style.use("dark_background")  # type: ignore
 
 
 
@@ -57,8 +59,6 @@ class FieldAnalysis():
                          is saved in current directory
 
         export_analysis: Export notes, lists, data from an xleda field analysis workbook
-
-
 
     """
 
@@ -108,15 +108,14 @@ class FieldAnalysis():
         no_vba : bool, optional
             Will create the workbook as an xlsx file that has no VBA.
 
-
         """
-
 
         # Set base properties
         self.os = platform.system()
         self.name: str = name
         self.large_report: bool = large_report
         self.overwrite: bool = overwrite
+        self.no_vba: bool = no_vba
         
         # Set Template Path
         if no_vba:
@@ -124,7 +123,6 @@ class FieldAnalysis():
         else:
             self.wb_path: Path = (wb_path / self.name).with_suffix(".xlsm")
         
-
 
         # Set theme
         if theme_color == 'random':
@@ -135,9 +133,9 @@ class FieldAnalysis():
         self.additional_plots: dict[str, Figure] | dict = add_plots
 
         # Configure Theme
-        self.theme_style: Style = Style(color=self.theme_color[:7])
+        self.theme_style: Style = Style(color=ensure_readable(self.theme_color[:7]))
         self.silver_style = Style(color='#C0C0C0')
-        self.black_text: bool = self._use_black_text()
+        self.black_text: bool = use_black_text(self.theme_color)
 
 
         # Add placeholder properties
@@ -157,27 +155,6 @@ class FieldAnalysis():
 
 
 
-    def _use_black_text(self) -> bool:
-        """
-        Converts theme color to RGB and calculates 
-        whether black text is required.
-
-        """
-
-        # Remove '#' if present and convert hex to RGB
-        hex_color = self.theme_color.lstrip('#')
-
-        r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-        
-        # Standard formula for perceived brightness
-        brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255
-        
-        # Use black text for light backgrounds, white for dark ones
-
-        return brightness > 0.5
-
-
-
     def _configure_source_data(self) -> pd.DataFrame:
         
         """
@@ -188,7 +165,6 @@ class FieldAnalysis():
             source_df: A pandas dataframe object
         
         """
-
 
         # --------------------------------------------------
         # Configure variables
@@ -227,10 +203,10 @@ class FieldAnalysis():
 
         # Add fields to Source Data to track blanks and individual records
         df.insert(loc=0, column="Record List", value="False")
-        df['HasBlank'] = df.isnull().any(axis=1).astype(int)
+        df['HasBlank'] = df.isnull().any(axis=1).astype(int)  # type: ignore
         df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
 
-        return df
+        return df  # type: ignore
 
 
 
@@ -268,7 +244,7 @@ class FieldAnalysis():
             {
                 "Data type": df.dtypes.astype(str),
                 "Memory Usage": df.memory_usage(deep=True, index=False),
-                "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),
+                "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),  # type: ignore
                 "Count": rows_count - df.isnull().sum(),
                 "Count %": (rows_count - df.isnull().sum()) / rows_count,
                 "Missing": df.isnull().sum(),
@@ -281,6 +257,7 @@ class FieldAnalysis():
                 "Distinct": df.nunique(),
                 "Distinct %": df.nunique() / rows_count,
                 }).T
+
 
         # --------------------------------------------------
         # Combine/Format Metadata
@@ -304,9 +281,7 @@ class FieldAnalysis():
         # convert to string to prevent issues with timedelta/random datatypes
         summary_df = summary_df.astype(str)
 
-
-        return summary_df
-
+        return summary_df  # type: ignore
 
 
     def _create_blank_template(self):
@@ -348,7 +323,31 @@ class FieldAnalysis():
         
         # Create parent directories if necessary and a blank copy of the template
         self.wb_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(template_file, self.wb_path)
+
+
+        # if no_vba has been set, open the default template, remove macro triggers from shapes, and save as xlsx
+        if self.no_vba:
+
+            
+            # Hide warnings and convert file
+            with xw.App(visible=False, add_book=False) as app:
+                
+                app.api.DisplayAlerts = False
+
+                wb = app.books.open(template_file, read_only=False)
+                ws = wb.sheets('Field Analysis')
+
+                # Loop through all shapes and clear their triggers
+                for shp in ws.shapes:
+                    shp.api.OnAction = ""
+
+                
+                wb.api.SaveAs(str(self.wb_path.resolve()), FileFormat=51)
+
+                app.api.DisplayAlerts = True
+        else:
+            shutil.copy(template_file, self.wb_path)
+
 
 
 
@@ -457,7 +456,8 @@ class FieldAnalysis():
         overview_metadata = {'Rows': self.rows,
                              'Columns': self.columns,
                              'Memory Usage': f"{df.memory_usage(deep=True).sum():,} bytes",
-                             'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
+                              'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
+                             # pyrefly: ignore [unnecessary-type-conversion]
                              'Missing %': float(df.isnull().mean().mean()),
                              }
 
@@ -561,7 +561,7 @@ class FieldAnalysis():
         # Setup plot
         
         # Initialize the plot
-        fig, ax = plt.subplots(figsize=(8, 8))
+        fig, ax = plt.subplots(figsize=(8, 8))  # type: ignore
 
         y_pos = range(len(categories))[::-1]
 
@@ -582,7 +582,7 @@ class FieldAnalysis():
         ax.set_title("")
 
         # Make enough room for text on the left so they don't overlap
-        plt.subplots_adjust(left=0.4, right=0.9)
+        plt.subplots_adjust(left=0.4, right=0.9)  # type: ignore
 
         max_val = max(values)
 
@@ -627,7 +627,7 @@ class FieldAnalysis():
         # --------------------------------------------------
         # Setup plot area, plot
 
-        fig, ax = plt.subplots(figsize=(5, 5))
+        fig, ax = plt.subplots(figsize=(5, 5))  # type: ignore
         ax.set_axis_off()
 
         # Plot a histogram
@@ -775,13 +775,13 @@ class FieldAnalysis():
         # --------------------------------------------------
         # Add plots per column
 
-        for col in self.source_df.iloc[:, 1:-1].columns:
+        for col in self.source_df.iloc[:, 1:-2].columns:
 
 
             # --------------------------------------------------
             # Add Composition Multiple
 
-            composition_table = self._create_composition_plot(self.source_df[[col]])
+            composition_table = self._create_composition_plot(self.source_df[[col]])  # type: ignore
             
             self._add_small_plot(target_range=composition_range, fig=composition_table, name=f'composition_{col}')
 
@@ -792,7 +792,7 @@ class FieldAnalysis():
                 # --------------------------------------------------
                 # Add Histogram Multiple
 
-                histogram = self._create_histogram_plot(self.source_df[[col]])
+                histogram = self._create_histogram_plot(self.source_df[[col]])  # type: ignore
                 self._add_small_plot(target_range=histogram_range, fig=histogram, name=f'histogram_{col}')
 
 
@@ -835,7 +835,7 @@ class FieldAnalysis():
 
             ws = wb.sheets(pivot)
             pt = ws.api.PivotTables('pvt_' + pivot)
-
+            ws.activate()
 
             # Fields to be added to the pivot tables
             pivot_fields = self.input_df.columns[:min(10, self.columns)]
@@ -941,12 +941,14 @@ class FieldAnalysis():
 
 
         # --------------------------------------------------
-        # Add source data, format cells in Record List column
+        # Add source data, format cells in Record List/Record Hash/HasBlank columns
 
         source_table = ws.tables["tbl_SourceData"]
         source_table.update(df, index=False)
         if source_table.data_body_range is not None:
-            source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0]) 
+            source_table.data_body_range.api.HorizontalAlignment = HAlign.xlHAlignCenter
+            source_table.data_body_range[0, 0].copy(destination=source_table.data_body_range[:, 0])           
+            source_table.data_body_range[:, -2:].font.color = '#808080'
 
 
         progress.update(task_id, completed=10, refresh=True)
@@ -1042,7 +1044,11 @@ class FieldAnalysis():
         # --------------------------------------------------
         # Save workbook
 
+
+
         wb.save(self.wb_path)
+
+        time.sleep(2)
 
         progress.update(task_id, completed=10, refresh=True)
 
@@ -1081,7 +1087,7 @@ class FieldAnalysis():
             
 
             # Register tasks to get IDs
-            task_create_template = progress.add_task("[self.theme_color]Creating Template...", total=10)
+            task_create_template = progress.add_task("[self.theme_color]Creating Template...", total=10.,)
             task_add_metadata = progress.add_task("[self.theme_color]Adding Metadata...", total=10)
             task_add_plots = progress.add_task("[self.theme_color]Adding Plots...", total=self.columns + len(self.additional_plots.keys()))
             task_add_source_data = progress.add_task("[self.theme_color]Adding Source Data...", total=10)
@@ -1097,6 +1103,8 @@ class FieldAnalysis():
 
             with xw.App(visible=False, add_book=False) as app:
 
+
+                app.display_alerts = False
                 
                 # Set vars
                 wb = app.books.open(self.wb_path, read_only=False)
@@ -1150,6 +1158,8 @@ class FieldAnalysis():
                 # Initialize the UI
 
                 self._iniialize_ui(progress=progress, task_id=task_initialize_ui)
+
+                app.display_alerts = True
 
         
         # Print exit message/file path
