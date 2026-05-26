@@ -399,10 +399,9 @@ class FieldAnalysis():
         columns_to_format = self.columns-3
         if columns_to_format > 0:
             format_from = ws.range("FormatRange")
-            format_to = (ws.range("FormatRange").offset(0, 1).resize(None, self.columns-3))
+            format_to = (ws.range("FormatRange").offset(0, 1).resize(None, columns_to_format))
             format_from.api.Copy()
-            format_to.api.Select()
-            ws.api.Paste()
+            format_to.paste(paste='formats')
 
         progress.update(task_id, completed=8, refresh=True)
 
@@ -526,7 +525,7 @@ class FieldAnalysis():
 
 
 
-    def _create_composition_plot(self, input_df: pd.DataFrame) -> Figure:
+    def _create_composition_plot(self, input_df: pd.Series) -> Figure:
         """Creates a composition table from a dataframe
 
         Args:
@@ -612,7 +611,7 @@ class FieldAnalysis():
 
 
 
-    def _create_histogram_plot(self, input_df: pd.DataFrame) -> Figure:
+    def _create_histogram_plot(self, input_series: pd.Series) -> Figure:
 
         """Creates a histogram from a dataframe
 
@@ -631,25 +630,25 @@ class FieldAnalysis():
         ax.set_axis_off()
 
         # Plot a histogram
-        sns.histplot( data=input_df, x=input_df.columns[0], color=self.theme_color, stat="density", alpha=0.5, ax=ax)
+        sns.histplot(x=input_series, color=self.theme_color, stat="density", alpha=0.5, ax=ax)
 
         # Layer the KDE line
-        sns.kdeplot(data=input_df, x=input_df.columns[0], color="silver", linewidth=3, ax=ax, warn_singular=False)
+        sns.kdeplot(x=input_series, color="silver", linewidth=3, ax=ax, warn_singular=False)
 
         
         # --------------------------------------------------
         # Add additional plot details
 
         # Add vertical mean line
-        mean_val = input_df[input_df.columns[0]].mean()
+        mean_val = input_series.mean()
         ax.axvline(mean_val, color="silver", linestyle=":", linewidth=2)
 
         # Remove tick labels
         ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
         # Add Min and Max text at the bottom corners
-        min_val = input_df[input_df.columns[0]].min()
-        max_val = input_df[input_df.columns[0]].max()
+        min_val = input_series.min()
+        max_val = input_series.max()
 
         ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, color="silver", ha="left", va="top",) 
         ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, color="silver", ha="right", va="top", )
@@ -781,7 +780,7 @@ class FieldAnalysis():
             # --------------------------------------------------
             # Add Composition Multiple
 
-            composition_table = self._create_composition_plot(self.source_df[[col]])  # type: ignore
+            composition_table = self._create_composition_plot(self.source_df[col])  # type: ignore
             
             self._add_small_plot(target_range=composition_range, fig=composition_table, name=f'composition_{col}')
 
@@ -792,7 +791,7 @@ class FieldAnalysis():
                 # --------------------------------------------------
                 # Add Histogram Multiple
 
-                histogram = self._create_histogram_plot(self.source_df[[col]])  # type: ignore
+                histogram = self._create_histogram_plot(self.source_df[col])  # type: ignore
                 self._add_small_plot(target_range=histogram_range, fig=histogram, name=f'histogram_{col}')
 
 

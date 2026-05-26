@@ -65,7 +65,6 @@ Issues = "https://github.com/InfoDesigner/xleda/issues"
 [dependency-groups]
 dev = [
     "faker>=40.18.0",
-    "global-utils",
     "missingno>=0.4.0",
     "notebook>=7.5.6",
     "openml>=0.15.1",
