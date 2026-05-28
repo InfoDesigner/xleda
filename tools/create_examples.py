@@ -4,12 +4,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import missingno as msno
 import xlwings as xw
+import pickle
+import time
+from typing import Any
 
 import openml
 from sklearn.datasets import fetch_openml
 
-from xleda import FieldAnalysis
+from xleda import wb
 from global_utils import time_function
+
 
 
 # Dataset lists
@@ -21,6 +25,7 @@ aoml_datasets = ['african_soil', 'air_bnb', 'mlb', 'nyc_taxi']
 examples_path = Path() / 'examples'
 example_data_dir = examples_path / 'example_data'
 other_examples_path = examples_path / 'other_examples'
+pickle_path = Path().cwd() / 'tests//export_dict.pkl'
 
 
 # Data for primary examples
@@ -34,8 +39,31 @@ titanic = sns.load_dataset("titanic")
 
 # Data for Titanic Example
 titanic_incompleted: Path = examples_path / 'Titanic.xlsx'
-titanic_completed: Path = examples_path / 'Titanic (Completed).xlsx'
+titanic_completed: Path = examples_path / 'example_scripts//Titanic (Completed).xlsx'
 
+
+performance = []
+
+
+
+def save_pickle(pickle_path: Path, cucumber: Any):
+
+    """
+       Saves a dictionary as a pickle file
+
+    Parameters
+    ----------
+    pickle_path : Path
+        File path to save the pickle
+
+    cucumber : Any
+        A pickleable Python object
+    """
+
+
+    # Save cucumber to a pickle file
+    with open(pickle_path, 'wb') as file:
+        pickle.dump(cucumber, file)
 
 
 
@@ -46,6 +74,7 @@ def create_primary_examples():
 
     """
 
+    global performance
 
     # Configure additional penguin plots
     pair_plots = sns.pairplot(penguins, hue="species").figure
@@ -81,19 +110,107 @@ def create_primary_examples():
 
     for example in aoml_examples:
 
-        xleda = FieldAnalysis(overwrite=True,
-                              wb_path=examples_path,
-                              **example)
+        xleda = wb(overwrite=True,
+                   wb_path=examples_path,
+                   open_wb=False,
+                   **example)
         
-        xleda.create_workbook()
-
+        performance.append(xleda.performance)
+        
+        time.sleep(2)
         
 
 
 @time_function
-def download_openml_dataset(download_path: Path):
+def create_other_examples():
+
     """
-    Downloads the current top openML datasets
+       Creates other examples using the current template
+    
+    """
+    
+    global performance
+
+    for dataset in seaborn_datasets:
+        
+        df = sns.load_dataset(dataset)
+        proper_title = dataset.replace("_", " ").title()
+
+
+        # Configure xleda
+        xleda = wb(input_df=df,
+                   name=proper_title,
+                   theme_color='random',
+                   wb_path=other_examples_path,
+                   overwrite=True,
+                   open_wb=False)
+        
+        performance.append(xleda.performance)
+        
+        time.sleep(2)
+
+
+
+def complete_titanic_wb(update_pickle: bool=False):
+    """
+       Creates a copy of the completed Titanic example from the current template 
+       Also exports xleda analysis into a pickle file for testing
+
+    """
+
+
+    with xw.App(visible=False, add_book=False) as app:
+
+
+        source_wb = app.books.open(titanic_completed)
+        target_wb = app.books.open(titanic_incompleted)
+        
+        source_ws = source_wb.sheets("Field Analysis")
+        target_ws = target_wb.sheets("Field Analysis")
+
+
+        # Update data
+        completed_df = source_ws.tables['tbl_SourceData'].range.options(pd.DataFrame, index=False).value
+        target_ws.tables['tbl_SourceData'].update(completed_df, index=False)
+
+        # Definitions/Notes/Description
+        target_ws.range("Notes").value = source_ws.range("Notes").value
+        target_ws.range("Definitions").value = source_ws.range("Definitions").value
+        target_ws.range("Description").value = source_ws.range("Description").value
+        target_ws.range("FieldLists").value = source_ws.range("FieldLists").value
+
+
+        # Unhide completed sections
+        visible_ranges = ['Data_Description', 'Compiled_Lists', 'Field_Notes', 'Field_Lists']
+
+        for range in visible_ranges:
+            target_ws.range(range).api.EntireRow.Hidden = False
+
+
+
+        # Overwrite targetwb with source wb
+        source_wb.close()
+        
+        target_wb.save(titanic_completed)
+
+    
+    # Update the pickle file
+    if update_pickle:
+    
+        export_dict = wb(input_df=titanic, 
+                        wb_path=examples_path / 'example_scripts', 
+                        name='Titanic (Completed)',
+                        no_vba=True,
+                        export=True)
+        
+        save_pickle(pickle_path=pickle_path, cucumber=export_dict)
+    
+
+
+def download_openml_dataset():
+    
+    """
+       Downloads the current top openML datasets
 
     Parameters
     ----------
@@ -126,10 +243,10 @@ def download_openml_dataset(download_path: Path):
             print(f"Successfully processed: {dataset_name}")
 
 
-@time_function
+
 def create_openml_examples():
     """
-    Creates xleda workbooks from all feather files in a directory
+       Creates xleda workbooks from all feather files in a directory
     
     """
 
@@ -145,84 +262,43 @@ def create_openml_examples():
 
             df = pd.read_feather(datafile)
 
-            xleda = FieldAnalysis(input_df=df,
-                                  name=name.replace("-", " ").title(),
-                                  theme_color='random',
-                                  wb_path=other_examples_path)
+            wb(input_df=df,
+               name=name.replace("-", " ").title(),
+               theme_color='random',
+               wb_path=other_examples_path,
+               open_wb=False)
             
-            xleda.create_workbook()
 
-
-@time_function
-def complete_titanic_wb():
-    """
-    Creates a copy of the completed Titanic example from the current template
+            
+def create_performance_wbs():
 
     """
-
-
+        Creates xleda workbooks documenting the production timing of xleda examples.
     
+    """  
 
-
-    with xw.App(visible=False, add_book=False) as app:
-
-
-        source_wb = app.books.open(titanic_completed)
-        target_wb = app.books.open(titanic_incompleted)
+    # Create xleda workbooks of performance data
+    for performance_log in ['pivot', 'plots', 'section']:
         
-        source_ws = source_wb.sheets("Field Analysis")
-        target_ws = target_wb.sheets("Field Analysis")
+        df = pd.concat([performance_list[performance_log] for performance_list in performance], ignore_index=True)
 
-
-        # Update data
-        completed_df = source_ws.tables['tbl_SourceData'].range.options(pd.DataFrame, index=False).value
-        target_ws.tables['tbl_SourceData'].update(completed_df, index=False)
-
-        # Definitions/Notes/Description
-        target_ws.range("Notes").value = source_ws.range("Notes").value
-        target_ws.range("Definitions").value = source_ws.range("Definitions").value
-        target_ws.range("Description").value = source_ws.range("Description").value
-        target_ws.range("FieldLists").value = source_ws.range("FieldLists").value
-
-
-        # Unhide completed sections
-        visible_ranges = ['Data_Description', 'Compiled_Lists', 'Field_Notes', 'Field_Lists']
-
-        for range in visible_ranges:
-            target_ws.range(range).api.EntireRow.Hidden = False
-
-
-        # Overwrite targetwb with source wb
-        source_wb.close()
-        target_wb.save(titanic_completed)
-
-
-@time_function
-def create_other_examples():
-    """
-    Creates other examples using the current template
-    
-    """
-
-    for dataset in seaborn_datasets:
-        
-        df = sns.load_dataset(dataset)
-        proper_title = dataset.replace("_", " ")
-
-
-        # Configure xleda
-        xleda = FieldAnalysis(input_df=df,
-                              name=proper_title,
-                              theme_color='random',
-                              wb_path=other_examples_path,
-                              overwrite=True)
-        
-        xleda.create_workbook()
+        wb(input_df=df, 
+           name=performance_log, 
+           overwrite=True)
 
 
 if __name__ == '__main__':
     
-    create_primary_examples()
-    complete_titanic_wb()
-    create_other_examples()
+    # Create examples
+    # download_openml_dataset()
     # create_openml_examples()
+
+
+    create_primary_examples()
+    complete_titanic_wb(update_pickle=False)
+    create_other_examples()
+    create_performance_wbs()
+    
+
+        
+    

@@ -7,7 +7,7 @@ import pickle
 import pytest
 import xlwings as xw
 
-from xleda import FieldAnalysis
+from xleda import wb
 
 from tools.create_examples import seaborn_datasets, penguins, african_soil, titanic, titanic_completed, titanic_incompleted
 
@@ -56,7 +56,9 @@ def test_examples_are_created():
 
     xlsx_wbs = {'Titanic': titanic_incompleted, 'Completed Titanic': titanic_completed}
     primary_wbs = {f'{dataset}': examples_path / (dataset + '.xlsm') for dataset in primary_examples}
-    seaborn_wbs = {f'{dataset}': examples_path / 'other_examples' / (dataset + '.xlsm') for dataset in seaborn_datasets}
+    seaborn_wbs = {f'{dataset}': examples_path / 'other_examples' / (dataset.replace("_", " ").title() + '.xlsm') 
+                   for dataset in seaborn_datasets}
+
 
     expected = primary_wbs | seaborn_wbs | xlsx_wbs
 
@@ -86,7 +88,7 @@ def test_example_workbook(wb_path: Path, input_df: pd.DataFrame, extra_plots: li
     actual: dict[str, Any] = {}
 
 
-    with xw.App(visible=False, add_book=False) as app:
+    with xw.App(visible=True, add_book=False) as app:
 
         # ---------------------------------------------
         # Set vars
@@ -107,7 +109,7 @@ def test_example_workbook(wb_path: Path, input_df: pd.DataFrame, extra_plots: li
         table = ws.tables['tbl_SourceData']
 
         actual['rows'] = table.data_body_range.rows.count # pyright: ignore[reportOptionalMemberAccess]
-        actual['columns'] = table.header_row_range.columns.count - 2 # pyright: ignore[reportOptionalMemberAccess]
+        actual['columns'] = table.data_body_range.columns.count - 3 # pyright: ignore[reportOptionalMemberAccess]
 
 
         # ---------------------------------------------
@@ -161,7 +163,7 @@ def test_example_workbook(wb_path: Path, input_df: pd.DataFrame, extra_plots: li
         expected['pivots'] = ['Blanks', 'Pivot']
 
 
-        actual['pivots'] = [pivot for pivot in expected if 
+        actual['pivots'] = [pivot for pivot in expected['pivots'] if 
                             wb.sheets(pivot).api.PivotTables('pvt_' + pivot) is not None]
 
 
@@ -176,15 +178,19 @@ def test_export_dict():
     Tests the Titanic (Completed) and the export_analysis functionality
 
     """
-    
+   
 
     with open(r"tests/export_dict.pkl", "rb") as f:
         expected = pickle.load(f)
 
-    actual: dict[str, Any] = FieldAnalysis(name = 'Titanic (Completed)', wb_path=examples_path, input_df=titanic).export_analysis()
+    actual: dict[str, Any] = wb(name = 'Titanic (Completed)', 
+                                wb_path=examples_path, 
+                                input_df=titanic,
+                                no_vba=True,
+                                export=True)
 
 
-    for df in ['altered_source_data', 'source_data']:
+    for df in ['altered_source_data', 'source_data', 'field_metadata', 'overview_metadata']:
 
         actual[df] =  get_df_hash(input_df=actual[df])
         expected[df] =  get_df_hash(input_df=expected[df])
