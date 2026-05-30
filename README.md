@@ -474,7 +474,8 @@ Two charts are produced for each column in your dataframe.
 ## Changelog
 
 
-> [!NOTE]Version 0.8.185 - New simplified API, simplified export, general polish
+> [!NOTE] 
+> Version 0.8.185 - New simplified API, simplified export, general polish
 > **Simplified basic usage to make it quicker to use and easier to memorize.** 
 > * Changed the default entry point to `xleda.wb()` from `xleda.FieldAnalysis()`.  
 > * `xleda.wb()` now creates and automatically opens workbooks.

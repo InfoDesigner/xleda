@@ -1341,7 +1341,7 @@ class wb():
         
 
         # Open Excel using a context manager to while creating the workbook
-        with xw.App(visible=True, add_book=False) as app:
+        with xw.App(visible=False, add_book=False) as app:
 
             
 
