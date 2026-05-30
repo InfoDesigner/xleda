@@ -5,6 +5,28 @@ from IPython import get_ipython
 
 
 
+def hex_to_ansi(hex_color):
+    # Remove '#' and convert hex to RGB integers
+    hex_color = hex_color.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return f"\033[38;2;{r};{g};{b}m"
+
+
+
+def color_formatter(text: str, theme: str):
+    
+    color = hex_to_ansi(theme)
+    reset = "\033[0m"  # Crucial: Resets terminal to default style
+    
+    return (f"{color}{text}{reset}")
+
+
+def warn_print(text: str):
+    
+    
+    print(f"\033[1;31m{text}\033[0m")
+
+
 def hex_to_rgb(hex_str):
 
     """

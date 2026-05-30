@@ -1,13 +1,20 @@
-[![License: MIT](https://img.shields.io/badge/license-Apache%20License%202.0-**blue**)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+<div align="center">
+
+[![License: Apache](https://img.shields.io/badge/license-Apache-**blue**)](https://www.apache.org/licenses/LICENSE-2.0.txt)
 [![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
 
+</div>
 
-# **xleda is a Microsoft Excel powered EDA tool for Python data.**
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/logo.webp?raw=true"  width="250" alt="Example Top View"> 
+	<br>
+</p>
+<p align="center" style="font-size: 26px; font-weight: bold;">A Microsoft Excel powered EDA tool for Python data.</p>
 
-* Produces a Microsoft Excel workbook from a pandas dataframe that is highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
+* Produces Microsoft Excel workbooks from pandas dataframes that are highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/) .
 
 * Visually explore your data, navigate with your keyboard, take field or record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.
 
@@ -15,396 +22,492 @@
 
 * xleda provides a good start to a robust EDA.  
 
-* See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br>
+* See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br><br>
 
-<br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="700" alt="Example Top View"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="600" alt="Example Top View"> 
 	<br>
 	<em>An xleda workbook made with diamond data.</em>
 </p>
 <br><br>
 
+# **Requirements/Compatibility**
 
-## **Requirements/Compatibility**
+* Requires the full version of Microsoft Excel to create workbooks. 
 
-* Requires Microsoft Excel to create the workbook. 
+* Once created, xleda workbooks should work in anything that reads Microsoft Excel workbooks.
 
-* It has been tested on Windows though it should also work on MacOS.  
+* It has been developed and tested on Windows.  
 
-* xleda workbooks should work in anything that reads Microsoft Excel workbooks.<br><br>
-
-
-## **Quick Start**
-
-
-```python
-from xleda import FieldAnalysis
-import seaborn as sns
-
-# < your dataframe goes here >
-df = sns.load_dataset("titanic")
- 
-
-# Configure xleda
-xleda = FieldAnalysis(input_df=df,
-                      name="Titanic")
-
-# Create workbook
-xleda.create_workbook()
-
-
-```
+* It should also work on MacOS though this has not yet been tested.<br>
 
 <br><br>
-## **Basic xleda Components**
-#### **Field Metadata**
+
+
+# **Installation**
+
+* Install with 
+
+	```bash
+	uv add xleda
+	```
+	or 
+	```bash
+	pip install xleda
+	```
+<br><br>
+
+
+# **Quick Start**
+
+* Use wb() to quickly create an xleda workbook of a dataframe. 
+
+* See the configuration section below for how to name the workbook, set a theme, add plots etc.  <br><br>
+
+	```python
+	from xleda import wb
+	import seaborn as sns
+
+	# < your dataframe goes here >
+	df = sns.load_dataset("titanic")
+
+	# Creates xleda.xlsm in the current directory
+	wb(df)
+	```
+<br><br>
+
+# **Basic xleda Components**
+### **Field Metadata**
 
 * Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
-
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="600" alt="Basic Metadata"> 
 	<br>
-	<em>Basic Metadata.</em>
-</p>
+	<em>Included Field Metadata</em>
+</p><br>
 
 
-#### **Overview**
+### **Overview**
 
-* The `Overview` worksheet rotates the field metadata 90 degrees so that you can sort/filter fields by their name, metadata, or notes/definitions/etc. <br>
-
+* The `Overview` worksheet rotates the field metadata 90 degrees so that you can sort/filter fields by their name, metadata, or your notes/definitions/etc. <br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview.webp?raw=true"  width="600" alt="Composition Table"> 
 	<br>
 	<em>Sorting fields from MLB data by memory usage.</em>
-</p>
+</p><br>
 
-
-
-#### **Per Field Charts**
+### **Per Field Charts**
 
 Two charts are produced for each column in your dataframe.
 1. A composition table showing the top 5 values per column and their percentages.
-2. A histogram/KDE showing min/max, distribution, and mean
+2. A histogram/KDE showing min/max, distribution, and mean<br>
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/default_charts.webp?raw=true"  width="500" alt="Default Charts"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/default_charts.webp?raw=true"  width="300" alt="Default Charts"> 
 	<br>
 	<em>Default charts for MLB player height.</em>
-</p>
+</p><br>
 
-
-#### **Source Data Table**
+### **Source Data Table**
 
 * A copy of your source data is included as an Excel table so you can visually inspect it, sort/filter it, etc. 
 
-* Includes a way to make lists of individual records.  More on that below.
+* Includes a way to make lists of individual records. 
 
-* Includes a way to round-trip your source data back into Python so that you can use Excel to replace values, delete records/columns/etc.  More on that below.
+* Includes a `HasBlank` field  for filtering records with that have blank values.
 
+* Includes a way to round-trip your source data back into Python so that you can use Excel to replace values, delete records/columns/etc.  
+
+* More on how to use these features below.<br><br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/source_data.webp?raw=true"  width="600" alt="Source Data"> 
 	<br>
 	<em>Source Data Table for MLB player data.</em>
-</p>
+</p><br>
 
-#### **Blanks**
+### **Pivot**
 
-* A pivot table configured to drill down into where blank values are.
-* The first 10 fields of the source data are added by default. 
+* A bare-bones pivot table configured to drill down into where blank values are.
+* The first 10 fields of the source data are added by default. <br><br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/blanks.webp?raw=true"  width="600" alt="Blanks"> 
 	<br>
-	<em>Blanks with Titanic survivor data.</em>
-</p>
+	<em>Bare-bones pivot table for Titanic survivor data.</em>
+</p><br><br>
 
 
-#### **Pivot**
+# **xleda.wb() Configuration**
 
-* A bare-bones pivot table ready to be configured.
-* The first 10 fields of the source data are added by default.
+### **input_df** | Dataframe | Mandatory
 
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/pivot.webp?raw=true"  width="600" alt="Pivot"> 
-	<br>
-	<em>Pivot using Titanic survivor data.</em>
-</p>
-<br>
+* A pandas dataframe of any size<br>
 
-## **xleda Configuration**
+### **name** | str | Optional
 
-#### **input_df** | Mandatory
+* Name of the dataset/file name of the created workbook
+* Defaults to `xleda`<br>
 
-* A pandas dataframe of any size
-
-#### **name** | Mandatory
-
-* Name of the dataset.  Also used for the file name of the created workbook
-
-#### **theme_color** | Optional
+### **theme_color** | str | Optional
 
 * Sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice.  `theme_color="random"` sets a random theme<br>
 * Defaults to a neutral color <br>
-
-```python
-# Configure xleda
-xleda = FieldAnalysis(input_df=df,
-                      name=Theme Example Name,
-                      theme_color="#031835")
-```
 <br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme_colors.webp?raw=true" width="800" alt="Theme Colors">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme_colors.webp?raw=true" width="600" alt="Theme Colors">
 	<br>
 	<em>theme_color affects the workbooks and default charts.</em>
-</p>
-<br><br>
+</p><br>
 
-#### **add_plots** | Optional
+### **add_plots** | dict | Optional
 
 * `add_plots={'plotname': Figure, ...}` will add additional worksheets with plots of your choosing. 
 
-	* No styling/sizing of additional plots is performed.
+* No styling/sizing of additional plots is performed by xleda. 
+
+* The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Penguins.xlsm).
+
+
+	```python
+	from xleda import wb
+
+	import matplotlib.pyplot as plt
+	import seaborn as sns
+	import missingno as msno
 	
-	* The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Penguins.xlsm).
+
+	# < your dataframe goes here >
+	df = penguins = sns.load_dataset("penguins")
+	
+
+	# Style the additional plots | optional
+	plt.style.use("dark_background")
 
 
-```python
-from xleda import FieldAnalysis
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import missingno as msno
-  
-
-# < your dataframe goes here >
-df = penguins = sns.load_dataset("penguins")
-  
-
-# Style the additional plots | optional
-plt.style.use("dark_background")
+	# Create additional plots
+	pair_plots = sns.pairplot(df, hue="species").figure
+	null_matrix = msno.matrix(df).get_figure()
 
 
-# Create additional plots
-pair_plots = sns.pairplot(df, hue="species").figure
-null_matrix = msno.matrix(df).get_figure()
+	# Resize the null matrix  | optional
+	null_matrix.set_size_inches(9.35, 4.5)
 
 
-# Resize the null matrix  | optional
-null_matrix.set_size_inches(9.35, 4.5)
+	# Creates an xleda workbook named Penguins.xlsm with two extra plot sheets
+	wb(input_df=df,
+	   name="Penguins",
+	   theme_color="#4C4C4C",
+	   add_plots={'Pair Plots': pair_plots,
+	              'Null Matrix': null_matrix})
+	```
+<br>
 
-
-# Configures xleda
-xleda = FieldAnalysis(input_df=df,
-                      name="Penguins",
-                      theme_color="#4C4C4C",
-                      add_plots={'Pair Plots': pair_plots,
-                                 'Null Matrix': null_matrix})
-
-# Creates the workbook
-xleda.create_workbook()
-
-```
-
-
-#### **wb_path** | Optional
+### **wb_path** | Path | Optional
 
 * Sets the target folder for the xleda workbook. 
 * Uses a pathlib Path object.
 * Defaults to current working directory<br>
-```python
-from pathlib import Path
 
-xleda = FieldAnalysis(input_df=df,
-                      name="Penguins",
-                      wb_path=Path(r"c:\my_target_folder"))
+	```python
+	from xleda import wb
+	from pathlib import Path
 
-# Creates "Penguins.xlsm" in the "c:\my_target_folder" directory
-xleda.create_workbook()
 
-```
-<br>
+	# Creates "c:\my_target_folder\Penguins.xlsm"
+	wb(input_df=df,
+	   name="Penguins",
+	   wb_path=Path(r"c:\my_target_folder"))
 
-#### **overwrite** | Optional
+	```
+	<br>
+
+### **overwrite** | bool | Optional
 
 * Whether to overwrite existing workbooks of the same name. 
-* Defaults to False
+* Existing workbooks are sent to Trash/Recycle Bin
+* Defaults to False<br>
 
 
-#### **large_report** | Optional
+### **large_report** | bool | Optional
 
-* Raises the default dataframe size limits of 100,000 rows/100 columns to Excel's limits of 1,000,000 rows and 16,000 columns.  
-* The closer your are to this limit, the more RAM and time you'll need to produce a workbook.
+* Raises the default dataframe size limits of 25,000 rows/50 columns to Excel's limits of 1,000,000 rows and 16,000 columns.  
+* The closer your are to this limit, the more RAM and patience you'll need to produce a workbook.
 * See additional details in the performance section below.
-* Defaults to False
+* Defaults to False<br>
 
-#### **no_vba** | Optional
+### **no_vba** | bool | Optional
 
 * Creates the workbook as an xlsx file without VBA. 
-* Defaults to False
-
-<br>
-
-## **Usage Notes**
-
-#### **Field/Record Lists**
+* Defaults to False<br>
 
 
-* The `Field Lists` section helps you create lists of the fields in your data.  
+### **open_wb** | bool | Optional
 
-	* Anything not marked as `False` will be included in each list.   
+* Opens the workbook after creating.
+* Setting this to `False` is useful when creating multiple workbooks
+* Defaults to True.<br>
 
-	* The `Record List` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that below.
+### **export** | bool | Optional
 
-	* You can see your lists in the `Compiled Lists` section.  
+* Performs an export from an xleda workbook instead of creating one. 
+* Replaces the `export_analysis` method.
+* See details below.
+* Defaults to False.<br><br>
 
-	* You can rename `Record List` or any `Field List` to `Anything You Want` and the list will be renamed to `anything_you_want`.
 
-	* The Compiled Lists section formats your lists as python lists for easy copy/pasting.
+# **Usage Notes**
 
-	* You can use `export_analysis()` to get your lists, and other things, back into Python.  See details below.
+## **Performance**
 
-	* Adding/deleting rows or columns on the Field Analysis worksheet may offset the formulas which compile your lists.   Spot check them before using them if you have.<br>
+* On an average machine, xleda creates workbooks for most data sets less than 20 seconds. 
 
+* Performance is largely dependent on how powerful of a machine you have and how large your dataframe is.  
+
+* There is a detailed output provided when creating an xleda workbook that does a pretty good job of letting you know what it's doing. 
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/create_example.webp?raw=true" width="400" alt="Create Example">
+	<br>
+	<em>Console output of a Planets workbook </em>
+</p><br><br>
+
+### **Limits with Large Data Sets**
+
+* To ensure workbooks are created quickly, defaults limit data to the first 50 columns and a random sample of 25,000 records. 
+
+* You can optionally override this to Excel's limits (see `large_report=True` above)
+
+* You'll see a warning banner if you hit a limit.
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="600" alt="Create Example">
+</p><br>
+
+* One of the more complex data sets tested was a 600 column/1,200 row dataframe.
+  
+	* It took ~5 minutes to create, in part because nearly all values are large unique numbers in all 600 columns.
+
+	* It is still snappy to use even though it has 1,200 charts on a single worksheet.
+
+	* That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
+
+## **Field/Record Lists**
+
+
+* The `Field Lists` section helps you create lists of the fields in your data.
+	* e.g. lists of fields to rename, delete, standard scale, encode, impute, investigate, etc. 
+
+* Anything not marked as `False` will be included in each list.   
+
+* You can rename any list to `Anything You Want` and the list will be renamed to `anything_you_want`.
+
+* The `Record List` field added to your source data works the same way except it creates a list of records instead of a list of fields.  More on that below.
+
+* The Compiled Lists section formats your lists as python lists for easy copy/pasting.<br>
 <br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="606" alt="Field Lists">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="500" alt="Field Lists">
 	<br>
 	<em>Easily create lists of fields in your data.</em>
 </p>
 <br><br>
 
+## **Columns Added to Source Data**
 
+* Although the source data is unchanged before it goes into Excel,  there are some columns added to support an EDA workflow. 
 
-#### **Record List Details**
-
-* Two additional columns are added to your data to support being able to create a list of records for further processing.
+	* `HasBlank`: If any field in a record has a missing value, this will show 1 otherwise 0
 
 	* `Record Hash`:  Uses a built-in pandas feature [hash_pandas_object](https://pandas.pydata.org/docs/reference/api/pandas.util.hash_pandas_object.html) to uniquely identify records.  If two records share all column values they also share a `Record Hash`. 
 
-	* `Record List`:  Used to create a list of `Record Hash` values.<br><br>
+	* `Record List`:  Used to create a list of `Record Hash` values.  Like `Field Lists` above, anything not marked false gets added to a list.
 
-#### **Exporting back into Python**
+	* `index`:  This is a copy of the index from the provided dataframe as a column.<br><br>
 
-* At some point, you'll likely need to get some of your analysis back into Python.  `export_analysis()` exports your definitions, notes, lists, and more back into Python.<br>
-<br>
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="606" alt="Completed Field Analysis">
-	<br>
-	<em>A completed xleda workbook of Titanic passenger showing definitions, notes, lists, etc.</em>
-</p>
+	```python
+	# .....After editing your workbook and assuming you marked 
+	# records to delete in the record list column
+	
+	# exports your source dataframe with the added record list column
+	export_dict = wb(df, export=True).export_dict
+	df = export_dict['source_data']
+	
+	# Uses the record list to delete records
+	delete_records = df = export_dict['lists']['record_list']
+	df = df[not df['Record Hash'].isin(delete_records)]
+	```
 <br><br>
 
-##### **Export Details**
 
-* All exported data comes from the Field Analysis worksheet.
+## **Accessing Metadata in Python**
 
-* The export dictionary includes:
+
+##### **Default Metadata**
+
+* Metadata from  all `xleda.wb()` objects is collected into a dictionary accessible through `xleda.wb().export_dict` <br><br>
+	```python
+	# Creates "Titanic.xlsm" and exports the metadata dictionary
+	export_dict = wb(input_df=df,
+	           		 name="Titanic").export_dict
+
+	# Returns the field metadata df used in the Field Analysis worksheet
+	export_dict['field_metadata'] 
+	```
+<br>
+
+* The following metadata is available without using `export=True`
+
+	* `field_metadata`: A basic metadata dataframe, combining information from pandas info/describe/quantile.
+	* `overview_metadata`: A transposed copy of the field_metadata.
+	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List`/`HasBlank`/`index` columns.<br><br>
+
+##### **Expanded Metadata**
+
+* Using `xleda.wb(export=True)` reads an xleda workbook instead of creating one.  
+
+* It expands the available metadata within `xleda.wb().export_dict` to include:
 
 	* `description`: Dataframe description if you've added one
 	* `definitions`: Any field definitions you've added.
 	* `notes`: Any field notes you've added
 	* `lists`: Any lists showing in the compiled lists section
-	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List` columns.
-	* `altered_source_data`: `Source Data Table` from the workbook that includes any manual edits you've made such as removing records, renaming fields, replacing values, etc. **
+	* `altered_source_data`: Reads the Excel table named `tbl_SourceData` from the workbook and will include any manual edits you've made such as removing records, renaming fields, replacing values, etc. **
 
-		 ** *Note that data types will likely change in the round-trip translation.* **<br>
-
-##### **Example Export Code**
-```python
-from xleda import FieldAnalysis
-
-# After editing your workbook
+		 ** *Note that data types will likely change in the round-trip translation.* <br><br>
 
 
-# If you created your workbook somewhere else, configure xleda before export
-xleda = FieldAnalysis(input_df=df,
-                      name="Titanic")
+### **Completed Example**
 
-# Export notes, definitions, data, etc from an xleda workbook
-xleda_dict = xleda.export_analysis()
+* The xleda workbook pictured here is used in for the export code example below .  
 
-```
-
-<br>
-
-##### **Example Export Dictionary**
+* It can be found [here.](https://github.com/InfoDesigner/xleda/blob/main/examples/Titanic%20(Completed).xlsx).
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_analysis_export.webp?raw=true" width="500" alt="Export Dict">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="500" alt="Completed Field Analysis">
 	<br>
-	<em>An example export from a completed field analysis on Titanic passenger data.</em>
+	<em>A completed xleda workbook of Titanic passenger showing definitions, notes, lists, etc.</em>
+</p>
+<br>
+
+### **Example Export Dictionary**
+
+<p align="center">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_analysis_export.webp?raw=true" width="400" alt="Export Dict">
+	<br>
+	<em>An example export dictionary from a completed field analysis on Titanic passenger data.</em>
 </p>
 <br><br>
 
+### **Example Export Code**
 
-##### **Exporting Cautions**
+* This example exports everything from an xleda workbook named  "Titanic (Completed).xlsx" in the current directory.  
 
+* Either download [this one](https://github.com/InfoDesigner/xleda/blob/main/examples/Titanic%20(Completed).xlsx) or create your own.
 
-###### **Spot Check your Lists**
+	```python
+	from xleda import wb
 
-* Most of the few formulas in an xleda workbook are used to compile your lists. 
+	# Performs a full export from "Titanic (Completed).xlsx"
+	export_dict = wb(input_df=df,
+					 name="Titanic (Completed)", 
+					 no_vba=True,
+					 export=True).export_dict
 
-* If you've added/deleted rows/columns, double-check that your lists show correctly in the `Compiled Lists` section  before using them downstream.
-
-###### **Round-Tripping Source Data Edits**
-
-* `altered_source_data` will likely change the field data types vs what was in the original dataframe.
-
-* The Source Data table shouldn't be renamed in Excel.  Any other edits such as deleting rows/columns, editing values, etc. are fine.
-
-
-## **Performance**
-
-xleda creates workbooks for most data sets less than 20 seconds.   
+	
+	# Returns dict_keys(['description', 'definitions', 'notes', 
+	# 'lists', 'field_metadata', 'overview_metadata', 'source_data', 
+	# 'altered_source_data'])
+	print(export_dict.keys()) 
+	```
 <br>
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/create_example.webp?raw=true" width="400" alt="Create Example">
-	<br>
-	<em>The Penguin example from above that includes extra plots took only 7 seconds to create.</em>
-</p>
-<br><br>
-
-#### **Limits with Large Data Sets**
-
-* To ensure workbooks are created quickly, defaults limit data to the first 100 columns and a random sample of 100,000 records.  You'll see a warning banner if you hit a limit.
-
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="800" alt="Create Example">
-</p><br>
-
-* One of the more complex data sets tested was a 600 column/1,200 row dataframe.
-  
-	* It took ~5 minutes to create, in part because most values are unique for all 600 columns and xleda give you a top 5 members composition chart per column.
-
-	* It is still snappy to use even though it has 1,200 charts on a single worksheet.  That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
-
-
 
 ## **VBA Code**
 
-* There is a small amount of VBA code in the template that makes the sections expand/collapse when you select them as pictured above.  
+* If you can't or don't want to enable VBA, you may want to use `no_vba=True` which creates an  xlsx file that contains no VBA.<br>
 
-* If you can't or don't want to enable VBA, you can use row groupings to navigate as pictured below. 
+* The [small amount of VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/mdl_xleda.bas) in the template does two optional things. 
 
-* In addition, you may want to create the report with `no_vba=True` which creates an  xlsx file that contains no VBA.<br>
+	1. Makes the sections expand/collapse when you select them as pictured above.  
 
-<br>
+	2. Adds two UDFs, PythonList and PythonDict, that format cell values as lists/dicts. <br><br>
+
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.webp?raw=true" width="462" alt="Row Groupings">
 	<br>
 	<em>Use row groupings to navigate if you can't use VBA.</em>
 </p>
-<br><br>
+<br>
 
 ## **Extensible**
 
-* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  [xlwings](https://www.xlwings.org/) is recommended if you need more. <br><br>
+* xleda is only meant to give a good start to EDA.  
+
+* If it accomplishes one thing it will be to give you a way to quickly get Python data into Excel so that you can make sense of it...without making you do everything from scratch.  
+
+* Where you go from there is up to you.
+
+* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  
+
+* [xlwings](https://www.xlwings.org/) is recommended if you do. <br><br>
+
+## **Built With**
+
+* This was primarily built with Python, xlwings, Pandas, and of course, Microsoft Excel.
+
+## **Roadmap**
+
+* [x] Add a barebones pivot that is ready to configure
+* [x] Make xleda even more accessible by simplifying the API and making it easier to remember.
+* [x] Create a way to quickly view dataframe data that is editable, shareable, and presentation ready.
+* [x] Add a way to include extra plots for a dataset.
+* [ ] Add a way to include extra supporting table worksheets.
+* [ ] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
+* [ ] Add a basic version for even quicker dataframe inspection.
+* [ ] Add a way to include multiple xleda analyses in a single workbook.
+* [ ] Test on MacOS
+* [ ] Investigate starting from Excel data.
+* [ ] Your idea here.
 
 
 
-## **Troubleshooting**
+## Changelog
 
-* If your workbook appears with "Document Recovery", it's probably fine.  Neither a root cause or a consequence for ignoring this has been identified.
+
+> [!NOTE]Version 0.8.185 - New simplified API, simplified export, general polish
+> **Simplified basic usage to make it quicker to use and easier to memorize.** 
+> * Changed the default entry point to `xleda.wb()` from `xleda.FieldAnalysis()`.  
+> * `xleda.wb()` now creates and automatically opens workbooks.
+> * The only argument needed to create a workbook is now a dataframe. `wb(df)`
+> * Workbook name now defaults to `xleda` if no name is given.
+> * Protected backwards compatibility while providing guidance to use the new API.
+> 	* Subclassed the new API to create plugs for the old one.
+> 
+> **Simplified export functionality**
+> * Changed `export_analysis` functionality from a class method to a class argument `wb(df, export=True)`.  
+> * All wb() objects now include a export_dict metadata collection that is accessible using dot notation.
+> * Added field_metadata, and overview_metadata to export_dict.
+> * using wb(export=True) adds the metadata exported from workbooks to export_dict.
+> * Added file exists checks for `export=True` with messaging that the export will be limited if the file isn't found. 
+> 
+> **Template updates**
+> * Recreated the template, moved formatting to cell styles for simplicity/consistency in maintenance where appropriate. 
+> *  Pivot was removed and Blanks was renamed Pivot.
+> * `% of Records` field was added to the new Pivot
+> * Added dataframe index to source data by default.
+> * Added dataframe level metadata to the Data Description section.
+> * Added two UDFs to the template, PythonList/PythonDict to create Python formatted strings from cell values
+> * Adjusted the named range to support being able to delete almost any column without affecting lists or navigation.
+> * General polish.
+> 
+> **Other updates**
+> * Default limits were reduced to 25,000 rows/50 columns
+> * Good deal of refactoring to support new entry point, minimize errors, reduce redundancy. 
+> 	* Removed clipboard usage in all except one place which is formatting instead of data. 
+> 	* Added `open_wb` argument to prevent automatically opening the workbook.  Useful if creating many workbooks.
+> * Replaced rich progress bars with TQDM for better support in notebooks/vs code notebook/console environments.
+> * When using overwrite=True, overwritten files now go to the recycle bin/trash.  Console output includes messaging about these files.
+> * Clarified/organized readme to support the new API/template.
+> * Added production logging metrics so you can see how the time required to create a workbook was utilized.  
+> 	* This is useful if you're trying to find a good size to subsample to. 
+> 	* You can find it at `wb().performance` for now.  

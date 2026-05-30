@@ -1,3 +1,5 @@
+import pytest
+
 from tools.create_examples import (create_primary_examples, 
                                    create_other_examples,  
                                    complete_titanic_wb)
@@ -6,9 +8,12 @@ from tools.create_examples import (create_primary_examples,
 
 def pytest_configure(config):
     
-    # Create all example workbooks
-    create_primary_examples()
-    create_other_examples()
-    complete_titanic_wb()
 
-    pass
+    # with pytest.raises(SystemExit):
+
+        # Create all example workbooks
+        # create_primary_examples()
+        # create_other_examples()
+        # complete_titanic_wb()
+
+        pass

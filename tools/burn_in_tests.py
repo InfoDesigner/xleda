@@ -1,16 +1,14 @@
 from pathlib import Path
-import sys
 import pandas as pd
 import numpy as np
 from faker import Faker
 import shutil
+from xleda import wb
+from global_utils import time_function
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from xleda import FieldAnalysis  # noqa: E402
-from tools import time_function  # noqa: E402
+# ROOT_DIR = Path(__file__).resolve().parents[1]
+# if str(ROOT_DIR) not in sys.path:
+#     sys.path.insert(0, str(ROOT_DIR))
 
 
 
@@ -79,21 +77,20 @@ def create_all_sizes():
 
 
         # Create without large report flag
-        small_xleda = FieldAnalysis(input_df=df,
-                                    theme_color='random',
-                                    name=name + '_small',
-                                    wb_path=output_path)
+        wb(input_df=df,
+           theme_color='random',
+           name=name + '_small',
+           wb_path=output_path)
         
 
         # Create with large report flag
-        large_xleda = FieldAnalysis(input_df=df,
-                                    theme_color='random',
-                                    name=name + '_large',
-                                    wb_path=output_path,
-                                    large_report=True)
+        wb(input_df=df,
+           theme_color='random',
+           name=name + '_large',
+           wb_path=output_path,
+           large_report=True)
         
-        small_xleda.create_workbook()
-        large_xleda.create_workbook()
+
 
 
 

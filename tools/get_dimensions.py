@@ -3,7 +3,7 @@ from pathlib import Path
 import seaborn as sns
 import openml
 from sklearn.datasets import fetch_openml
-from xleda import FieldAnalysis
+from xleda import wb
 
 
 dimensions = []
@@ -72,9 +72,9 @@ if __name__ == '__main__':
     
     df = collect_dimensions()
 
-    xleda = FieldAnalysis(name="Dataset Dimensions", 
-                          input_df=df, 
-                          overwrite=True).create_workbook()
+    wb = wb(name="Dataset Dimensions", 
+            input_df=df, 
+            overwrite=True)
 
 
 

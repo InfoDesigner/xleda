@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.181"
+version = "0.8.182"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -11,16 +11,12 @@ dependencies = [
     "matplotlib>=3.6.0",
     "numpy>=1.26",
     "pandas>=2.0",
-    "rich>=13.0.0",
-    "seaborn>=0.13.0",
-    "ipywidgets>=7.7.1",
-    "matplotlib>=3.6.0",
-    "numpy>=1.26",
-    "pandas>=2.0",
-    "rich>=13.0.0",
     "seaborn>=0.13.0",
     "xlwings>=0.35.2",
-    ]
+    "send2trash>=2.1.0",
+    "tqdm>=4.66.0",
+
+]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -70,15 +66,29 @@ dev = [
     "notebook>=7.5.6",
     "openml>=0.15.1",
     "pyarrow>=24.0.0",
+    "pyinstrument>=5.1.2",
+    "pyrefly>=1.0.0",
+    "pytest>=9.0.3",
+    "types-seaborn>=0.13.2.20260518",
+    "types-tqdm>=4.67.3.20260518",
+    "types-send2trash>=2.1.0.20260408",
 ]
 
 [tool.uv.sources]
 global-utils = { path = "../.Utilities", editable = true }
 
 [tool.pyrefly]
+# Disable gitignore scanning — the *.pyc/*.ipynb gitignore patterns
+# caused pyrefly to skip all Python files via glob overlap.
+# Run `uv run pyrefly check .` or `uv run pyrefly check src` manually.
+use-ignore-files = false
 project-includes = [
     "src/**/*.py",
     "tests/**/*.py",
+    "tools/**/*.py",
+    "examples/**/*.py",
 ]
-
-
+project-excludes = [
+    "**/__pycache__/**",
+    "**/.venv/**",
+]

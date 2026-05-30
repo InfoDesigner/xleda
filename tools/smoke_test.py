@@ -4,7 +4,7 @@ Catch cases where e.g. files are missing so the import doesn't work. It is
 recommended to check that e.g. assets are included."""
 
 import sys
-from xleda import FieldAnalysis  # noqa: F401
+from xleda import wb  # noqa: F401
 
 
 

@@ -1,6 +1,7 @@
 # Python-generated files
 __pycache__/
-*.py[oc]
+*.pyc
+*.pyo
 build/
 dist/
 wheels/
@@ -14,7 +15,6 @@ wheels/
 .vscode/settings.json
 .vscode/launch.json
 xleda.code-workspace
-outside_package.py
 .obsidian/*
 *.ipynb
 uv publish steps.md
@@ -22,6 +22,5 @@ uv publish steps.md
 # Ignore temporary excel files, other temp files
 ~$*
 tests/all_sizes
-/wip
-wip/
+wip/*
 /*.xlsm
