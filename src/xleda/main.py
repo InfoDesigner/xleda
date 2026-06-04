@@ -391,11 +391,7 @@ class wb():
 
 
         
-        # Add log collection to wb object
-        # TODO: Remove this 
-        self.performance = self.logger.performance_logs
-
-        
+       
         # Print closing message
         self.theme.print(exit_msg + '\n' + separator)
     
