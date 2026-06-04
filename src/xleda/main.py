@@ -1048,7 +1048,8 @@ class wb():
         env_df = env_df.reset_index()
         env_df.columns = ['Environment Variable', 'Value']
 
-        # Write debug ranges
+
+        # Write debug range
         ws.range("debug_metadata").options(transpose=True).value = self.logger.performance_metadata.values
 
 
@@ -1058,6 +1059,11 @@ class wb():
         ws.tables("tbl_debug_errors").update(self.logger.errors, index=False)
         ws.tables("tbl_debug_section").update(self.logger.section_performance, index=False)
         ws.tables("tbl_debug_field").update(self.logger.field_performance, index=False)
+
+
+        # Hide config section and set toggle orientation
+        ws.range("toggle").api.Orientation = 0
+        ws.range("Config").api.EntireRow.Hidden = True
         
         
         # Move the debug worksheet to the beginning
