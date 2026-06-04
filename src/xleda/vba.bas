@@ -7,7 +7,7 @@ Sub ToggleSection()
     Dim n As Variant
 
 
-    SubSections = Array("Field_Notes", "Data_Description", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists")
+    SubSections = Array("Data_Description", "Composition", "Summary_Stats", "Percentiles", "Field_Lists", "Compiled_Lists")
 
     'Pull section name from name of selected shape
     SectionName = ActiveSheet.Shapes(Application.Caller).name

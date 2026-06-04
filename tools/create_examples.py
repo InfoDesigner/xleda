@@ -16,9 +16,12 @@ from global_utils import time_function
 
 
 
+# --------------------------------------------------
+# Set variables
+
 # Dataset lists
 seaborn_datasets = ['anagrams', 'anscombe', 'attention', 'brain_networks', 'car_crashes', 'diamonds', 'dots', 'dowjones', 'exercise', 'flights', 'fmri', 'geyser', 'glue', 'healthexp', 'iris', 'mpg', 'planets', 'seaice', 'taxis', 'tips']
-aoml_datasets = ['african_soil', 'air_bnb', 'mlb', 'nyc_taxi']
+aoml_datasets = ['african_soil', 'air_bnb', 'mlb']
 
 
 # Path lists
@@ -33,23 +36,29 @@ african_soil = pd.read_feather(example_data_dir / 'african_soil.feather').iloc[:
 air_bnb = pd.read_feather(example_data_dir / 'air_bnb.feather')
 mlb = pd.read_feather(example_data_dir / 'mlb.feather')
 nyc_taxi = pd.read_feather(example_data_dir / 'nyc_taxi.feather')
-penguins = sns.load_dataset("penguins")
 titanic = sns.load_dataset("titanic")
 
 
+# Add df example dfs
+og_penguins = pd.read_csv("https://raw.githubusercontent.com/allisonhorst/palmerpenguins/refs/heads/main/inst/extdata/penguins_raw.csv")
+penguins = sns.load_dataset('penguins')
+seaice = sns.load_dataset('seaice')
+
+
 # Data for Titanic Example
-titanic_incompleted: Path = examples_path / 'Titanic.xlsx'
-titanic_completed: Path = examples_path / 'example_scripts//Titanic (Completed).xlsx'
+titanic_incompleted: Path = examples_path / 'Titanic.xlsm'
+titanic_completed: Path = examples_path / 'Titanic Completed.xlsm'
 
 
-performance = []
+section_dfs = []
+field_dfs = []
 
 
 
 def save_pickle(pickle_path: Path, cucumber: Any):
 
     """
-       Saves a dictionary as a pickle file
+        Saves a dictionary as a pickle file
 
     Parameters
     ----------
@@ -69,8 +78,9 @@ def save_pickle(pickle_path: Path, cucumber: Any):
 
 @time_function
 def create_primary_examples():
+    
     """
-    Creates example xleda workbooks from aoml data sets
+        Creates example xleda workbooks from aoml data sets
 
     """
 
@@ -84,38 +94,42 @@ def create_primary_examples():
 
 
 
-    aoml_examples = [{'input_df': african_soil,
-                      'name': 'African Soil',
-                      'theme_color': "#0A7F02",
-                      'large_report': True},
+    primary_examples = [
                      {'input_df': air_bnb,
                       'name': "Airbnb",
                       'theme_color': "#B30934",},
+                     {'input_df': african_soil,
+                      'name': 'African Soil',
+                      'theme_color': "#0A7F02",
+                      'large_report': True},
                      {'input_df': mlb,
                       'name': "MLB",
                       'theme_color': "#031835",},
                      {'input_df': nyc_taxi,
                       'name': "NYC Taxi",
-                      'theme_color': "#8E6505"},
-                     {'input_df': penguins, 
-                      'name': "Penguins", 
-                      'theme_color': "#4C4C4C",
-                      'add_plots': {'Pair Plots': pair_plots,
-                                    'Null Matrix': null_matrix,
-                                    }},
+                      'theme_color': "#8E6505",
+                      'no_vba': True},
                      {'input_df': titanic,
                       'name': "Titanic",
-                      'no_vba': True}]
+                      'theme_color': 'random'},
+                     {'input_df': penguins,
+                      'name': "Penguins",
+                      'theme_color': 'random',
+                      'add_dfs':{'Sea Ice': seaice,
+                                'OG Penguins': og_penguins},
+                      'add_plots': {'Pair Plots': pair_plots,
+                                    'Null Matrix': null_matrix,
+                                    }}]
     
 
-    for example in aoml_examples:
+    for example in primary_examples[::-1]:
 
         xleda = wb(overwrite=True,
                    wb_path=examples_path,
                    open_wb=False,
                    **example)
         
-        performance.append(xleda.performance)
+        compile_performance_data(xleda)
         
         time.sleep(2)
         
@@ -145,7 +159,7 @@ def create_other_examples():
                    overwrite=True,
                    open_wb=False)
         
-        performance.append(xleda.performance)
+        compile_performance_data(xleda)
         
         time.sleep(2)
 
@@ -153,10 +167,12 @@ def create_other_examples():
 
 def complete_titanic_wb(update_pickle: bool=False):
     """
-       Creates a copy of the completed Titanic example from the current template 
-       Also exports xleda analysis into a pickle file for testing
+        Creates a copy of the completed Titanic example from the current template 
+        optionally exports into a pickle file for testing
 
     """
+
+    print("Recreating the Titanic Completed example")
 
 
     with xw.App(visible=False, add_book=False) as app:
@@ -165,13 +181,13 @@ def complete_titanic_wb(update_pickle: bool=False):
         source_wb = app.books.open(titanic_completed)
         target_wb = app.books.open(titanic_incompleted)
         
-        source_ws = source_wb.sheets("Field Analysis")
-        target_ws = target_wb.sheets("Field Analysis")
+        source_ws = source_wb.sheets("Titanic | Field Analysis")
+        target_ws = target_wb.sheets("Titanic | Field Analysis")
 
 
         # Update data
-        completed_df = source_ws.tables['tbl_SourceData'].range.options(pd.DataFrame, index=False).value
-        target_ws.tables['tbl_SourceData'].update(completed_df, index=False)
+        completed_df = source_ws.tables[0].range.options(pd.DataFrame, index=False).value
+        target_ws.tables[0].update(completed_df, index=False)
 
         # Definitions/Notes/Description
         target_ws.range("Notes").value = source_ws.range("Notes").value
@@ -181,7 +197,7 @@ def complete_titanic_wb(update_pickle: bool=False):
 
 
         # Unhide completed sections
-        visible_ranges = ['Data_Description', 'Compiled_Lists', 'Field_Notes', 'Field_Lists']
+        visible_ranges = ['Data_Description', 'Compiled_Lists', 'Field_Lists']
 
         for range in visible_ranges:
             target_ws.range(range).api.EntireRow.Hidden = False
@@ -196,16 +212,16 @@ def complete_titanic_wb(update_pickle: bool=False):
     
     # Update the pickle file
     if update_pickle:
-    
-        export_dict = wb(input_df=titanic, 
-                        wb_path=examples_path / 'example_scripts', 
-                        name='Titanic (Completed)',
-                        no_vba=True,
-                        export=True)
+        
+        print("Updating pickle export")
+        export_dict = wb(input_df=titanic,
+                         wb_path=examples_path / 'Titanic Completed.xlsm',
+                         name='Titanic',
+                         export=True).export_dicts
         
         save_pickle(pickle_path=pickle_path, cucumber=export_dict)
     
-
+    print("Done")
 
 def download_openml_dataset():
     
@@ -244,47 +260,78 @@ def download_openml_dataset():
 
 
 
-def create_openml_examples():
+def create_feather_examples():
     """
        Creates xleda workbooks from all feather files in a directory
     
     """
 
     
-    for datafile in example_data_dir.iterdir():
+    for datafile in (example_data_dir / 'other').iterdir():
         
         # Make sure the datafile is a feather file and the workbook 
         # is not already being created with the primary examples.
         name = datafile.stem
 
-        if datafile.suffix == '.feather' and name not in aoml_datasets:
+        if datafile.suffix == '.feather':
 
 
             df = pd.read_feather(datafile)
 
-            wb(input_df=df,
-               name=name.replace("-", " ").title(),
-               theme_color='random',
-               wb_path=other_examples_path,
-               open_wb=False)
+            xleda = wb(input_df=df,
+                       name=name.replace("-", " ").title(),
+                       theme_color='random',
+                       wb_path=other_examples_path,
+                       overwrite=True,
+                       open_wb=False)
             
+            compile_performance_data(xleda)
+
+
+def compile_performance_data(input_wb: wb):
+
+    global section_dfs
+    global field_dfs
+
+
+    # Get rows/columns from overall metadta
+    performance_metadata = input_wb.logger.performance_metadata
+    section_performance = input_wb.logger.section_performance
+
+    rows = performance_metadata['Rows Included'].squeeze()
+    columns = performance_metadata['Columns Included'].squeeze()
+
+    section_performance['Rows'] = rows
+    section_performance['Columns'] = columns
+
+
+    section_dfs.append(section_performance)
+    field_dfs.append(input_wb.logger.field_performance)
+
+
+
+    # Add rows/columns to section_df
+    # self.section_performance: pd.DataFrame = pd.DataFrame()
+    # self.field_performance: pd.DataFrame = pd.DataFrame()
 
             
-def create_performance_wbs():
+def create_performance_wb():
 
     """
         Creates xleda workbooks documenting the production timing of xleda examples.
     
     """  
 
-    # Create xleda workbooks of performance data
-    for performance_log in ['pivot', 'plots', 'section']:
-        
-        df = pd.concat([performance_list[performance_log] for performance_list in performance], ignore_index=True)
 
-        wb(input_df=df, 
-           name=performance_log, 
-           overwrite=True)
+    section_df = pd.concat(section_dfs, ignore_index=True)
+    field_df = pd.concat(field_dfs, ignore_index=True)
+
+
+    wb(input_df=section_df,
+       name="Performance Timing",
+       overwrite=True,
+       add_dfs={'Fields': field_df,
+                })
 
 
 if __name__ == '__main__':
@@ -294,10 +341,11 @@ if __name__ == '__main__':
     # create_openml_examples()
 
 
-    create_primary_examples()
-    complete_titanic_wb(update_pickle=False)
-    create_other_examples()
-    create_performance_wbs()
+    create_feather_examples()
+    # create_primary_examples()
+    # complete_titanic_wb(update_pickle=True)
+    # create_other_examples()
+    create_performance_wb()
     
 
         
