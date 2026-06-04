@@ -69,7 +69,7 @@
 	```
 <br>
 
-# **Basic xleda Components**
+# **xleda Components**
 ### **Field Metadata**
 
 * Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
@@ -136,7 +136,7 @@ Two charts are produced for each column in your dataframe.
 
 ### **Debug**
 
-* A worksheet that includes details on configuration, environment, and how the time spent to produce an xleda workbook was spent on both field and workbook levels.<br><br>
+* A worksheet that includes details on configuration, environment, and how the time spent to produce an xleda workbook was allocated.<br><br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/debug.webp?raw=true"  width="600" alt="Blanks"> 
 	<br>
@@ -399,16 +399,6 @@ Two charts are produced for each column in your dataframe.
 
 	* `index`:  This is a copy of the index from the provided dataframe as a column.<br>
 
-
-
-<p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/using_record_list.webp?raw=true" width="303" alt="Field Lists">
-	<br>
-	<em>Using Record List to delete record tagged in Excel.</em>
-</p>
-
-
-
 ## **Accessing Metadata in Python**
 
 
@@ -418,7 +408,7 @@ Two charts are produced for each column in your dataframe.
 	```python
 	# Creates "Titanic.xlsm" and exports the metadata dictionaries
 	export_dicts = wb(input_df=df,
-	           		  name="Titanic").export_dicts
+	           	   name="Titanic").export_dicts
 
 	# Returns the field metadata df from the primary dataframe
 	export_dicts[0]['field_metadata'] 
@@ -485,8 +475,8 @@ Two charts are produced for each column in your dataframe.
 
 	# Performs a full export from "Titanic Completed.xlsm"
 	export_dicts = wb(input_df=df,
-					 path="Titanic Completed.xlsm",
-					 export=True).export_dicts
+	                  path="Titanic Completed.xlsm",
+	                  export=True).export_dicts
 
 	
 	# Returns dict_keys(['description', 'definitions', 'notes', 
@@ -621,7 +611,7 @@ Two charts are produced for each column in your dataframe.
 
 
 <details> 
-<summary>Version 0.8.185 - Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
+<summary>Version 0.8.186 - Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
 </summary> 
 
 <br>
