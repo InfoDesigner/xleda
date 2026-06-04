@@ -181,8 +181,8 @@ def complete_titanic_wb(update_pickle: bool=False):
         source_wb = app.books.open(titanic_completed)
         target_wb = app.books.open(titanic_incompleted)
         
-        source_ws = source_wb.sheets("Titanic | Field Analysis")
-        target_ws = target_wb.sheets("Titanic | Field Analysis")
+        source_ws = source_wb.sheets("Field Analysis")
+        target_ws = target_wb.sheets("Field Analysis")
 
 
         # Update data
@@ -341,11 +341,11 @@ if __name__ == '__main__':
     # create_openml_examples()
 
 
-    create_feather_examples()
+    # create_feather_examples()
     # create_primary_examples()
-    # complete_titanic_wb(update_pickle=True)
-    # create_other_examples()
-    create_performance_wb()
+    # complete_titanic_wb(update_pickle=False)
+    create_other_examples()
+    # create_performance_wb()
     
 
         

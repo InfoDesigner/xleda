@@ -1095,15 +1095,26 @@ class Config():
         
         for i, df in enumerate(all_dfs):
 
+            
+            # use clearer names for the primary dataframe
+            if not i:
+                fa = 'Field Analysis'
+                ov = 'Overview'
+                pv = 'Pivot'
+            
+            else:
+                fa = f'Field Analysis | {unique_names[i]}'
+                ov = f'Overview | {unique_names[i]}'
+                pv = ''
+
+
             self.blueprints.append(Blueprint(name=unique_names[i],
                                              title=titles[i],
                                              input_df=df,
                                              large_report=self.large_report,
-                                             field_analysis= f'{unique_names[i]} | Field Analysis',
-                                             overview=f'{unique_names[i]} | Overview',
-
-                                              # Add pivot only to the primary datafame
-                                             pivot= f'{unique_names[i]} | Pivot' if not i else ""))
+                                             field_analysis= fa,
+                                             overview=ov,
+                                             pivot=pv))
 
 
 
