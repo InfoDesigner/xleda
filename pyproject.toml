@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.188"
+version = "0.8.189"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -96,3 +96,7 @@ project-excludes = [
 
 [tool.ruff]
 line-length = 120
+
+
+[tool.pytest.ini_options]
+addopts = "-p no:faulthandler --tb=no"

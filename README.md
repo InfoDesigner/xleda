@@ -446,7 +446,7 @@ Two charts are produced for each column in your dataframe.
 
 * The xleda workbook pictured here is used in for the export code example below .  
 
-* It can be found [here.](https://github.com/InfoDesigner/xleda/blob/main/examples/Titanic%20(Completed).xlsm).
+* It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="500" alt="Completed Field Analysis">
@@ -468,7 +468,7 @@ Two charts are produced for each column in your dataframe.
 
 * This example exports everything from an xleda workbook named  "Titanic Completed.xlsm" in the current directory.<br><br>
 
-* Either download [this one](https://github.com/InfoDesigner/xleda/blob/main/examples/Titanic%20Completed.xlsm) or create your own.<br><br>
+* Either download [this one](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm) or create your own.<br><br>
 
 	```python
 	from xleda import wb
