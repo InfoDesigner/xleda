@@ -216,9 +216,9 @@ Two charts are produced for each column in your dataframe.
 
 
 
-### **add_df** | dict | Optional
+### **add_dfs** | dict | Optional
 
-* `add_df={'dataset_name': dataset_df, ...}` will add Field Analysis/Overview worksheets for each additional dataframe provided into the same workbook.<br>
+* `add_dfs={'dataset_name': dataset_df, ...}` will add Field Analysis/Overview worksheets for each additional dataframe provided into the same workbook.<br>
 * Useful for grouping related data together.<br>
 
 	```python
@@ -235,7 +235,7 @@ Two charts are produced for each column in your dataframe.
 	# Creates "OG Penguins.xlsm" in the current directory with worksheets included for each of the OG Penguins/Sea Ice/Seaborn Penguins dataframes.
 	wb(input_df=og_penguins,
 	   name="OG Penguins",
-	   add_df={'Sea Ice': seaice,
+	   add_dfs={'Sea Ice': seaice,
 	           'Seaborn Penguins': penguins})
 	```
 
@@ -616,7 +616,7 @@ Two charts are produced for each column in your dataframe.
 
 <br>
 
-&emsp;**Implemented  `add_df`**
+&emsp;**Implemented  `add_dfs`**
 
 * Adds Field Analysis/Overview reports for each additional dataframe.
 * Pivot is only provided for primary dataframe.
@@ -626,7 +626,7 @@ Two charts are produced for each column in your dataframe.
 
 &emsp;**Export adjustments**
 * Implemented an ExportDict class to add structure to export functionalities
-* To support the additional dataframes from `add_df` functionality, `export_dict` has been renamed to `export_dicts` and now provides a list of ExportDict objects, one for each provided dataframe.
+* To support the additional dataframes from `add_dfs` functionality, `export_dict` has been renamed to `export_dicts` and now provides a list of ExportDict objects, one for each provided dataframe.
 * ExportDict allows access to metadata through both dot notation and `dict[key]`.
 * Reinforced handling of modified export workbook. 
 	* If a workbook is found but that the expected worksheets aren't found, i.e. they've been deleted or renamed, it will export what it can and return a list of what wasn't found.<br><br>
