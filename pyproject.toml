@@ -1,6 +1,6 @@
 [project]
 name = "xleda"
-version = "0.8.184"
+version = "0.8.185"
 description = "xleda is a Microsoft Excel powered EDA tool for Python data"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -72,6 +72,7 @@ dev = [
     "types-seaborn>=0.13.2.20260518",
     "types-tqdm>=4.67.3.20260518",
     "types-send2trash>=2.1.0.20260408",
+    "ucimlrepo>=0.0.7",
 ]
 
 [tool.uv.sources]
@@ -92,3 +93,6 @@ project-excludes = [
     "**/__pycache__/**",
     "**/.venv/**",
 ]
+
+[tool.ruff]
+line-length = 120

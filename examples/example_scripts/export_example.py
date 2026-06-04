@@ -6,15 +6,14 @@ df = sns.load_dataset("titanic")
   
 
 # Creates "Titanic.xlsx" and returns basic metadata
-export_dict = wb(input_df=df,name="Titanic", overwrite=True, no_vba=True).export_dict
+export_dicts = wb(input_df=df,name="Titanic", overwrite=True, no_vba=True).export_dicts
 
 
 # .....After editing your workbook....
 
-# # Performs a full export from a completed xleda workbook named "Titanic (Completed).xlsx" 
+# # Performs a full export from a completed xleda workbook named "Titanic (Completed).xlsm" 
 export_dict = wb(input_df=df,
-                 name="Titanic (Completed)",
-                 no_vba=True,
-                 export=True).export_dict
+                 name="Titanic Completed",
+                 export=True).export_dicts
 
-print(export_dict.keys()) # Returns dict_keys(['description', 'definitions', 'notes', 'lists', 'field_metadata', 'overview_metadata', 'source_data', 'altered_source_data'])
+print(export_dict[0].keys()) # Returns dict_keys(['description', 'definitions', 'notes', 'lists', 'field_metadata', 'overview_metadata', 'source_data', 'altered_source_data'])
