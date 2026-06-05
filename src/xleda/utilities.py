@@ -41,7 +41,8 @@ separator = "\n" + ("-" * 100)
 
 class Blueprint():
 
-    """ Class that represents an xleda blueprint"""
+    """ 
+    Class that represents an xleda blueprint"""
 
     def __init__(self, 
                  name: str,
@@ -92,7 +93,7 @@ class Blueprint():
     def configure_source_data(self) -> pd.DataFrame:
         
         """
-            Configures source data for analysis and subsamples it if necessary
+        Configures source data for analysis and subsamples it if necessary
 
         Returns:
             source_df: A pandas dataframe object
@@ -152,7 +153,7 @@ class Blueprint():
     def create_field_metadata(self) -> pd.DataFrame:
 
         """
-            Produces a field_metadata dataframe
+        Produces a field_metadata dataframe
 
         Returns
         -------
@@ -236,7 +237,7 @@ class Blueprint():
     def create_df_metadata(self) -> dict[str, Any]:
 
         """
-            Creates a dictonary of df-level metadata
+        Creates a dictonary of df-level metadata
 
         """
 
@@ -258,7 +259,7 @@ class Environment():
     def __init__(self, debug: bool = False) -> None:
         
         """
-            Gathers os, python, and terminal details for debugging.
+        Gathers os, python, and terminal details for debugging.
 
         """    
         
@@ -297,7 +298,7 @@ class Environment():
     def get_excel_version(self) -> str:
 
         """
-            Uses xlwings to obtain the Excel version
+        Uses xlwings to obtain the Excel version
 
         Returns
         -------
@@ -323,8 +324,8 @@ class Environment():
     def get_env_type(self) -> str :
         
         """
-            Determines whether the program is running in:
-                a notebook, vs code notebook, a terminal, or an IDE
+        Determines whether the program is running in:
+            a notebook, vs code notebook, a terminal, or an IDE
 
         Returns
         -------
@@ -354,6 +355,11 @@ class Environment():
 
 
     def validate_compatibility(self):
+
+        """
+        Validates that supported OS/Office versions are being used
+
+        """
 
         self.compatible = True
 
@@ -392,8 +398,18 @@ class Environment():
 
 class Theme():
 
+    """
+    CLass that represents an xleda theme
+    
+    """
 
     def __init__(self, theme_color: str, env: Environment) -> None:
+
+        """
+        Configures an xleda theme that includes workbook 
+            theme, progress bars, and console printing
+
+        """
     
     
         # ------------------------------------------------------------------------------
@@ -413,7 +429,7 @@ class Theme():
     def create_progress_bar(self, desc: str, total: float) -> tqdm:
         
         """
-            Creates a tqdm progress bar
+        Creates a tqdm progress bar
 
         Returns
         -------
@@ -445,7 +461,7 @@ class Theme():
     def greyscale_color(self, iteration: int, windows=True):
 
         """
-            Increments the brightness of a color by 10%
+        Increments the brightness of a color by 10%
 
         Returns
         -------
@@ -466,7 +482,7 @@ class Theme():
     def print(self, text: str):
         
         """
-            Prints to the console using theme_color text. 
+        Prints to the console using theme_color text. 
 
         Parameters
         ----------
@@ -482,7 +498,7 @@ class Theme():
     def hex_to_ansi(self, hex_color):
         
         """ 
-            Converts a hex color to ansi code for colored terminal text
+        Converts a hex color to ansi code for colored terminal text
         
         """
 
@@ -498,7 +514,7 @@ class Theme():
     def color_formatter(self, text: str, theme: str):
         
         """
-            Wraps text in ansi colored code start/stop statements
+        Wraps text in ansi colored code start/stop statements
 
         Returns
         -------
@@ -518,7 +534,7 @@ class Theme():
     def warn_print(self, text: str):
         
         """
-            Prints text in red bold for warning messages
+        Prints text in red bold for warning messages
 
         """
         
@@ -529,7 +545,7 @@ class Theme():
     def hex_to_rgb(self, hex_str):
 
         """
-            Converts #RRGGBB to (R, G, B) normalized to 0-1.
+        Converts #RRGGBB to (R, G, B) normalized to 0-1.
         
         """
 
@@ -542,7 +558,7 @@ class Theme():
     def rgb_to_hex(self, rgb):
 
         """
-            Converts normalized (R, G, B) back to #RRGGBB.
+        Converts normalized (R, G, B) back to #RRGGBB.
         
         """
 
@@ -553,7 +569,7 @@ class Theme():
     def get_luminance(self, rgb):
 
         """
-            Calculates relative luminance for WCAG contrast standards.
+        Calculates relative luminance for WCAG contrast standards.
         
         """
 
@@ -568,7 +584,7 @@ class Theme():
     def get_contrast(self, rgb1, rgb2):
 
         """
-            Calculates the contrast ratio between two colors.
+        Calculates the contrast ratio between two colors.
         
         """
 
@@ -580,7 +596,7 @@ class Theme():
     def ensure_readable(self, hex_color, target_ratio=4.5):
 
         """
-            Lightens a color until it reaches the target contrast on black.
+        Lightens a color until it reaches the target contrast on black.
         
         """
 
@@ -605,11 +621,10 @@ class Theme():
         return self.rgb_to_hex(colorsys.hls_to_rgb(hue, high, saturation))
 
 
-
     def use_black_text(self, color: str) -> bool:
 
         """
-            Converts theme color to RGB and calculates 
+        Converts theme color to RGB and calculates 
             whether black text is required.
         
         """
@@ -631,7 +646,7 @@ class Theme():
     def set_theme(self, input_range: xw.Range):
 
         """
-            Sets the background/font colors of a range object to the current xleda theme.
+        Sets the background/font colors of a range object to the current xleda theme.
 
         """
 
@@ -645,7 +660,7 @@ class Theme():
     def greyscale_range(self, input_range: xw.Range):
         
         """
-            Formats a range as grey on grey
+        Formats a range as grey on grey
 
         """
 
@@ -657,7 +672,7 @@ class Theme():
     def greyscale_tabs(self, bp: Blueprint, iteration:int, book: xw.Book):
 
         """
-            Colors worksheet tabs to a shade of grey for contrast with adjacent worksheets
+        Colors worksheet tabs to a shade of grey for contrast with adjacent worksheets
             
         """
         
@@ -684,7 +699,17 @@ class Theme():
 
 class Plotter():
     
+    """
+    Class that represents a xleda plotting object
+
+    """
+    
     def __init__(self, theme: Theme) -> None:
+        
+        """
+        Creates theme appropriate plots and optinally writes them to a range
+
+        """
         
         self.theme_color = theme.theme_color
 
@@ -692,7 +717,7 @@ class Plotter():
     def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
 
         """
-            Adds a small chart to an Excel cell that is centered 
+        Adds a small chart to an Excel cell that is centered 
             at 90% of the size of the cell
 
         Args:
@@ -734,7 +759,7 @@ class Plotter():
     def create_composition_plot(self, input_df: pd.Series) -> Figure:
         
         """
-            Creates a composition table from a dataframe
+        Creates a composition table from a dataframe
 
         Args:
             input_series (pd.Series): A pandas Series
@@ -849,7 +874,7 @@ class Plotter():
     def create_histogram_plot(self, input_series: pd.Series) -> Figure:
 
         """
-            Creates a histogram from a dataframe
+        Creates a histogram from a dataframe
 
         Args:
             input_series (pd.Series): A pandas Series
@@ -916,15 +941,15 @@ class Plotter():
 class ExportDict(dict):
 
     """ 
-        Class that represents an xleda export dictionary
+    Class that represents an xleda export dictionary
     
     """
 
     def __init__(self, bp: Blueprint) -> None:
         
         """
-            Generates an ExportDict object that provides 
-            both dictionary and dot notation access to exported values
+        Generates an ExportDict object that provides access to xleda 
+            metadata through both key/val and dot notation
 
         Parameters
         ----------
@@ -947,7 +972,7 @@ class ExportDict(dict):
 class Config():
 
     """
-        Class that represents an xleda configuration
+    Class that represents an xleda configuration
 
     """
 
@@ -967,7 +992,7 @@ class Config():
                  ) -> None:
         
         """
-            Primary configuration object for an xleda workbook
+        Primary configuration object for an xleda workbook
 
         Parameters
         ----------
@@ -1043,7 +1068,7 @@ class Config():
                             dfs_to_add: dict[str, pd.DataFrame]):
 
         """ 
-            Allocates xleda components.
+        Allocates xleda components.
 
         """        
 
@@ -1125,7 +1150,7 @@ class Config():
     
 
         """    
-            Calculates a full file path for an Excel workbook given 
+        Calculates a full file path for an Excel workbook given 
             a path like string or Path object
 
         Returns
@@ -1195,7 +1220,7 @@ class Config():
     def ensure_unique(self, str_list: list) -> list:
         
         """
-            Ensures each list item is unique by appending 
+        Ensures each list item is unique by appending 
             numbers to duplicates
 
         Parameters
@@ -1240,7 +1265,7 @@ class Config():
     def create_blank_template(self, progress_bar: tqdm):
 
         """
-            Creates a blank Field Analysis template, overwriting if necessary
+        Creates a blank Field Analysis template, overwriting if necessary
 
         """
 
@@ -1324,7 +1349,7 @@ class Config():
     def expand_range(self, name: str, ws: xw.Sheet, columns: int = 0):
         
         """
-            Expands a named range by +/- extra_columns
+        Expands a named range by +/- extra_columns
 
         Parameters
         ----------
@@ -1354,7 +1379,7 @@ class Config():
                       file_name: bool = False):
 
         """
-            Strips out all punctuation from a string and optionally removes 
+        Strips out all punctuation from a string and optionally removes 
             limits to 14 characters to fit within the 31 character 
             limit of worksheet names
         
@@ -1387,7 +1412,7 @@ class Config():
 class PerformanceLogger():
 
     """
-        Class representing a performance logger
+    Class representing a performance logger
 
     """
     
@@ -1408,10 +1433,15 @@ class PerformanceLogger():
         self.errors: pd.DataFrame = pd.DataFrame()
         self.total_production_time: float
 
-        self.open(input_args)
+        self.log_config(input_args)
         
 
-    def open(self, input_args: dict):
+    def log_config(self, input_args: dict):
+        
+        """
+        Logs an xleda configuration for loggging
+
+        """
 
        
         # Remove large items from input args
@@ -1434,7 +1464,7 @@ class PerformanceLogger():
             details: dict = {}):
 
         """
-            Logs production performance data
+        Logs production performance data
 
         """
 
@@ -1471,7 +1501,7 @@ class PerformanceLogger():
     def close(self, blueprints: list[Blueprint], additional_plots: int):
 
         """
-           Closes performance logging by converting logs to dataframes
+        Closes performance logging by converting logs to dataframes
 
         """
 
@@ -1480,8 +1510,6 @@ class PerformanceLogger():
 
         # Create section performance df
         self.section_performance = pd.DataFrame.from_records(self.performance_logs['section'])
-        
-     
         
 
         # Create field_performance df

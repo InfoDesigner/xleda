@@ -47,7 +47,7 @@ class wb():
                  ) -> None:
 
         """
-            Creates an xleda workbook
+        Creates an xleda workbook
 
         Parameters
         ----------
@@ -186,7 +186,7 @@ class wb():
     def _assemble_wb(self):
         
         """
-            Assembles an xleda workbook
+        Assembles an xleda workbook
 
         """
         
@@ -400,7 +400,7 @@ class wb():
     def _create_worksheets(self, progress_bar: tqdm):
 
         """
-            Creates worksheets for any additional dataframes
+        Creates worksheets for any additional dataframes
 
         """
 
@@ -453,7 +453,7 @@ class wb():
     def _configure_field_analyses(self, progress_bar: tqdm):
 
         """
-            Configures named ranges on all Field Analysis worksheets
+        Configures named ranges on all Field Analysis worksheets
 
         """
 
@@ -534,7 +534,7 @@ class wb():
     def _add_field_metadata(self, progress_bar: tqdm):
 
         """
-            Adds field metadata to Field Analysis workbook
+        Adds field metadata to Field Analysis workbook
 
         Parameters
         ----------
@@ -598,7 +598,7 @@ class wb():
     def _add_overview(self, progress_bar: tqdm):
 
         """
-            Adds overview_metadata to all Overview worksheets
+        Adds overview_metadata to all Overview worksheets
         
         Parameters
         ----------
@@ -671,7 +671,7 @@ class wb():
     def _add_source_data(self, progress_bar: tqdm):
 
         """
-            Adds source_data to all Field Analysis worksheets
+        Adds source_data to all Field Analysis worksheets
 
         
         Parameters
@@ -743,7 +743,7 @@ class wb():
     def _add_plots(self, progress_bar: tqdm):
         
         """
-            Adds plots to all Field Analysis worksheets
+        Adds plots to all Field Analysis worksheets
         
         Parameters
         ----------
@@ -839,7 +839,7 @@ class wb():
     def _add_additional_plots(self, progress_bar: tqdm):
             
         """
-            Adds additional plot worksheets
+        Adds additional plot worksheets
 
         """
 
@@ -886,7 +886,7 @@ class wb():
     def _configure_pivot(self, progress_bar: tqdm):
             
         """
-            Configures the pivot table
+        Configures the pivot table
         
         Parameters
         ----------
@@ -1006,7 +1006,7 @@ class wb():
     def _initialize_ui(self, progress_bar: tqdm):
                 
         """
-            Prepares all field analyis worksheet UIs
+        Prepares all field analyis worksheet UIs
 
         """
 
@@ -1034,6 +1034,11 @@ class wb():
 
 
     def _add_debug(self):
+
+        """
+        Adds debug data to the debug worksheet
+        
+        """
         
         book = self.book
         
@@ -1062,15 +1067,15 @@ class wb():
         ws.range("Config").api.EntireRow.Hidden = True
         
         
-        # Move the debug worksheet to the beginning
-        ws.api.Move(Before=book.sheets[0].api)
+        # Move the debug worksheet to the end
+        ws.api.Move(After=book.sheets[-1].api)
 
 
 
     def _export_analysis(self):
 
         """
-            Exports data from an xleda workbook into self.export_dicts
+        Exports data from an xleda workbook into self.export_dicts
 
         """
        
@@ -1248,16 +1253,17 @@ class wb():
 class FieldAnalysis(wb):
 
     """
+    Class representing a FieldAnalysis object
     
     """
     def __init__(self, input_df: pd.DataFrame, export: bool = False, **kwargs) -> None:
 
         """ 
-            A placeholder for legacy FieldAnalysis support.
+        A placeholder for legacy FieldAnalysis support.
 
-            Creating a separate Field Analysis configuration is no longer required.
-            
-            Use xleda.wb to both configure and create a workbook
+        Creating a separate Field Analysis configuration is no longer required.
+        
+        Use xleda.wb to both configure and create a workbook
              
         """
         self.theme.warn_print(separator + 
@@ -1271,9 +1277,9 @@ class FieldAnalysis(wb):
     def create_workbook(self):
 
         """
-            FieldAnalysis() has been replaced by wb()
-            
-            Use xleda.wb() to both configure and create a workbook
+        FieldAnalysis() has been replaced by wb()
+        
+        Use xleda.wb() to both configure and create a workbook
 
         """ 
 
@@ -1283,6 +1289,16 @@ class FieldAnalysis(wb):
 
     
     def export_analysis(self) -> list[ExportDict]:
+
+        """
+        Runs export from the created wb object
+
+        Returns
+        -------
+        list[ExportDict]
+            A list of ExportDict objects
+
+        """
 
         self.theme.print(separator + "FieldAnalysis() has been replaced by wb()")
         self.theme.print("\nUse xleda.wb(export=True) to export from an xleda workbook")
