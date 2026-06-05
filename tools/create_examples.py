@@ -341,11 +341,11 @@ if __name__ == '__main__':
     # create_openml_examples()
 
 
-    # create_feather_examples()
-    # create_primary_examples()
-    # complete_titanic_wb(update_pickle=False)
+    create_feather_examples()
+    create_primary_examples()
+    complete_titanic_wb(update_pickle=False)
     create_other_examples()
-    # create_performance_wb()
+    create_performance_wb()
     
 
         
