@@ -475,9 +475,6 @@ class wb():
             self.theme.set_theme(ws.range("Theme"))
             ws.range("Name").value = bp.title
 
-            # Add all header values except Record List
-            headers = bp.source_data.columns.to_list()[1:]
-            ws.range("Headers_Start").value = headers
 
 
             columns_to_format = bp.columns -3
@@ -485,10 +482,15 @@ class wb():
                 format_from = ws.range("FormatRange")
                 format_to = (ws.range("FormatRange").offset(0, 1).resize(None, columns_to_format))
                 format_from.copy()
-                format_to.paste(paste='formats')
+                format_to.paste()
 
             # Clear clipboard and move selection back to upper left
             book.app.cut_copy_mode = False
+            
+            # Add all header values except Record List
+            headers = bp.source_data.columns.to_list()[1:]
+            ws.range("Headers_Start").value = headers
+            
             
             progress_bar.update(1)
 
@@ -728,7 +730,7 @@ class wb():
             # Set formatting for tbl_SourceData and added columns
 
             
-            self.cfg.set_cell_alignment(input_range=source_table.range.api.HorizontalAlignment,
+            self.cfg.set_cell_alignment(input_range=source_table.range,
                                         horizontal='center')
             record_list = source_table.range[:, :1 ]
             other_added_columns = source_table.range[:, -3: ]

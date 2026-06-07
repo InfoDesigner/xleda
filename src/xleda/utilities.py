@@ -272,8 +272,8 @@ class Environment():
         # Primary environment detail
         
         self.os = platform.system()
-        self.win = os == 'Windows'
-        self.mac = os == 'Darwin'
+        self.win = self.os == 'Windows'
+        self.mac = self.os == 'Darwin'
         self.env_type = self.get_env_type()
         self.excel_version = self.get_excel_version()
         self.debug = debug
@@ -375,6 +375,7 @@ class Environment():
         # Determine if a supported OS is being used
         if self.mac or self.win:
             os_compatible = "Compatible"
+            self.compatible = True
         else:
             self.compatible = False
             os_compatible = "Incompatible"
@@ -1530,11 +1531,12 @@ class Config():
 
         if self.env.mac:
             pt = ws.api.pivot_tables['Pivot']
-            pt.PivotCache().Refresh()
+            pt.update_pivot_table()
         
         elif self.env.win:
-            pt = ws.api.PivotTables('Pivot')
-            pt.update_pivot_table()
+            ws.activate()
+            pt = ws.api.PivotTables('pvt_Pivot')
+            pt.PivotCache().Refresh()
         
         return pt
 
@@ -1612,7 +1614,7 @@ class PerformanceLogger():
         # ---------------------------------------------------------
         # Set up envirnment df
 
-        env_dict = vars(env)
+        env_dict = vars(env).copy()
         del env_dict['win']
         del env_dict['mac']
 
