@@ -6,10 +6,7 @@ import time
 
 from tqdm.auto import tqdm
 from matplotlib.figure import Figure
-
-
 import xlwings as xw
-from xlwings.constants import HAlign, VAlign
 
 from .utilities import (Environment, Config, Theme, Plotter,
                         Blueprint, ExportDict, PerformanceLogger)
@@ -135,27 +132,29 @@ class wb():
 
 
         # Initialize/Check Environment
-        self.environment = Environment()
+        self.env = Environment()
 
 
 
         # Initialize logger/log input variables
-        self.logger = PerformanceLogger(input_args=locals().copy())
+        self.logger = PerformanceLogger(input_args=locals().copy(),
+                                        env=self.env)
 
 
         # Intialize theme
         self.theme = Theme(theme_color,
-                           env=self.environment)
+                           env=self.env)
 
         # Intialize plotter
-        self.plotter = Plotter(theme=self.theme)
+        self.plotter = Plotter(theme=self.theme,
+                               env=self.env)
 
 
         # Intialize Config
         self.cfg = Config(wb_path=wb_path,
                           input_df=input_df,
                           theme=self.theme,
-                          env=self.environment,
+                          env=self.env,
                           debug=debug,
                           large_report=large_report,
                           overwrite=overwrite,
@@ -465,6 +464,7 @@ class wb():
 
             book = self.book
             ws = book.sheets(bp.field_analysis)
+            ws.activate()
 
 
             # --------------------------------------------------
@@ -484,11 +484,11 @@ class wb():
             if columns_to_format > 0:
                 format_from = ws.range("FormatRange")
                 format_to = (ws.range("FormatRange").offset(0, 1).resize(None, columns_to_format))
-                format_from.api.Copy()
+                format_from.copy()
                 format_to.paste(paste='formats')
 
             # Clear clipboard and move selection back to upper left
-            book.api.CutCopyMode = False
+            book.app.cut_copy_mode = False
             
             progress_bar.update(1)
 
@@ -524,8 +524,9 @@ class wb():
 
             # Show/Hide Data Size Warning
             if bp.warning:
+                
                 ws.range("Warning").value = bp.warning_msg
-                ws.range("Warning").api.EntireRow.Hidden = not bp.warning
+                self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
 
             progress_bar.update(1)
 
@@ -630,7 +631,7 @@ class wb():
             # Show/Hide Data Size Warning
             if bp.warning:
                 ws.range("Warning").value = bp.warning_msg
-                ws.range("Warning").api.EntireRow.Hidden = not bp.warning
+                self.cfg.hide_rows(ws.range("Warning"), hide= not bp.warning)
 
 
 
@@ -727,7 +728,8 @@ class wb():
             # Set formatting for tbl_SourceData and added columns
 
             
-            source_table.range.api.HorizontalAlignment = HAlign.xlHAlignCenter
+            self.cfg.set_cell_alignment(input_range=source_table.range.api.HorizontalAlignment,
+                                        horizontal='center')
             record_list = source_table.range[:, :1 ]
             other_added_columns = source_table.range[:, -3: ]
 
@@ -770,8 +772,9 @@ class wb():
             histogram_range = ws.range("Histogram")
             composition_range = ws.range("CompositionTable")
             
-            histogram_range.api.EntireRow.Hidden = False
-            composition_range.api.EntireRow.Hidden = False
+
+            self.cfg.hide_rows(histogram_range, hide=False)
+            self.cfg.hide_rows(composition_range, hide=False)
 
 
             # --------------------------------------------------
@@ -898,46 +901,43 @@ class wb():
 
 
         # --------------------------------------------------
-        # Set vars/intialize logging/set theme/warning
+        # Set vars/intialize logging
 
         bp = self.blueprints[0]
-        book = self.book
-        
-        if bp.pivot is not None:
-            ws = book.sheets(bp.pivot)
-
-        pt = ws.api.PivotTables(1)
         df = bp.input_df.copy()
-        ws.activate()
-
-        # Set theme/show warning if necessary
-        self.theme.set_theme(ws.range("Theme"))
-
-        if bp.warning:
-            ws.range("Warning").value = bp.warning_msg
-            ws.range("Warning").api.EntireRow.Hidden = not bp.warning
+        book = self.book
 
         # Fields to be added to the pivot tables
         pivot_fields = df.columns.to_list()[:min(10, bp.columns)]
         
+        if bp.pivot is not None:
+            ws = book.sheets(bp.pivot)
+
+        pt = self.cfg.get_updated_pivot_table(ws=ws)
+        
 
 
         # --------------------------------------------------
-        # Refesh pivotcache and set field limit warning
+        # Set theme/show warning if necessary
+
+        ws.activate()
+        self.theme.set_theme(ws.range("Theme"))
+
+        if bp.warning:
+            ws.range("Warning").value = bp.warning_msg
+            self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
 
         
-        # Refresh the PivotCache
-        pt.PivotCache.BackgroundQuery = False
-        pt.RefreshTable()
 
-        progress_bar.update(1)
-    
-        
         # Show field limit warning for datasets with >10 columns
         if len(df.columns) <= 10:
             ws.range("DefaultWarn").value = ''
         else:
             ws.range("DefaultWarn").value = 'Pivots only show first 10 fields by default'
+
+
+        progress_bar.update(1)
+
 
 
         # --------------------------------------------------
@@ -952,7 +952,7 @@ class wb():
 
             # Remove subtotals if possible
             try:
-                pt.PivotFields(field).Subtotals = tuple(False for _ in range(12))
+                pt.PivotFields(field).Subtotals = tuple([False] * 12)
             except Exception:
                 pass
             
@@ -977,28 +977,55 @@ class wb():
             # Collapse fields if possible, starting from the end
             for field in pivot_fields[::-1]:
                 try:
-                    pt.PivotFields(field).ShowDetail = False
+                    
+                    if self.env.win:
+                        pt.PivotFields(field).ShowDetail = False
+
+                    elif self.env.mac:
+                         pt.PivotFields(field).ShowDetail.set(False)
+
                 except Exception:
                     pass
 
             
-
+            # --------------------------------------------------
             # Set ranges for formatting
-            pivot_range = ws.range(pt.TableRange1.Address)
+            
+            if self.env.win:
+                pivot_range = ws.range(pt.TableRange1.Address)
+
+            elif self.env.mac:
+                pivot_range = ws.range(pt.table_range1.get_address())
+
             pivot_headers = pivot_range[0,:]            
             header_column = pivot_range[: , 0]
 
+            
+            
+            # --------------------------------------------------
             # Format headers, first column, and column width
-            pivot_headers.api.WrapText = True
-            pivot_headers.api.HorizontalAlignment = HAlign.xlHAlignCenter
-            pivot_headers.api.VerticalAlignment = VAlign.xlVAlignCenter
-            header_column.api.HorizontalAlignment = HAlign.xlHAlignLeft
+
+            pivot_headers.wrap_text = True
+
+            self.cfg.set_cell_alignment(input_range=pivot_headers,
+                                        horizontal='center',
+                                        vertical='center')
+            
+            self.cfg.set_cell_alignment(input_range=header_column,
+                                        horizontal='left')
+            
             pivot_range.columns.autofit()
 
+            
+
+            # --------------------------------------------------
             # Set last three pivot columns width to 13 and center
+
             pivot_range[:, -3:].column_width = 13
             self.theme.greyscale_range(pivot_range[:, -3:])
-            ws.range(pivot_range[:, -2:].address).api.HorizontalAlignment = HAlign.xlHAlignCenter
+
+            self.cfg.set_cell_alignment(input_range=ws.range(pivot_range[:, -2:].address),
+                                        horizontal='center')
             
             progress_bar.update(1)
             
@@ -1021,13 +1048,14 @@ class wb():
             ws.range('Headers_Start').select()
 
             # Orient toggles, and collapse subsections
-            ws.range("Toggles").api.Orientation = 0
-            ws.range("TopToggle").api.Orientation = -90
+
+            self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
+            self.cfg.set_text_orientation(input_range=ws.range("TopToggle"), degrees=-90)
 
             for excel_range in ["Data_Description", "Composition", "Summary_Stats", 
                                 "Percentiles", "Field_Lists", "Compiled_Lists"]:
                             
-                ws.range(excel_range).api.EntireRow.Hidden = True
+                self.cfg.hide_rows(ws.range(excel_range), hide=True)
 
             progress_bar.update(1)
 
@@ -1044,18 +1072,14 @@ class wb():
         
         ws = book.sheets('debug')
         ws.activate()
-
-        env_df = pd.DataFrame.from_records([vars(self.environment)]).T
-        env_df = env_df.reset_index()
-        env_df.columns = ['Environment Variable', 'Value']
-
-
+       
+        
         # Write debug range
         ws.range("debug_metadata").options(transpose=True).value = self.logger.performance_metadata.values
 
 
         # Write debug tables
-        ws.tables("tbl_debug_environment").update(env_df, index=False)
+        ws.tables("tbl_debug_environment").update(self.logger.env, index=False)
         ws.tables("tbl_debug_config").update(self.logger.config, index=False)
         ws.tables("tbl_debug_errors").update(self.logger.errors, index=False)
         ws.tables("tbl_debug_section").update(self.logger.section_performance, index=False)
@@ -1063,12 +1087,16 @@ class wb():
 
 
         # Hide config section and set toggle orientation
-        ws.range("toggle").api.Orientation = 0
-        ws.range("Config").api.EntireRow.Hidden = True
+        self.cfg.set_text_orientation(input_range=ws.range("toggle"))
+        self.cfg.hide_rows(ws.range("Config"), hide=True)
         
         
         # Move the debug worksheet to the end
-        ws.api.Move(After=book.sheets[-1].api)
+        if self.env.win:
+            ws.api.Move(Before=None, After=book.sheets[-1].api)
+            
+        elif self.env.mac:
+            ws.api.move(after=book.sheets[-1].api)
 
 
 

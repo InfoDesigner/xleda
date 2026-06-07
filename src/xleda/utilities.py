@@ -3,6 +3,8 @@ import random
 import colorsys
 import re
 import time
+import subprocess
+from xlwings.constants import Constants
 
 from collections import Counter
 from pathlib import Path
@@ -34,7 +36,11 @@ default_column_limit = 50
 upper_row_limit = 1_000_000
 upper_column_limit = 16_000
 
-template_file = Path(__file__).parent / "xleda_template.xlsm"
+xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
+xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
+
+
+
 separator = "\n" + ("-" * 100)
 
 
@@ -264,7 +270,10 @@ class Environment():
         """    
         
         # Primary environment detail
+        
         self.os = platform.system()
+        self.win = os == 'Windows'
+        self.mac = os == 'Darwin'
         self.env_type = self.get_env_type()
         self.excel_version = self.get_excel_version()
         self.debug = debug
@@ -274,9 +283,9 @@ class Environment():
         
 
         # Determine file recovery tool
-        if self.os == 'Windows':
+        if self.win:
             self.junk_drawer = 'Recycle Bin'
-        elif self.os == 'Darwin':
+        elif self.mac:
             self.junk_drawer = 'Trash'
         else:
             self.junk_drawer = 'None'
@@ -364,7 +373,7 @@ class Environment():
         self.compatible = True
 
         # Determine if a supported OS is being used
-        if self.os in ['Windows', 'Darwin']:
+        if self.mac or self.win:
             os_compatible = "Compatible"
         else:
             self.compatible = False
@@ -422,8 +431,7 @@ class Theme():
             
         self.black_text: bool = self.use_black_text(self.theme_color)
         self.print_theme: str = self.ensure_readable(self.theme_color[:7])
-        self.os = env.os
-
+        self.env = env
 
 
     def create_progress_bar(self, desc: str, total: float) -> tqdm:
@@ -687,11 +695,11 @@ class Theme():
 
         # Set color for each dataframe's set of worksheets
         for sheet in [bp.overview, bp.field_analysis]:
-            if self.os == 'Windows':
+            if self.env.win:
                 color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
                 wb.sheets(sheet).api.Tab.Color = color
             
-            elif self.os == 'Darwin':
+            elif self.env.mac:
                 color = ((multiplier), (multiplier), (multiplier))
                 wb.sheets(sheet).api.tab_color.set(color) 
         
@@ -704,7 +712,7 @@ class Plotter():
 
     """
     
-    def __init__(self, theme: Theme) -> None:
+    def __init__(self, theme: Theme, env: Environment) -> None:
         
         """
         Creates theme appropriate plots and optinally writes them to a range
@@ -712,8 +720,9 @@ class Plotter():
         """
         
         self.theme_color = theme.theme_color
+        self.env = env
 
-
+    # TODO: Test this
     def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
 
         """
@@ -740,20 +749,30 @@ class Plotter():
         # --------------------------------------------------
         # Add the picture to the sheet
 
-        pic = target_range.sheet.pictures.add(fig,
-                                              name=name,
-                                              left=target_left,
-                                              top=target_top,
-                                              width=target_width,
-                                              height=target_height,
-                                              )
 
-        # Set placement to xlMoveAndSize
-        try:
-            pic.api.Placement = 1
-        except AttributeError:
-            pass
+        if self.env.win:
 
+            pic = target_range.sheet.pictures.add(fig,
+                                                  name=name,
+                                                  left=target_left,
+                                                  top=target_top,
+                                                  width=target_width,
+                                                  height=target_height)
+
+            # Set placement to xlMoveAndSize
+            try:
+                pic.api.Placement = 1
+            except AttributeError:
+                pass
+        
+        elif self.env.mac:
+            
+            # Uses anchor instead
+            pic = target_range.sheet.pictures.add(fig,
+                                                  name=name,
+                                                  anchor=target_range,
+                                                  width=target_width,
+                                                  height=target_height)
 
 
     def create_composition_plot(self, input_df: pd.Series) -> Figure:
@@ -1325,7 +1344,7 @@ class Config():
                 
                 app.api.DisplayAlerts = self.debug
 
-                wb = app.books.open(template_file, read_only=False)
+                wb = app.books.open(xlsm_file, read_only=False)
                 ws = wb.sheets('Field Analysis')
 
                 # Loop through all shapes and clear their triggers
@@ -1339,7 +1358,7 @@ class Config():
         else:
 
             # Create a copy of the template as .xlsm
-            shutil.copy(template_file, self.path)
+            shutil.copy(xlsm_file, self.path)
         
         progress_bar.update(1)
         
@@ -1407,6 +1426,130 @@ class Config():
         else:
             return sanitized_name
 
+    # TODO: Incorporate this
+    def white_list(self, file_path: Path):
+
+        """
+        Remove mark of the web from a file
+        
+        """
+
+        
+        # Ensure the file exists
+        if file_path.is_file():
+
+            # Remove the quarantine attribute if it exists
+            try:
+                subprocess.run(["xattr", "-d", "com.apple.quarantine", 
+                                str(file_path)], 
+                                check=True)
+            except subprocess.CalledProcessError:
+                pass
+
+        else:
+            print("File does not exist.")
+
+# TODO: Incorporate this into the create template function
+    def vba_object_model_trusted(self, book: xw.Book) -> bool:
+        """
+        Determines whether "Trust Access to the VBA Object Model" has been set.
+
+        """
+
+        try:
+            if self.env.win:
+                _ = book.api.VBProject    
+            elif self.env.mac:
+                _ = book.api.VBProject.VBComponents.Count
+                
+            vba_object_model_trust = True
+            
+        except Exception:
+            vba_object_model_trust = False
+        
+        return vba_object_model_trust
+
+    # TODO: Incorporate this
+    def set_cell_alignment(self,
+                           input_range: xw.Range,
+                           horizontal: str ='', 
+                           vertical: str=''):
+        
+        center = Constants.xlCenter  # noqa: F841
+        left = Constants.xlLeft # noqa: F841
+        
+        if self.env.win:
+            if horizontal:
+                input_range.api.HorizontalAlignment = eval(horizontal)
+            if vertical:
+                input_range.api.VerticalAlignment = eval(vertical)
+
+        elif self.env.mac:
+            if horizontal:
+                input_range.api.horizontal_alignment.set(eval(horizontal))
+            if vertical:
+                input_range.api.vertical_alignment.set(eval(vertical))
+
+
+    
+    # * `ws.range("Toggles").api.Orientation = 0`
+    # TODO: Incorporate this
+    def set_text_orientation(self, 
+                             input_range: xw.Range, 
+                             degrees: int=0):
+        
+        """
+        Sets text orientation (0 = normal horizontal text, -90 = up/down)
+
+        Parameters
+        ----------
+        input_range : xw.Range
+            Range object to orient
+        
+        degrees : int, optional
+            Degrees to set text orientation to.
+            Defaults to 0
+        """
+        # 
+        if self.env.win:
+            
+            input_range.api.Orientation = degrees
+        
+        elif self.env.mac:
+            
+            input_range.api.orientation.set(degrees)
+
+
+
+    def get_updated_pivot_table(self,
+                                ws: xw.Sheet) -> Any:
+        """
+        Finds and returns a native Pivot Table object by its name 
+        on both Windows and macOS.
+        """
+
+        if self.env.mac:
+            pt = ws.api.pivot_tables['Pivot']
+            pt.PivotCache().Refresh()
+        
+        elif self.env.win:
+            pt = ws.api.PivotTables('Pivot')
+            pt.update_pivot_table()
+        
+        return pt
+
+
+    def hide_rows(self,
+                  input_range: xw.Range,
+                  hide: bool=True):
+
+        """Cross-platform helper to show/hide Excel rows."""
+        
+        if self.env.win:
+            input_range.api.EntireRow.Hidden = hide
+            
+        elif self.env.mac:
+            input_range.api.entire_row.hidden.set(hide)
 
 
 class PerformanceLogger():
@@ -1416,7 +1559,9 @@ class PerformanceLogger():
 
     """
     
-    def __init__(self, input_args: dict) -> None:
+    def __init__(self, 
+                 input_args: dict,
+                 env: Environment) -> None:
 
         # ------------------------------------------------------------------------------
         # Initialize Performance Logging
@@ -1430,19 +1575,24 @@ class PerformanceLogger():
         self.field_performance: pd.DataFrame = pd.DataFrame()
         self.performance_metadata: pd.DataFrame = pd.DataFrame()
         self.config: pd.DataFrame = pd.DataFrame()
+        self.env: pd.DataFrame = pd.DataFrame()
         self.errors: pd.DataFrame = pd.DataFrame()
         self.total_production_time: float
 
-        self.log_config(input_args)
+        self.log_open(input_args, env=env)
         
 
-    def log_config(self, input_args: dict):
+
+    def log_open(self, input_args: dict,
+                 env: Environment):
         
         """
         Logs an xleda configuration for loggging
 
         """
 
+        # ---------------------------------------------------------
+        # Set up config df
        
         # Remove large items from input args
         del input_args['input_df']
@@ -1457,6 +1607,20 @@ class PerformanceLogger():
         input.columns = ['Input Argument', 'Value']
         
         self.config = input
+        
+
+        # ---------------------------------------------------------
+        # Set up envirnment df
+
+        env_dict = vars(env)
+        del env_dict['win']
+        del env_dict['mac']
+
+        env_df = pd.DataFrame.from_records([env_dict]).T
+        env_df = env_df.reset_index()
+        env_df.columns = ['Environment Variable', 'Value']
+        self.env = env_df
+
 
 
     def log(self,
@@ -1490,12 +1654,7 @@ class PerformanceLogger():
             
         # Set last values
         self.last = now
-        
-
-
-    
-
-
+      
 
 
     def close(self, blueprints: list[Blueprint], additional_plots: int):
@@ -1507,6 +1666,8 @@ class PerformanceLogger():
 
 
         self.total_production_time = time.time() - self.start
+
+        
 
         # Create section performance df
         self.section_performance = pd.DataFrame.from_records(self.performance_logs['section'])
@@ -1532,6 +1693,8 @@ class PerformanceLogger():
         for df in [self.field_performance, self.section_performance]:
             df['% of Production Time'] = df['Production Time in Seconds']/self.total_production_time
 
-        
-        
+
+
+
+
 
