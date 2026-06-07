@@ -724,24 +724,6 @@ wheels = [
 ]
 
 [[package]]
-name = "global-utils"
-version = "0.1.3"
-source = { editable = "../.Utilities" }
-dependencies = [
-    { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "pandas", version = "3.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pillow" },
-    { name = "pyarrow" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pillow", specifier = ">=12.2.0" },
-    { name = "pyarrow", specifier = ">=24.0.0" },
-]
-
-[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3592,7 +3574,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "faker" },
-    { name = "global-utils" },
     { name = "missingno" },
     { name = "notebook" },
     { name = "openml" },
@@ -3621,7 +3602,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "faker", specifier = ">=40.18.0" },
-    { name = "global-utils", editable = "../.Utilities" },
     { name = "missingno", specifier = ">=0.4.0" },
     { name = "notebook", specifier = ">=7.5.6" },
     { name = "openml", specifier = ">=0.15.1" },
