@@ -36,9 +36,9 @@
 
 * Once created, xleda workbooks should work in anything that reads Microsoft Excel workbooks.
 
-* It has been developed and tested on Windows.  
-
-* It should also work on MacOS though this has not yet been tested and is currently unsupported.<br><br>
+* It has been developed and tested on Windows and MacOS.
+	* See MacOS section below for additional details on MacOS support.
+<br><br>
 # **Installation**
 
 * Install with 
@@ -50,6 +50,7 @@
 	```bash
 	pip install xleda
 	```
+<br>
 
 # **Quick Start**
 
@@ -330,7 +331,7 @@ Two charts are produced for each column in your dataframe.
 
 ## **Performance**
 
-* On an average machine, xleda creates workbooks for most data sets less than 20 seconds. 
+* On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS 
 
 * Performance is largely dependent on how powerful of a machine you have and how large/complex your dataframes are.  
 
@@ -485,11 +486,51 @@ Two charts are produced for each column in your dataframe.
 	```
 <br>
 
+## **MacOS Support**
+
+xleda will create the same workbooks in MacOS though creating them is signficantly slower and you may get two different types of prompts that require your attention.  Look for the bouncing Excel icon.
+
+<table>
+  <thead>
+    <tr>
+      <th width="120"></th>
+      <th width="330">To Access Files</th>
+      <th width="330">To Enable Macros</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Source</strong></td>
+      <td>MacOS</td>
+      <td>Excel</td>
+    </tr>
+    <tr>
+      <td><strong>Details</strong></td>
+      <td>Prompts to Allow Excel to access the file it's creating.<br><br>If you get these prompts, you'll potentially get one for each unique file you create.</td>
+      <td>Prompts to "Enable Macros".  <br><br>If you get these prompts, you'll get two when creating a workbook:<br><br>1. When opening the blank template<br>2. When opening your created workbook.</td>
+    </tr>
+    <tr>
+      <td><strong>Example</strong></td>
+      <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
+      <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
+    </tr>
+    <tr>
+      <td><strong>Remedy</strong></td>
+      <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
+      <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
 ## **VBA Code**
 
-* If you can't or don't want to enable VBA, you may want to use `no_vba=True` which creates an  xlsx file that contains no VBA.<br>
-* The code that is there does two optional things. <br>
+* If you can't or don't want to enable VBA, you may want create a VBA-free, xlsx workbook.<br>
+* You can do this by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`. 
 
+* The [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/vba.bas) in xleda workbooks is short, simple, and does two optional things. <br>
 	1. Makes the sections expand/collapse when you select them as pictured above.<br>
 		* You can use row groupings to navigate without VBA as pictured below.<br>
 	2. Adds two UDFs, PythonList and PythonDict, that format cell values as lists/dicts. <br><br>
@@ -518,18 +559,20 @@ Two charts are produced for each column in your dataframe.
 
 * if xleda is slow:
 	* Try reducing the amount of data you're sending to it, and let it finish.
-	* After production, refer to the debug worksheet for how the time to produce your xleda workbook is being spent so that you can reduce your dataframe size more strategically.<br><br>
+	* After production, refer to the debug worksheet for how the time to produce your workbook is being spent.
+	* Note that on MacOS, `xleda` is much slower by default and the timings in the debug worksheet may be inflated from missed permission prompts during production.<br><br>
 
 * If you receive the "Error: The workbook cannot be overwritten while open!" and don't see any open workbooks:
 	* You may have a hidden Excel instance that needs to be closed. 
 	* Guidance on closing hidden Excel windows for [MacOS](https://www.google.com/search?q=hidden+excel+instance+in+macos)/[Windows](https://www.google.com/search?q=hidden+excel+instance+in+windows)<br><br>
-* If you can't get xleda to run at all and are using Windows with a full Office Installation:
+* If you receive the "Exception: Could not activate App!" error,  try running the command again. <br><br>
+* If you can't get xleda to run at all and are using Windows/MacOS with a full Office Installation:
 	* Try getting the following script to run using xlwings (not xlwings-lite).
 	* All it does is open Excel and create a new workbook.
-	* You should be able to pip install xlwings and run the script successfully. 
+	* You should be able to `pip install xlwings` and run the script successfully. 
 	* If that doesn't work, see their [installation instructions](https://docs.xlwings.org/en/latest/installation.html) for details on how to get it set up.
 	* Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.
-	* If you can get the script to run successfully, xleda has a good chance of working reliably.<br><br>
+	* If you can get the script below to run successfully, xleda has a good chance of working reliably.<br><br>
 
 	```python
 	import xlwings as xw
@@ -552,7 +595,7 @@ Two charts are produced for each column in your dataframe.
 * [x] Add a way to include extra supporting dataframe worksheets.
 * [ ] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
 * [x] Add a way to include multiple xleda analyses in a single workbook.
-* [ ] Test on MacOS
+* [x] Test on MacOS
 * [ ] Your idea here.
 
 
@@ -608,6 +651,7 @@ Two charts are produced for each column in your dataframe.
 <br>
 </details>
 
+<br><br>
 
 <details> 
 <summary>Version 0.8.186 - Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
@@ -654,6 +698,37 @@ Two charts are produced for each column in your dataframe.
 	* Unsupported system configurations
 	* Situations where necessary template components have been removed/renamed.
 * Adjusted Github Action script to remove all but last changelog and convert the details/summary to standard markdown.
+
+<br>
+</details>
+
+<br><br>
+
+<details> 
+<summary>Version 0.8.193 - Added MacOS support
+</summary> 
+
+<br>
+
+&emsp;**Implemented  `MacOS support`**
+
+
+&emsp;**Added MacOS support**
+* Used xlwings when possible
+* Used appscript/subprocess otherwise
+* Reduced os branching when possible
+* Used private methods to implement branching in most cases.
+
+&emsp;**Other Updates**
+* Removed field logging from debug/logging
+* Simplified some of the pivot configuration where possible.
+* Documentation/test/tools/examples updated to be cross platform.
+* Added multi-threading for the progress bar which keeps the time elapsed ticking during longer iterations.
+
+&emsp;**Template Adjustments**
+* Moved the xlsx conversion to a pre-commit hook instead of an on-demand end-user task. 
+* Adjusted expand/collapse icons to be a more reliable cross-platform character
+* Removed navigation shapes from the xlsx template.
 
 <br>
 </details>

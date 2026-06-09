@@ -1,0 +1,8 @@
+
+
+# # Remove GH Origin Tags
+# git ls-remote --tags origin | awk '{print $2}' | grep -v '\^{}$' | xargs -r git push --delete origin
+
+
+# # Remove local git tags
+# git tag -d $(git tag)

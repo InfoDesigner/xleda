@@ -7,13 +7,16 @@ import xlwings as xw
 import pickle
 import time
 from typing import Any
+import platform
 
 import openml
 from sklearn.datasets import fetch_openml
 
 from xleda import wb
-from global_utils import time_function
 
+os = platform.system()
+win = os == 'Windows'
+mac = os == 'Darwin'
 
 
 # --------------------------------------------------
@@ -51,7 +54,6 @@ titanic_completed: Path = examples_path / 'Titanic Completed.xlsm'
 
 
 section_dfs = []
-field_dfs = []
 
 
 
@@ -76,7 +78,6 @@ def save_pickle(pickle_path: Path, cucumber: Any):
 
 
 
-@time_function
 def create_primary_examples():
     
     """
@@ -98,10 +99,10 @@ def create_primary_examples():
                      {'input_df': air_bnb,
                       'name': "Airbnb",
                       'theme_color': "#B30934",},
-                     {'input_df': african_soil,
-                      'name': 'African Soil',
-                      'theme_color': "#0A7F02",
-                      'large_report': True},
+                    #  {'input_df': african_soil,
+                    #   'name': 'African Soil',
+                    #   'theme_color': "#0A7F02",
+                    #   'large_report': True},
                      {'input_df': mlb,
                       'name': "MLB",
                       'theme_color': "#031835",},
@@ -135,7 +136,7 @@ def create_primary_examples():
         
 
 
-@time_function
+
 def create_other_examples():
 
     """
@@ -200,7 +201,10 @@ def complete_titanic_wb(update_pickle: bool=False):
         visible_ranges = ['Data_Description', 'Compiled_Lists', 'Field_Lists']
 
         for range in visible_ranges:
-            target_ws.range(range).api.EntireRow.Hidden = False
+            if win:
+                target_ws.range(range).api.EntireRow.Hidden = False
+            elif mac:
+                target_ws.range(range).api.entire_row.hidden.set(False)
 
 
 
@@ -290,8 +294,10 @@ def create_feather_examples():
 
 def compile_performance_data(input_wb: wb):
 
+
+
     global section_dfs
-    global field_dfs
+
 
 
     # Get rows/columns from overall metadta
@@ -303,35 +309,28 @@ def compile_performance_data(input_wb: wb):
 
     section_performance['Rows'] = rows
     section_performance['Columns'] = columns
+    section_performance['Dataset'] = input_wb.blueprints[0].title
 
 
     section_dfs.append(section_performance)
-    field_dfs.append(input_wb.logger.field_performance)
 
-
-
-    # Add rows/columns to section_df
-    # self.section_performance: pd.DataFrame = pd.DataFrame()
-    # self.field_performance: pd.DataFrame = pd.DataFrame()
 
             
 def create_performance_wb():
 
     """
-        Creates xleda workbooks documenting the production timing of xleda examples.
+    Creates xleda workbooks documenting the production timing of xleda examples.
     
     """  
 
 
     section_df = pd.concat(section_dfs, ignore_index=True)
-    field_df = pd.concat(field_dfs, ignore_index=True)
+
 
 
     wb(input_df=section_df,
        name="Performance Timing",
-       overwrite=True,
-       add_dfs={'Fields': field_df,
-                })
+       overwrite=True)
 
 
 if __name__ == '__main__':
@@ -342,10 +341,10 @@ if __name__ == '__main__':
 
 
     # create_feather_examples()
-    # create_primary_examples()
-    # complete_titanic_wb(update_pickle=False)
-    create_other_examples()
-    # create_performance_wb()
+    create_primary_examples()
+    complete_titanic_wb(update_pickle=False)
+    # create_other_examples()
+    create_performance_wb()
     
 
         
