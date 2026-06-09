@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import seaborn as sns
 import random
 import colorsys
 import re
 import time
 import subprocess
-from xlwings.constants import Constants
 
 from collections import Counter
 from pathlib import Path
@@ -24,7 +25,12 @@ from matplotlib.figure import Figure
 
 
 from tqdm.auto import tqdm
+import threading
+
+
 import xlwings as xw
+from xlwings.constants import Constants
+from appscript import k
 
 
 # Set matplotlib theme
@@ -38,7 +44,6 @@ upper_column_limit = 16_000
 
 xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
 xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
-
 
 
 separator = "\n" + ("-" * 100)
@@ -91,9 +96,6 @@ class Blueprint():
         self.altered_source_data: pd.DataFrame = pd.DataFrame()
 
 
-        # Initialize performance logging
-        self.perf_pivot: dict[str, Any] = {}
-        self.perf_plots: dict[str, Any] = {}
 
 
     def configure_source_data(self) -> pd.DataFrame:
@@ -322,7 +324,7 @@ class Environment():
 
         try:
             with xw.App() as app:
-                app_version = str(app.version)
+                app_version = str(app.version.major)
         except Exception:
             return ""
         
@@ -463,7 +465,30 @@ class Theme():
             # dynamic_ncols=True
         )
         
+        # Creates a thread to refresh the progres bar
+        self.start_auto_refresh(pbar=pbar)
+
         return pbar
+
+
+    def start_auto_refresh(self, pbar: tqdm):
+
+        """
+        Refreshing tqdm progress bars until they are complete.
+
+        """
+
+        interval=0.1
+
+        def _refresh_loop():
+            while not pbar.disable:
+                pbar.refresh()
+                time.sleep(interval)
+                
+        thread = threading.Thread(target=_refresh_loop, daemon=True)
+        thread.start()
+        return thread
+
 
 
 
@@ -485,7 +510,7 @@ class Theme():
             return (iteration*26) + (iteration*26*256)  + (iteration*26*256*256)
         else:
             return ((iteration*26), (iteration*26), (iteration*26))
-        
+
 
 
     def print(self, text: str):
@@ -678,7 +703,7 @@ class Theme():
 
 
 
-    def greyscale_tabs(self, bp: Blueprint, iteration:int, book: xw.Book):
+    def greyscale_tabs(self, bp: Blueprint, iteration:int, book: xw.Book, config: Config):
 
         """
         Colors worksheet tabs to a shade of grey for contrast with adjacent worksheets
@@ -687,7 +712,6 @@ class Theme():
         
 
         
-        wb = book
 
         # 52*5 > 255 limit for RGB so limit to 4
         iteration = (iteration + 1) % 4
@@ -698,12 +722,14 @@ class Theme():
         for sheet in [bp.overview, bp.field_analysis]:
             if self.env.win:
                 color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
-                wb.sheets(sheet).api.Tab.Color = color
+                book.sheets(sheet).api.Tab.Color = color
             
             elif self.env.mac:
                 color = ((multiplier), (multiplier), (multiplier))
-                wb.sheets(sheet).api.tab_color.set(color) 
-        
+
+                book.sheets(sheet).api.sheet_tab.color.set((color))
+
+
 
 
 class Plotter():
@@ -723,7 +749,7 @@ class Plotter():
         self.theme_color = theme.theme_color
         self.env = env
 
-    # TODO: Test this
+
     def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
 
         """
@@ -771,9 +797,12 @@ class Plotter():
             # Uses anchor instead
             pic = target_range.sheet.pictures.add(fig,
                                                   name=name,
-                                                  anchor=target_range,
+                                                  left=target_left,
+                                                  top=target_top,
                                                   width=target_width,
                                                   height=target_height)
+            
+            pic.api.placement.set(k.placement_move_and_size)
 
 
     def create_composition_plot(self, input_df: pd.Series) -> Figure:
@@ -1070,7 +1099,8 @@ class Config():
 
 
         # Calculate the target file path        
-        self.path = self.calculate_full_path()
+        self.path: Path = self.calculate_full_path()
+
 
         # Set placeholder variables
         self.additional_plots: list[dict[str, Any]] = []
@@ -1179,17 +1209,18 @@ class Config():
             An absolute pathlib Path object for an Excel workbook
 
         """
-        
+
+        # Set vars
         wb_path = Path(self.wb_path)
         wb_directory = Path.cwd()
+        new_path = None
 
-
+                
         # Handle correct extension is passed
         if wb_path.suffix in ['.xlsx', '.xlsm']:
 
             # If full path is provided
             if wb_path.is_absolute():      
-
                 new_path = wb_path
 
             # if a full path isn't provided, construct it
@@ -1222,16 +1253,19 @@ class Config():
                 wb_directory = Path().cwd() / wb_path.parent
             
 
-        # If only a directory has been calculated, add file name to it and return
-        name = self.sanitize_name(self.name, file_name=True)
+        
+        # If only a directory has been calculated, add file name to it
+        if not new_path:
+        
+            name = self.sanitize_name(self.name, file_name=True)
 
-        if self.no_vba:
-            wb_file_name = f"{name}.xlsx"
-        else:
-            wb_file_name = f"{name}.xlsm"
+            if self.no_vba:
+                wb_file_name = f"{name}.xlsx"
+            else:
+                wb_file_name = f"{name}.xlsm"
 
-        new_path = wb_directory / wb_file_name
-
+            new_path = wb_directory / wb_file_name
+        
 
         return new_path
 
@@ -1285,11 +1319,9 @@ class Config():
     def create_blank_template(self, progress_bar: tqdm):
 
         """
-        Creates a blank Field Analysis template, overwriting if necessary
+        Creates a blank xleda template, overwriting if necessary
 
         """
-
-        
 
 
         # Return an error if there's an existing file and no overwrite flag
@@ -1324,41 +1356,27 @@ class Config():
         progress_bar.update(2)
         
 
-        # Create parent directories if necessary and a blank copy of the template
+        # Create parent directories if necessary
         self.path.parent.mkdir(parents=True, exist_ok=True)
+
         progress_bar.update(1)
 
 
 
-        # ---------------------------------------------------------------------
-        # Convert template to xlsx if necessary
 
-        # if no_vba has been set, open the default template, remove macro triggers from shapes, and save as xlsx
+        
 
-        if self.no_vba:
+        # --------------------------------------------------------
+        # Create a copy of the template
 
-            # Hide warnings and convert file
-            if self.debug:
-                print("Converting template to .xlsx")
+        # Remove MOTW from the templates before using if on MacOS
+        if self.env.mac:
+            self.white_list_templates()
+        
 
-            with xw.App(visible=self.debug, add_book=False) as app:
-                
-                app.api.DisplayAlerts = self.debug
-
-                wb = app.books.open(xlsm_file, read_only=False)
-                ws = wb.sheets('Field Analysis')
-
-                # Loop through all shapes and clear their triggers
-                for shp in ws.shapes:
-                    shp.api.OnAction = ""
-
-                # Save as .xlsx and reenable alerts
-                wb.api.SaveAs(str(self.path.resolve()), FileFormat=51)
-
-                app.api.DisplayAlerts = False
+        if self.path.suffix == '.xlsx':
+            shutil.copy(xlsx_file, self.path) 
         else:
-
-            # Create a copy of the template as .xlsm
             shutil.copy(xlsm_file, self.path)
         
         progress_bar.update(1)
@@ -1427,54 +1445,76 @@ class Config():
         else:
             return sanitized_name
 
-    # TODO: Incorporate this
-    def white_list(self, file_path: Path):
+
+    def white_list_templates(self):
 
         """
-        Remove mark of the web from a file
+        Remove mark of the web from the templates on MacOS
         
         """
 
         
-        # Ensure the file exists
-        if file_path.is_file():
+        # Ensure the templates exist
+        if xlsm_file.is_file() and xlsx_file.is_file():
 
             # Remove the quarantine attribute if it exists
             try:
                 subprocess.run(["xattr", "-d", "com.apple.quarantine", 
-                                str(file_path)], 
-                                check=True)
+                                str(xlsm_file)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+                subprocess.run(["xattr", "-d", "com.apple.quarantine", 
+                                str(xlsx_file)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                
             except subprocess.CalledProcessError:
                 pass
 
         else:
             print("File does not exist.")
 
-# TODO: Incorporate this into the create template function
-    def vba_object_model_trusted(self, book: xw.Book) -> bool:
+
+    def vba_object_model_trusted(self) -> bool:
         """
         Determines whether "Trust Access to the VBA Object Model" has been set.
 
         """
 
-        try:
-            if self.env.win:
-                _ = book.api.VBProject    
-            elif self.env.mac:
-                _ = book.api.VBProject.VBComponents.Count
-                
-            vba_object_model_trust = True
+        # Use xlwings to create a temporary app/book and test if the VBA object model is trusted
+        with xw.App(visible=False):
+
             
-        except Exception:
-            vba_object_model_trust = False
+            # Creates a new, temporary, unsaved workbook
+            book = xw.Book()  
+            
+            try:
+                if self.env.win:
+                    _ = book.api.VBProject    
+                elif self.env.mac:
+                    _ = book.api.VBProject.VBComponents.Count
+                    
+                vba_object_model_trust = True
+                
+            except Exception:
+                vba_object_model_trust = False
         
+            # Close the workbook when finished
+            book.close()
+
+
         return vba_object_model_trust
 
-    # TODO: Incorporate this
+
+
     def set_cell_alignment(self,
                            input_range: xw.Range,
                            horizontal: str ='', 
                            vertical: str=''):
+        
+        """
+        Sets text alignment of a given Excel range
+
+        """
         
         center = Constants.xlCenter  # noqa: F841
         left = Constants.xlLeft # noqa: F841
@@ -1493,8 +1533,6 @@ class Config():
 
 
     
-    # * `ws.range("Toggles").api.Orientation = 0`
-    # TODO: Incorporate this
     def set_text_orientation(self, 
                              input_range: xw.Range, 
                              degrees: int=0):
@@ -1502,56 +1540,137 @@ class Config():
         """
         Sets text orientation (0 = normal horizontal text, -90 = up/down)
 
-        Parameters
-        ----------
-        input_range : xw.Range
-            Range object to orient
-        
-        degrees : int, optional
-            Degrees to set text orientation to.
-            Defaults to 0
         """
-        # 
+        
         if self.env.win:
             
             input_range.api.Orientation = degrees
         
         elif self.env.mac:
             
-            input_range.api.orientation.set(degrees)
+            input_range.api.text_orientation.set(degrees)
 
 
 
-    def get_updated_pivot_table(self,
-                                ws: xw.Sheet) -> Any:
+    def get_configured_pivot_range(self,
+                                   ws: xw.Sheet,
+                                   pivot_fields: list[str]) -> xw.Range:
         """
-        Finds and returns a native Pivot Table object by its name 
-        on both Windows and macOS.
+        Configures a pivot table and returns its range.
+
         """
+
+
 
         if self.env.mac:
-            pt = ws.api.pivot_tables['Pivot']
-            pt.update_pivot_table()
+            
+            # Update pivot table
+            pt = ws.api.pivot_tables['pvt_Pivot']
+            pt.refresh_table()
+
+            # Add fields
+            pt.add_fields_to_pivot_table(row_fields=pivot_fields)
+            
+            # Collapse fields/remove subtotals
+            script = f'''
+            tell application "Microsoft Excel"
+                tell workbook "{self.wb_path}"
+                    tell sheet "{"Pivot"}"
+                        tell pivot table "{"pvt_Pivot"}"
+                            set all_fields to pivot fields
+                            repeat with pf in all_fields
+                                try
+                                    set subtotals pf subtotal index 1 without value
+                                    set show detail of pf to false
+                                end try
+                            end repeat
+                        end tell
+                    end tell
+                end tell
+            end tell
+            '''
+            subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+
+            # Get range of pivot table
+            pivot_range = ws.range(pt.table_range1.get_address())
         
         elif self.env.win:
-            ws.activate()
+            
+            # Update pivot table
             pt = ws.api.PivotTables('pvt_Pivot')
             pt.PivotCache().Refresh()
-        
-        return pt
+
+            # Add fields
+            pt.AddFields(RowFields=pivot_fields)
+
+            # Loop through and configure fields
+            for field in pivot_fields[::-1]:
+                
+                # Collapse pivot fields
+                try:
+                    pt.PivotFields(field).ShowDetail = False
+                except Exception:
+                    pass
+
+                # Hide subtotals
+                try:
+                    if self.env.win:
+                        pt.PivotFields(field).Subtotals = tuple([False] * 12)
+                except Exception:
+                    pass
+                
+                # Get range of pivot table
+                pivot_range = ws.range(pt.TableRange1.Address)
+            
+        return pivot_range
+
+
 
 
     def hide_rows(self,
                   input_range: xw.Range,
                   hide: bool=True):
 
-        """Cross-platform helper to show/hide Excel rows."""
+        """
+        Hides Excel rows
+        """
         
         if self.env.win:
             input_range.api.EntireRow.Hidden = hide
             
         elif self.env.mac:
             input_range.api.entire_row.hidden.set(hide)
+
+
+
+
+    def move_sheet_to_end(self, book: xw.Book, sheet: xw.Sheet):
+
+        """
+        Moves a worksheet to be the last sheet.
+
+        """
+
+
+        sheet_name = sheet.name
+        
+        if self.env.mac:
+            
+            # Use AppleScript on MacOS
+            script = f'''
+            tell application "Microsoft Excel"
+                tell workbook "{self.path.name}"
+                    move sheet "{sheet_name}" to after sheet (count of sheets)
+                end tell
+            end tell
+            '''
+            subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+            
+        elif self.env.win:  # Windows
+            
+            # Windows expects Before and After
+            last_sheet_api = book.sheets[-1].api
+            sheet.api.Move(Before=None, After=last_sheet_api)
 
 
 class PerformanceLogger():
@@ -1569,12 +1688,10 @@ class PerformanceLogger():
         # Initialize Performance Logging
 
         self.start: float = time.time()
-        self.section_last: float = time.time()
         self.last: float = time.time()
 
         self.performance_logs: dict[str, list] = defaultdict(list)
         self.section_performance: pd.DataFrame = pd.DataFrame()
-        self.field_performance: pd.DataFrame = pd.DataFrame()
         self.performance_metadata: pd.DataFrame = pd.DataFrame()
         self.config: pd.DataFrame = pd.DataFrame()
         self.env: pd.DataFrame = pd.DataFrame()
@@ -1599,7 +1716,7 @@ class PerformanceLogger():
         # Remove large items from input args
         del input_args['input_df']
         del input_args['self']
-        input_args['wb_path'] = str(input_args['wb_path'].resolve())
+        input_args['wb_path'] = str(input_args['wb_path'])
         input_args['add_plots'] = str([k for k in input_args['add_plots'].keys()])
         input_args['add_dfs'] = str([k for k in input_args['add_dfs'].keys()])
 
@@ -1637,18 +1754,10 @@ class PerformanceLogger():
         now = time.time()
 
         # Add performance timing to details
-        for k, v in details.items():
+        for key, value in details.items():
 
-            if not v:
-                
-                # Use section.last for section logs
-                if log_type == 'section':
-                    details[k] = now - self.section_last
-                    self.section_last = now
-
-                else:
-                    # If the log type isn't section, use the newest last
-                    details[k] = now - max(self.last, self.section_last)
+            if not value:
+                details[key] = now - self.last
 
 
         # Append to log storage
@@ -1675,11 +1784,6 @@ class PerformanceLogger():
         self.section_performance = pd.DataFrame.from_records(self.performance_logs['section'])
         
 
-        # Create field_performance df
-        field_logs = self.performance_logs['pivot'] + self.performance_logs['plots']
-        self.field_performance = pd.DataFrame.from_records(field_logs)
-        
-
         # Compile performance_metadata df
         self.performance_metadata = pd.DataFrame.from_records(self.performance_logs['performance_metadata'])
 
@@ -1692,8 +1796,8 @@ class PerformanceLogger():
 
         
         # Add % of Production Time columns
-        for df in [self.field_performance, self.section_performance]:
-            df['% of Production Time'] = df['Production Time in Seconds']/self.total_production_time
+        df = self.section_performance
+        df['% of Production Time'] = df['Production Time in Seconds']/self.total_production_time
 
 
 

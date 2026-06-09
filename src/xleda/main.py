@@ -95,6 +95,7 @@ class wb():
 
         no_vba : bool, optional
             * Will create the workbook as an xlsx file that has no VBA.
+            * Defaults to False
             
         open_wb: bool, optional
             * Whether to open the workbook after creating.  
@@ -148,7 +149,7 @@ class wb():
         # Intialize plotter
         self.plotter = Plotter(theme=self.theme,
                                env=self.env)
-
+    
 
         # Intialize Config
         self.cfg = Config(wb_path=wb_path,
@@ -223,8 +224,10 @@ class wb():
         with xw.App(visible=self.cfg.debug, add_book=False) as app:
 
             
+            
             # Set vars, open workbook
             book = app.books.open(self.cfg.path, read_only=False)
+            
             app.display_alerts = self.cfg.debug
             app.screen_updating = self.cfg.debug
             self.book = book
@@ -301,7 +304,7 @@ class wb():
             # --------------------------------------------------
             # Configuring Workbook
 
-            total_iteratons = (2* min(10, self.blueprints[0].columns)) + 2 + len(self.blueprints)
+            total_iteratons = 8 + len(self.blueprints)
 
             with self.theme.create_progress_bar(desc="Configuring Workbook...", 
                                                 total=total_iteratons) as pbar:
@@ -328,12 +331,16 @@ class wb():
                                          'Rows Included': sum([bp.rows for bp in self.blueprints]),
                                          'Production Time': self.logger.total_production_time})
                 
+                pbar.update(1)
+                
                 
                 # Close logs and write to workbook
                 self.logger.close(blueprints=self.blueprints,
                                   additional_plots=len(self.cfg.additional_plots))
                 
                 self._add_debug()
+
+                pbar.update(1)
 
 
                 # --------------------------------------------------
@@ -347,9 +354,10 @@ class wb():
                 app.display_alerts = True
                 app.screen_updating = True
                 
+                
                 # Save/exit context manager
                 book.save(self.cfg.path)
-                
+               
                 pbar.update(1)
 
 
@@ -362,14 +370,18 @@ class wb():
         exit_msg = f"\n\nxleda workbook created in {int(self.logger.total_production_time)} seconds.\n"
 
         
+        # Create a new Excel instance for usage
         if self.cfg.open_wb:
-            
 
-            # Create a new Excel instance
+
             app = xw.App(visible=True, add_book=False) 
-
-            # Open the workbook
             book = app.books.open(self.cfg.path)
+
+
+
+
+        # ----------------------------------------------------------------------------------
+        # Construct output messaging
 
 
         # Note additional plots
@@ -380,6 +392,7 @@ class wb():
             for plot in self.cfg.additional_plots:
                 exit_msg += f"    {plot['title']}\n"
         
+   
         # Note additional DFs
         if len(self.blueprints) > 1:
             
@@ -389,8 +402,6 @@ class wb():
                 exit_msg += f"    {df_title}\n"
 
 
-        
-       
         # Print closing message
         self.theme.print(exit_msg + '\n' + separator)
     
@@ -433,7 +444,8 @@ class wb():
                 # Add a color gradient to the tabs to distinguish among them
                 self.theme.greyscale_tabs(bp=bp,
                                           book=self.book,
-                                          iteration=i)
+                                          iteration=i,
+                                          config=self.cfg)
         
                 progress_bar.update(1)
 
@@ -452,7 +464,7 @@ class wb():
     def _configure_field_analyses(self, progress_bar: tqdm):
 
         """
-        Configures named ranges on all Field Analysis worksheets
+        Configures all Field Analysis worksheets
 
         """
 
@@ -537,7 +549,7 @@ class wb():
     def _add_field_metadata(self, progress_bar: tqdm):
 
         """
-        Adds field metadata to Field Analysis workbook
+        Adds field metadata to all Field Analysis worksheets
 
         Parameters
         ----------
@@ -793,18 +805,6 @@ class wb():
                 self.plotter.add_small_plot(target_range=composition_range,
                                             fig=composition_table,
                                             name=f'composition_{col}')
-                
-                self.logger.log(log_type='plots',
-                                details={'Dataset': bp.title,
-                                         'Field': col,
-                                         'Activity': 'Add Composition Table',
-                                         'Rows': bp.rows,
-                                         'Columns': bp.columns,
-                                         'Datatype': str(df[col].dtype),
-                                         'Production Time in Seconds': ''})
-
-
-
 
                 if pd.api.types.is_numeric_dtype(df[col]):
 
@@ -818,16 +818,6 @@ class wb():
                     self.plotter.add_small_plot(target_range=histogram_range,
                                                 fig=histogram,
                                                 name=f'histogram_{col}')
-
-                    self.logger.log(log_type='plots',
-                                    details={'Dataset': bp.title,
-                                             'Field': col,
-                                             'Activity': 'Add Histogram',
-                                             'Rows': bp.rows,
-                                             'Columns': bp.columns,
-                                             'Datatype': str(df[col].dtype),
-                                             'Production Time in Seconds': ''})
-
 
 
                 # --------------------------------------------------
@@ -912,17 +902,19 @@ class wb():
         # Fields to be added to the pivot tables
         pivot_fields = df.columns.to_list()[:min(10, bp.columns)]
         
+
         if bp.pivot is not None:
             ws = book.sheets(bp.pivot)
-
-        pt = self.cfg.get_updated_pivot_table(ws=ws)
+            ws.activate()
         
+        progress_bar.update(1)
+
 
 
         # --------------------------------------------------
         # Set theme/show warning if necessary
 
-        ws.activate()
+
         self.theme.set_theme(ws.range("Theme"))
 
         if bp.warning:
@@ -930,106 +922,59 @@ class wb():
             self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
 
         
-
         # Show field limit warning for datasets with >10 columns
         if len(df.columns) <= 10:
             ws.range("DefaultWarn").value = ''
         else:
             ws.range("DefaultWarn").value = 'Pivots only show first 10 fields by default'
 
-
         progress_bar.update(1)
 
 
 
         # --------------------------------------------------
-        # Add fields to pivot table
-
-
-        for field in pivot_fields:
-
-            # Add field to row section of pivot table
-            pt.PivotFields(field).Orientation = xw.constants.PivotFieldOrientation.xlRowField
-            
-
-            # Remove subtotals if possible
-            try:
-                pt.PivotFields(field).Subtotals = tuple([False] * 12)
-            except Exception:
-                pass
-            
-            # Log performance, update progress bar
-            self.logger.log(log_type='pivot',
-                            details={'Dataset': bp.title,
-                                     'Field': field,
-                                     'Activity': 'Add Pivot Field',
-                                     'Rows': bp.rows,
-                                     'Columns': bp.columns,
-                                     'Datatype': str(df[field].dtype),
-                                     'Production Time in Seconds': ''})
-
-                                
-            progress_bar.update(1)
-                
-
-
-            # --------------------------------------------------
-            # Format pivot tables
-            
-            # Collapse fields if possible, starting from the end
-            for field in pivot_fields[::-1]:
-                try:
-                    
-                    if self.env.win:
-                        pt.PivotFields(field).ShowDetail = False
-
-                    elif self.env.mac:
-                         pt.PivotFields(field).ShowDetail.set(False)
-
-                except Exception:
-                    pass
-
-            
-            # --------------------------------------------------
-            # Set ranges for formatting
-            
-            if self.env.win:
-                pivot_range = ws.range(pt.TableRange1.Address)
-
-            elif self.env.mac:
-                pivot_range = ws.range(pt.table_range1.get_address())
-
-            pivot_headers = pivot_range[0,:]            
-            header_column = pivot_range[: , 0]
+        # configure pivot tables and get ranges together
+        
+        # Range of pivot table
+        pivot_range = self.cfg.get_configured_pivot_range(ws=ws,
+                                                          pivot_fields=pivot_fields)
+        # Top row/first column
+        pivot_headers = pivot_range[0,:]            
+        header_column = pivot_range[: , 0]
+        
+        progress_bar.update(1)
 
             
             
-            # --------------------------------------------------
-            # Format headers, first column, and column width
+        # --------------------------------------------------
+        # Format headers, first column, and column width
 
-            pivot_headers.wrap_text = True
+        pivot_headers.wrap_text = True
 
-            self.cfg.set_cell_alignment(input_range=pivot_headers,
-                                        horizontal='center',
-                                        vertical='center')
+        self.cfg.set_cell_alignment(input_range=pivot_headers,
+                                    horizontal='center',
+                                    vertical='center')
+        
+        self.cfg.set_cell_alignment(input_range=header_column,
+                                    horizontal='left')
+        
+        pivot_range.columns.autofit()
+
+        progress_bar.update(1)
+
             
-            self.cfg.set_cell_alignment(input_range=header_column,
-                                        horizontal='left')
-            
-            pivot_range.columns.autofit()
 
-            
+        # --------------------------------------------------
+        # Set last three pivot columns width to 13 and center
 
-            # --------------------------------------------------
-            # Set last three pivot columns width to 13 and center
 
-            pivot_range[:, -3:].column_width = 13
-            self.theme.greyscale_range(pivot_range[:, -3:])
+        pivot_range[:, -3:].column_width = 13
+        self.theme.greyscale_range(pivot_range[:, -3:])
 
-            self.cfg.set_cell_alignment(input_range=ws.range(pivot_range[:, -2:].address),
-                                        horizontal='center')
-            
-            progress_bar.update(1)
+        self.cfg.set_cell_alignment(input_range=ws.range(pivot_range[:, -2:].address),
+                                    horizontal='center')
+        
+        progress_bar.update(1)
             
 
     def _initialize_ui(self, progress_bar: tqdm):
@@ -1061,17 +1006,18 @@ class wb():
 
             progress_bar.update(1)
 
+            ws.range("A2").select()
+
 
 
     def _add_debug(self):
 
         """
-        Adds debug data to the debug worksheet
+        Configures the debug worksheet
         
         """
         
         book = self.book
-        
         ws = book.sheets('debug')
         ws.activate()
        
@@ -1085,20 +1031,16 @@ class wb():
         ws.tables("tbl_debug_config").update(self.logger.config, index=False)
         ws.tables("tbl_debug_errors").update(self.logger.errors, index=False)
         ws.tables("tbl_debug_section").update(self.logger.section_performance, index=False)
-        ws.tables("tbl_debug_field").update(self.logger.field_performance, index=False)
 
 
         # Hide config section and set toggle orientation
-        self.cfg.set_text_orientation(input_range=ws.range("toggle"))
+        self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
         self.cfg.hide_rows(ws.range("Config"), hide=True)
         
         
-        # Move the debug worksheet to the end
-        if self.env.win:
-            ws.api.Move(Before=None, After=book.sheets[-1].api)
-            
-        elif self.env.mac:
-            ws.api.move(after=book.sheets[-1].api)
+        # Move sheet to end
+        self.cfg.move_sheet_to_end(sheet=ws, book=self.book)
+
 
 
 

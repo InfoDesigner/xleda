@@ -5,12 +5,19 @@ import pickle
 import pytest
 import xlwings as xw
 from matplotlib.figure import Figure
+import platform
 
 
 from xleda import wb
 from tools.create_examples import (seaborn_datasets, penguins, 
                                    african_soil, titanic, titanic_completed, 
                                    titanic_incompleted, nyc_taxi)
+
+
+os = platform.system()
+win = os == 'Windows'
+mac = os == 'Darwin'
+
 
 
 # -----------------------------------------------
@@ -195,9 +202,14 @@ def test_example_workbooks(wb_dict: dict):
             # Collect actual plots
 
 
-            # Unhide the expected plot ranges to verify size
-            ws.range("Histogram").api.EntireRow.Hidden = False
-            ws.range("Composition").api.EntireRow.Hidden = False
+
+            if win:
+                ws.range("Histogram").api.EntireRow.Hidden = False
+                ws.range("Composition").api.EntireRow.Hidden = False
+            elif mac:
+                ws.range("Histogram").api.entire_row.hidden.set(False)
+                ws.range("Composition").api.entire_row.hidden.set(False)
+
 
             
             # Collect actuals
@@ -228,9 +240,15 @@ def test_example_workbooks(wb_dict: dict):
         expected['pivot'] = [blueprints[0].pivot]
 
 
-        actual['pivot'] = [pivot for pivot in expected['pivot'] if 
-                           book.sheets(pivot).api.PivotTables('pvt_Pivot') is not None]
 
+        if win:
+
+            actual['pivot'] = [pivot for pivot in expected['pivot'] if 
+                               book.sheets(pivot).api.PivotTables('pvt_Pivot') is not None]
+        if mac:
+
+            actual['pivot'] = [pivot for pivot in expected['pivot'] if 
+                               book.sheets(pivot).api.pivot_tables['pvt_Pivot'] is not None]
 
 
         # ---------------------------------------------
@@ -287,8 +305,3 @@ def test_export_dict():
 
     
     assert actual == expected
-
-
-
-
-
