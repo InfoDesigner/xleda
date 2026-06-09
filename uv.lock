@@ -3861,6 +3861,7 @@ name = "xleda"
 version = "0.8.193"
 source = { editable = "." }
 dependencies = [
+    { name = "appscript", marker = "sys_platform == 'darwin'" },
     { name = "ipywidgets" },
     { name = "matplotlib" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -3892,6 +3893,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "appscript", marker = "sys_platform == 'darwin'", specifier = ">=1.4.0" },
     { name = "ipywidgets", specifier = ">=7.7.1" },
     { name = "matplotlib", specifier = ">=3.6.0" },
     { name = "numpy", specifier = ">=1.26" },

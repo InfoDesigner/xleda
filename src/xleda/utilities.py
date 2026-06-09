@@ -27,11 +27,14 @@ from matplotlib.figure import Figure
 from tqdm.auto import tqdm
 import threading
 
-
 import xlwings as xw
 from xlwings.constants import Constants
-from appscript import k
 
+win = platform.system() == 'Windows'
+mac = platform.system() == 'Darwin'
+
+if mac:
+    from appscript import k # type: ignore
 
 # Set matplotlib theme
 mpl.use("Agg")

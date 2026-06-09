@@ -15,7 +15,7 @@ dependencies = [
     "xlwings>=0.35.2",
     "send2trash>=2.1.0",
     "tqdm>=4.66.0",
-
+    "appscript>=1.4.0 ; sys_platform == 'darwin'",
 ]
 classifiers = [
     "Programming Language :: Python :: 3.10",
