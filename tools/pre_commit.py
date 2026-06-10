@@ -63,7 +63,7 @@ def convert_template_to_xlsx():
 
 
         # Add a pause to let the file save
-        time.sleep(3)
+        time.sleep(5)
 
         print("xlsx file updated")
 
