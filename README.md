@@ -74,6 +74,7 @@
 <br>
 
 # **xleda Components**
+
 ### **Field Metadata**
 
 * Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
@@ -362,7 +363,7 @@ wb(input_df=df,
 
 # **Usage Notes**
 
-<br><br>
+<br>
 
 <details>
 <summary><strong>Performance</strong></summary><br>
@@ -723,7 +724,7 @@ app = xw.App()
 
 ## Changelog
 
-<br><br>
+<br>
 
 <details> 
 <summary><strong>Version 0.8.185</strong> New simplified API, simplified export, general polish
@@ -844,7 +845,7 @@ app = xw.App()
 
 
 <details>
-<summary><strong>Version 0.8.196:</strong> Readme/pyproject.toml polish/minor fixes
+<summary><strong>Version 0.8.197:</strong> Readme/pyproject.toml polish/minor fixes
 </summary><br>
 
 * Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README.
