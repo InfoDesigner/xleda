@@ -362,6 +362,8 @@ wb(input_df=df,
 
 # **Usage Notes**
 
+<br><br>
+
 <details>
 <summary><strong>Performance</strong></summary><br>
 
@@ -770,7 +772,7 @@ app = xw.App()
 </details><br><br>
 
 <details> 
-<summary><strong>Version 0.8.186:</strong> Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
+<summary><strong>Version 0.8.186:</strong> Add multiple dataframes, module refactoring into classes, logging
 </summary><br>
 
 &emsp;**Implemented  `add_dfs`**
@@ -841,8 +843,8 @@ app = xw.App()
 
 
 
-<details> 
-<summary><strong>Version 0.8.195:</strong> Readme/pyproject.toml polish/minor fixes
+<details>
+<summary><strong>Version 0.8.196:</strong> Readme/pyproject.toml polish/minor fixes
 </summary><br>
 
 * Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README.
