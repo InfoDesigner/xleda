@@ -204,7 +204,7 @@ class Blueprint():
             {
                 "Data type": df.dtypes.astype(str),
                 "Memory Usage": df.memory_usage(deep=True, index=False),
-                "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),  # type: ignore
+                "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),
                 "Count": rows_count - df.isnull().sum(),
                 "Count %": (rows_count - df.isnull().sum()) / rows_count,
                 "Missing": df.isnull().sum(),
@@ -808,7 +808,7 @@ class Plotter():
             pic.api.placement.set(k.placement_move_and_size)
 
 
-    def create_composition_plot(self, input_df: pd.Series) -> Figure:
+    def create_composition_plot(self, input_series: pd.Series) -> Figure:
         
         """
         Creates a composition table from a dataframe
@@ -830,14 +830,14 @@ class Plotter():
         font_size = 24
 
         # Prepare plot values
-        counts = input_df.squeeze().value_counts()  # type: ignore
-        top_5 = counts.head(5)
-        total_entries = len(input_df)
-        other_count = total_entries - top_5.sum()
+        category_counts = input_series.value_counts()
+        top_5_categories = category_counts.head(5)
+        total_records = len(input_series)
+        other_counts = total_records - top_5_categories.sum()
 
         # Assemble plot values
-        categories = list(top_5.index) + ["Other"]
-        values = list(top_5.values) + [other_count]
+        categories = list(top_5_categories.index) + ["Other"]
+        values = list(top_5_categories.values) + [other_counts]
 
         
         
@@ -845,16 +845,12 @@ class Plotter():
         # Setup plot
         
         # Initialize the plot
-        fig, ax = plt.subplots(figsize=(8, 8))  # type: ignore
+        fig, ax = plt.subplots(figsize=(8, 8))
 
         y_pos = range(len(categories))[::-1]
 
         # Add bars to plot
-        ax.barh(y_pos,
-                values,
-                color=self.theme_color, 
-                height=0.5, 
-                edgecolor='silver')
+        ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
 
         
         # --------------------------------------------------
@@ -870,7 +866,7 @@ class Plotter():
         ax.set_title("")
 
         # Make enough room for text on the left so they don't overlap
-        plt.subplots_adjust(left=0.4, right=0.9)  # type: ignore
+        plt.subplots_adjust(left=0.4, right=0.9)
 
         max_val = max(values)
 
@@ -880,44 +876,24 @@ class Plotter():
         # Setup mpl data bars
 
         for y, cat, val in zip(y_pos, categories, values):
-            pct = (val / total_entries) * 100
+            pct = (val / total_records) * 100
 
-            # Truncate long category names
+            # Truncate long category name
             display_cat = str(cat)
             if len(display_cat) > 6:
                 display_cat = display_cat[:5] + ".."
 
-            # Add labels and adjust left to prevent overlap
-            ax.text(-0.55, 
-                    y, 
-                    display_cat, 
-                    color="white", 
-                    va="center", 
-                    ha="left", 
-                    fontsize=font_size, 
-                    transform=ax.get_yaxis_transform(), 
-                    )
+            # Add category name and adjust left to prevent overlap
+            ax.text(-0.55, y, display_cat, color="white", va="center", 
+                    ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-            # Add Percentages
-            ax.text(-0.05, 
-                    y, 
-                    f"{pct:.0f}%", 
-                    color="white", 
-                    va="center", 
-                    ha="right", 
-                    fontsize=font_size, 
-                    transform=ax.get_yaxis_transform(), 
-                    )
+            # Add category percentage
+            ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
+                    fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-            # Add Counts to the right of the bars
-            ax.text(val + max_val * 0.02, 
-                    y, 
-                    str(val), 
-                    color="white",
-                    va="center", 
-                    ha="left", 
-                    fontsize=font_size, 
-                    )
+            # Add category count to the right of the bars
+            ax.text(val + max_val * 0.02, y, str(val), color="white",
+                    va="center", ha="left", fontsize=font_size, )
 
         return fig
 
@@ -939,7 +915,7 @@ class Plotter():
         # --------------------------------------------------
         # Setup plot area, plot
 
-        fig, ax = plt.subplots(figsize=(5, 5))  # type: ignore
+        fig, ax = plt.subplots(figsize=(5, 5))
         ax.set_axis_off()
 
         # Plot a histogram
@@ -1249,7 +1225,7 @@ class Config():
             
             # with no extension
             if not bool(wb_path.suffix):
-                wb_directory = Path().cwd().joinpath(*wb_path._tail)  # type: ignore
+                wb_directory = Path().cwd() / wb_path
 
             # With an incorrect extension
             if bool(wb_path.suffix) and wb_path.suffix not in ['.xlsx', '.xlsm']:

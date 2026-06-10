@@ -99,10 +99,10 @@ def create_primary_examples():
                      {'input_df': air_bnb,
                       'name': "Airbnb",
                       'theme_color': "#B30934",},
-                    #  {'input_df': african_soil,
-                    #   'name': 'African Soil',
-                    #   'theme_color': "#0A7F02",
-                    #   'large_report': True},
+                     {'input_df': african_soil,
+                      'name': 'African Soil',
+                      'theme_color': "#0A7F02",
+                      'large_report': True},
                      {'input_df': mlb,
                       'name': "MLB",
                       'theme_color': "#031835",},
@@ -119,8 +119,8 @@ def create_primary_examples():
                       'add_dfs':{'Sea Ice': seaice,
                                 'OG Penguins': og_penguins},
                       'add_plots': {'Pair Plots': pair_plots,
-                                    'Null Matrix': null_matrix,
-                                    }}]
+                                    'Null Matrix': null_matrix,}}
+                    ]
     
 
     for example in primary_examples[::-1]:
@@ -340,10 +340,10 @@ if __name__ == '__main__':
     # create_openml_examples()
 
 
-    # create_feather_examples()
+    create_feather_examples()
     create_primary_examples()
     complete_titanic_wb(update_pickle=False)
-    # create_other_examples()
+    create_other_examples()
     create_performance_wb()
     
 
