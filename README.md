@@ -4,7 +4,9 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
+[![](https://img.shields.io/badge/Made%20By%20A%20Human-99%-blue)](https://github.com/InfoDesigner/xleda)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
+
 
 </div>
 
@@ -39,6 +41,7 @@
 * It has been developed and tested on Windows and MacOS.
 	* See MacOS section below for additional details on MacOS support.
 <br><br>
+
 # **Installation**
 
 * Install with 
@@ -54,7 +57,7 @@
 
 # **Quick Start**
 
-* Use wb() to quickly create an xleda workbook of a dataframe. 
+* Use `wb()` to quickly create an xleda workbook of a dataframe. 
 
 * See the configuration section below for how to name the workbook, set a theme, add additional dataframes/plots etc.  <br>
 
@@ -105,7 +108,7 @@ Two charts are produced for each column in your dataframe.
 
 ### **Source Data Table**
 
-* A copy of your source data is included as an Excel table so you can visually inspect it, sort/filter it, etc. 
+* A copy of your source data with it's index as an Excel table so you can visually inspect it, sort/filter it, etc. 
 
 * Includes a way to make lists of individual records. 
 
@@ -139,7 +142,7 @@ Two charts are produced for each column in your dataframe.
 
 * A worksheet that includes details on configuration, environment, and how the time spent to produce an xleda workbook was allocated.<br><br>
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/debug.webp?raw=true"  width="600" alt="Blanks"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/debug.webp?raw=true"  width="350" alt="Blanks"> 
 	<br>
 	<em>Debug worksheet for troubleshooting.</em>
 </p>
@@ -149,7 +152,7 @@ Two charts are produced for each column in your dataframe.
 
 ### **input_df** | Dataframe | Mandatory
 
-* A pandas dataframe of any size
+* A pandas dataframe of any size<br><br>
 
 ### **name** | str | Optional
 
@@ -157,7 +160,7 @@ Two charts are produced for each column in your dataframe.
 
 * Punctuation will be removed to prevent issues with file name/workbook object names.
 
-* Defaults to `xleda`<br>
+* Defaults to `xleda`<br><br>
 
 ### **theme_color** | str | Optional
 
@@ -171,7 +174,7 @@ Two charts are produced for each column in your dataframe.
 	<br>
 	<em>theme_color affects the workbooks and default charts.</em>
 </p>
-<br>
+<br><br>
 
 ### **add_plots** | dict | Optional
 
@@ -179,68 +182,78 @@ Two charts are produced for each column in your dataframe.
 
 * No styling/sizing of additional plots is performed by xleda. 
 
-* The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Penguins.xlsm).
+* The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Penguins.xlsm).<br><br>
+
+<details>
+<summary><strong>Example:</strong> Including additional plots
+</summary>
+
+```python
+from xleda import wb
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import missingno as msno
 
 
-	```python
-	from xleda import wb
-
-	import matplotlib.pyplot as plt
-	import seaborn as sns
-	import missingno as msno
-	
-
-	# < your dataframe goes here >
-	df = penguins = sns.load_dataset("penguins")
-	
-
-	# Style the additional plots | optional
-	plt.style.use("dark_background")
+# < your dataframe goes here >
+df = penguins = sns.load_dataset("penguins")
 
 
-	# Create additional plots
-	pair_plots = sns.pairplot(df, hue="species").figure
-	null_matrix = msno.matrix(df).get_figure()
+# Style the additional plots | optional
+plt.style.use("dark_background")
 
 
-	# Resize the null matrix  | optional
-	null_matrix.set_size_inches(9.35, 4.5)
+# Create additional plots
+pair_plots = sns.pairplot(df, hue="species").figure
+null_matrix = msno.matrix(df).get_figure()
 
 
-	# Creates an xleda workbook named Penguins.xlsm with two extra plot sheets
-	wb(input_df=df,
-	   name="Penguins",
-	   theme_color="#4C4C4C",
-	   add_plots={'Pair Plots': pair_plots,
-	              'Null Matrix': null_matrix})
-	```
+# Resize the null matrix  | optional
+null_matrix.set_size_inches(9.35, 4.5)
 
 
+# Creates an xleda workbook named Penguins.xlsm with two extra plot sheets
+wb(input_df=df,
+   name="Penguins",
+   theme_color="#4C4C4C",
+   add_plots={'Pair Plots': pair_plots,
+              'Null Matrix': null_matrix})
+```
+
+<br>
+</details><br>
 
 ### **add_dfs** | dict | Optional
 
 * `add_dfs={'dataset_name': dataset_df, ...}` will add Field Analysis/Overview worksheets for each additional dataframe provided into the same workbook.<br>
-* Useful for grouping related data together.<br>
+* Useful for grouping related data together.<br><br>
 
-	```python
-	import seaborn as sns
-	import pandas as pd
-	from xleda import wb
+
+<details>
+<summary><strong>Example:</strong> Including additional dataframes
+</summary>
+
+```python
+import seaborn as sns
+import pandas as pd
+from xleda import wb
+
 	
-	  
-	og_penguins = pd.read_csv("https://raw.githubusercontent.com/allisonhorst/palmerpenguins/refs/heads/main/inst/extdata/penguins_raw.csv")
-	penguins = sns.load_dataset('penguins')
-	seaice = sns.load_dataset('seaice')
-	
-	
-	# Creates "OG Penguins.xlsm" in the current directory with worksheets included for each of the OG Penguins/Sea Ice/Seaborn Penguins dataframes.
-	wb(input_df=og_penguins,
-	   name="OG Penguins",
-	   add_dfs={'Sea Ice': seaice,
-	           'Seaborn Penguins': penguins})
-	```
+og_penguins = pd.read_csv("https://raw.githubusercontent.com/allisonhorst/palmerpenguins/refs/heads/main/inst/extdata/penguins_raw.csv")
+penguins = sns.load_dataset('penguins')
+seaice = sns.load_dataset('seaice')
+
+
+# Creates "OG Penguins.xlsm" in the current directory with worksheets included for each of the OG Penguins/Sea Ice/Seaborn Penguins dataframes.
+wb(input_df=og_penguins,
+   name="OG Penguins",
+   add_dfs={'Sea Ice': seaice,
+           'Seaborn Penguins': penguins})
+```
 
 <br>
+</details><br>
 
 ### **wb_path** | Path or string | Optional
 
@@ -248,25 +261,30 @@ Two charts are produced for each column in your dataframe.
 * Sets the target folder or workbook name of an xleda workbook.<br>
 * If a file name ending in ".xlsm" or ".xlsx" is provided:<br>
 	* It will either create that file or export from that file depending on whether export=True is also selected. <br>
-* Defaults to current working directory<br>
+* Defaults to current working directory<br><br>
 
-	```python
-	from xleda import wb
-	from pathlib import Path
+<details>
+<summary><strong>Example:</strong> Using wb_path
+</summary><br>
 
-	# Creates "c:\my_target_folder\Penguins.xlsm"
-	wb(input_df=df,
-	   name="Penguins",
-	   wb_path=Path(r"c:\my_target_folder"))
-	
-	# Creates "c:\my_awesome_workbook.xlsx"
-	wb(input_df=df,
-	   name="Penguins",
-	   wb_path=r"c:\my_awesome_workbook.xlsx")
-	   
-	```
+```python
+from xleda import wb
+from pathlib import Path
+
+# Creates "c:\my_target_folder\Penguins.xlsm"
+wb(input_df=df,
+	name="Penguins",
+   wb_path=Path(r"c:\my_target_folder"))
+
+# Creates "c:\my_awesome_workbook.xlsx"
+wb(input_df=df,
+	name="Penguins",
+   wb_path=r"c:\my_awesome_workbook.xlsx")
+   
+```
 
 <br>
+</details><br>
 
 ### **overwrite** | bool | Optional
 
@@ -274,7 +292,7 @@ Two charts are produced for each column in your dataframe.
 
 * Existing workbooks are sent to Trash/Recycle Bin
 
-* Defaults to False<br>
+* Defaults to False<br><br>
 
 
 ### **large_report** | bool | Optional
@@ -285,26 +303,41 @@ Two charts are produced for each column in your dataframe.
 
 * See additional details in the performance section below.
 
-* Defaults to False<br>
+* Defaults to False<br><br>
 
 ### **no_vba** | bool | Optional
 
-* Creates the workbook as an xlsx file without VBA. 
+* Creates the workbook as an xlsx file without VBA.
 
-* Defaults to False<br>
+* An alternative to using this option is to include a file name ending in `.xlsx` for `wb_path`
 
-	```python
-	from xleda import wb
-	import seaborn as sns
-	
-	df = sns.load_dataset('penguins')
-	
-	# Creates "Penguins.xlsx" in the current directory
-	wb(input_df=df,
-	   name="Penguins",
-	   no_vba=True)
+* Defaults to False<br><br>
 
-	```
+
+<details>
+<summary><strong>Example:</strong> Using no_vba to get an xlsx file
+</summary>
+
+```python
+from xleda import wb
+import seaborn as sns
+
+df = sns.load_dataset('penguins')
+
+# Creates "Penguins.xlsx" in the current directory
+wb(input_df=df,
+   name="Penguins",
+   no_vba=True)
+
+
+# Also creates "Penguins.xlsx" in the current directory
+wb(input_df=df,
+   wb_path="Penguins.xlsx")
+
+
+```
+
+</details><br>
 
 
 ### **open_wb** | bool | Optional
@@ -313,7 +346,7 @@ Two charts are produced for each column in your dataframe.
 
 * Setting this to `False` is useful when creating multiple workbooks
 
-* Defaults to True.<br>
+* Defaults to True.<br><br>
 
 ### **export** | bool | Optional
 
@@ -329,7 +362,10 @@ Two charts are produced for each column in your dataframe.
 
 # **Usage Notes**
 
-## **Performance**
+<details>
+<summary><strong>Performance</strong></summary><br>
+
+## Performance
 
 * On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS 
 
@@ -337,16 +373,21 @@ Two charts are produced for each column in your dataframe.
 
 * The `debug` worksheet will show you how the time spent to produce your workbook was allocated.
 
-* There is a detailed output provided when creating an xleda workbook that does a pretty good job of letting you know what it's doing. 
+* There is a detailed output provided when creating an xleda workbook that does a pretty good job of letting you know what it's doing.<br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/create_example.webp?raw=true" width="400" alt="Create Example">
 	<br>
 	<em>Console output of a Planets workbook </em>
 </p>
-<br>
 
-### **Limits with Large Data Sets**
+</details><br>
+
+
+<details>
+<summary><strong>Limits with Large Data Sets</strong></summary><br>
+
+## Limits with Large Data Sets
 
 * To ensure workbooks are created quickly, defaults limit data to the first 50 columns and a random sample of 25,000 records. 
 
@@ -366,8 +407,12 @@ Two charts are produced for each column in your dataframe.
 
 	* That example is [here](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/African%20Soil.xlsm).<br><br>
 
-## **Field/Record Lists**
+</details><br>
 
+<details>
+<summary><strong>Field/Record Lists</strong></summary><br>
+
+## Field/Record Lists
 
 * The `Field Lists` section helps you create lists of the fields in your data.
 	* e.g. lists of fields to rename, delete, standard scale, encode, impute, investigate, etc. 
@@ -387,7 +432,12 @@ Two charts are produced for each column in your dataframe.
 </p>
 <br><br>
 
-## **Columns Added to Source Data**
+</details><br>
+
+<details>
+<summary><strong>Columns Added to Source Data</strong></summary><br>
+
+## Columns Added to Source Data
 
 * Although the source data is unchanged before it goes into Excel,  there are some columns added to support an EDA workflow. 
 
@@ -399,20 +449,16 @@ Two charts are produced for each column in your dataframe.
 
 	* `index`:  This is a copy of the index from the provided dataframe as a column.<br>
 
-## **Accessing Metadata in Python**
+</details><br>
 
+<details>
+<summary><strong>Exporting Metadata to Python</strong></summary><br>
+
+## Exporting Metadata to Python
 
 ##### **Default Metadata**
 
 * Metadata from  all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, accessible through `xleda.wb().export_dicts`  <br>
-	```python
-	# Creates "Titanic.xlsm" and exports the metadata dictionaries
-	export_dicts = wb(input_df=df,
-	           	   name="Titanic").export_dicts
-
-	# Returns the field metadata df from the primary dataframe
-	export_dicts[0]['field_metadata'] 
-	```
 
 
 * The following metadata is available without using `export=True`
@@ -422,6 +468,22 @@ Two charts are produced for each column in your dataframe.
 	* `overview_metadata`: A transposed copy of the field_metadata.
 
 	* `source_data`: A copy of your unaltered source data that includes `Record Hash`/`Record List`/`HasBlank`/`index` columns.<br><br>
+	
+<details>
+<summary><strong>Example:</strong> Accesssing basic metadata
+</summary>
+
+
+```python
+# Creates "Titanic.xlsm" and exports the metadata dictionaries
+export_dicts = wb(input_df=df,
+           	   name="Titanic").export_dicts
+
+# Returns the field metadata df from the primary dataframe
+export_dicts[0]['field_metadata'] 
+```
+
+</details><br>
 
 ##### **Expanded Metadata**
 
@@ -438,11 +500,13 @@ Two charts are produced for each column in your dataframe.
 
 	* `altered_source_data`: Reads the Source Data table named from the workbook and will include any manual edits you've made such as removing records, renaming fields, replacing values, etc. **
 
-		 ** *Note that data types will likely change in the round-trip translation.* <br>
-<br>
+		 ** *Note that data types will likely change in the round-trip translation.* <br><br>
 
 
-### **Completed Example**
+<details>
+<summary><strong>Example:</strong> Exporting from a completed workbook
+</summary><br>
+
 
 * The xleda workbook pictured here is used in for the export code example below .  
 
@@ -455,7 +519,6 @@ Two charts are produced for each column in your dataframe.
 </p>
 <br>
 
-### **Example Export Dictionary**
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_analysis_export.webp?raw=true" width="400" alt="Export Dict">
@@ -464,29 +527,31 @@ Two charts are produced for each column in your dataframe.
 </p>
 <br><br>
 
-### **Example Export Code**
 
-* This example exports everything from an xleda workbook named  "Titanic Completed.xlsm" in the current directory.<br><br>
+```python
+from xleda import wb
 
-* Either download [this one](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm) or create your own.<br><br>
+# Performs a full export from "Titanic Completed.xlsm"
+export_dicts = wb(input_df=df,
+					path="Titanic Completed.xlsm",
+					export=True).export_dicts
 
-	```python
-	from xleda import wb
 
-	# Performs a full export from "Titanic Completed.xlsm"
-	export_dicts = wb(input_df=df,
-	                  path="Titanic Completed.xlsm",
-	                  export=True).export_dicts
+# Returns dict_keys(['description', 'definitions', 'notes', 
+# 'lists', 'field_metadata', 'overview_metadata', 'source_data', 
+# 'altered_source_data'])
+print(export_dicts[0].keys()) 
+```
 
-	
-	# Returns dict_keys(['description', 'definitions', 'notes', 
-	# 'lists', 'field_metadata', 'overview_metadata', 'source_data', 
-	# 'altered_source_data'])
-	print(export_dicts[0].keys()) 
-	```
 <br>
+</details><br>
 
-## **MacOS Support**
+</details><br>
+
+<details>
+<summary><strong>MacOS Support</strong></summary><br>
+
+## MacOS Support
 
 xleda will create the same workbooks in MacOS though creating them is signficantly slower and you may get two different types of prompts that require your attention.  Look for the bouncing Excel icon.
 
@@ -524,8 +589,12 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 
 
 
+</details><br>
 
-## **VBA Code**
+<details>
+<summary><strong>VBA Code</strong></summary><br>
+
+## VBA Code
 
 * If you can't or don't want to enable VBA, you may want create a VBA-free, xlsx workbook.<br>
 * You can do this by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`. 
@@ -542,71 +611,119 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 </p>
 <br><br>
 
-## **Extensibility**
+</details><br>
 
-* xleda is only meant to give a good start to EDA.<br><br>
+<details>
+<summary><strong>Extensibility</strong></summary><br>
 
-* If it accomplishes one thing it will be to give you a way to quickly get data into Excel so that you can see and make sense of it...without making you do everything from scratch.  <br><br>
+## Extensibility
 
-* Where you go from there is up to you.<br><br>
+* xleda is only meant to give a good start to EDA.<br>
 
-* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  <br><br>
+* If it accomplishes one thing it will be to give you a way to quickly get data into Excel so that you can see and make sense of it...without making you do everything from scratch.  <br>
 
-* [xlwings](https://www.xlwings.org/), is recommended if you do. <br><br>
+* Where you go from there is up to you.<br>
 
+* Because it's an ordinary workbook, you can use any tool that works with Microsoft Excel workbooks to do more.  <br>
+
+* [xlwings](https://www.xlwings.org/), is recommended if you do. <br>
+
+</details><br>
+
+<details>
+<summary><strong>Troubleshooting</strong></summary><br>
 
 ## Troubleshooting
 
-* if xleda is slow:
-	* Try reducing the amount of data you're sending to it, and let it finish.
-	* After production, refer to the debug worksheet for how the time to produce your workbook is being spent.
-	* Note that on MacOS, `xleda` is much slower by default and the timings in the debug worksheet may be inflated from missed permission prompts during production.<br><br>
+<details> 
+<summary>xleda is slow
+</summary>
 
-* If you receive the "Error: The workbook cannot be overwritten while open!" and don't see any open workbooks:
-	* You may have a hidden Excel instance that needs to be closed. 
-	* Guidance on closing hidden Excel windows for [MacOS](https://www.google.com/search?q=hidden+excel+instance+in+macos)/[Windows](https://www.google.com/search?q=hidden+excel+instance+in+windows)<br><br>
-* If you receive the "Exception: Could not activate App!" error,  try running the command again. <br><br>
-* If you can't get xleda to run at all and are using Windows/MacOS with a full Office Installation:
-	* Try getting the following script to run using xlwings (not xlwings-lite).
-	* All it does is open Excel and create a new workbook.
-	* You should be able to `pip install xlwings` and run the script successfully. 
-	* If that doesn't work, see their [installation instructions](https://docs.xlwings.org/en/latest/installation.html) for details on how to get it set up.
-	* Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.
-	* If you can get the script below to run successfully, xleda has a good chance of working reliably.<br><br>
 
-	```python
-	import xlwings as xw
-	
-	app = xw.App()
-	
-	```
+* Try reducing the amount of data you're sending to it, and let it finish.
+* After production, refer to the debug worksheet for how the time to produce your workbook is being spent.
+* Note that on MacOS, `xleda` is much slower by default and the timings in the debug worksheet may be inflated from missed permission prompts during production.
 
+</details><br>
+
+
+<details> 
+<summary>If you receive the "Error: The workbook cannot be overwritten while open!" and don't see any open workbooks:
+</summary>
+
+* You may have a hidden Excel instance that needs to be closed. 
+* Guidance on closing hidden Excel windows for [MacOS](https://www.google.com/search?q=hidden+excel+instance+in+macos)/[Windows](https://www.google.com/search?q=hidden+excel+instance+in+windows)
+
+</details><br>
+
+<details> 
+<summary>If you receive the "Exception: Could not activate App!" error:
+</summary>
+
+* The Excel app may have crashed or is otherwise disconnected from Python.
+* Close all Excel windows and try running the command again.
+
+</details><br>
+
+
+<details> 
+<summary>If you can't get xleda to run at all and are using Windows/MacOS with a full Office Installation:
+</summary>
+
+
+* Try getting the following script to run using xlwings (not xlwings-lite).
+* All it does is open Excel and create a new workbook.
+* You should be able to `pip install xlwings` and run the script successfully. 
+* If that doesn't work, see their [installation instructions](https://docs.xlwings.org/en/latest/installation.html) for details on how to get it set up.
+* Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.
+* If you can get the script below to run successfully, xleda has a good chance of working reliably.<br><br>
+
+```python
+import xlwings as xw
+
+app = xw.App()
+
+```
+
+</details><br>
+
+</details>
+
+
+</details><br>
+
+<details>
+<summary><strong>Built With:</strong></summary><br>
 
 ## Built With
 
-* This was primarily built with [Python](https://www.python.org/), [xlwings](https://www.xlwings.org), [Pandas](https://pandas.pydata.org/), and of course, [Microsoft Excel](https://developer.microsoft.com/en-us/excel)<br>
+* This was primarily built with [Python](https://www.python.org/), [xlwings](https://www.xlwings.org), [Pandas](https://pandas.pydata.org/), and of course, [Microsoft Excel](https://developer.microsoft.com/en-us/excel)
 
-## **Roadmap**
+</details><br>
 
-* [x] Add a barebones pivot that is ready to configure
-* [x] Make xleda even more accessible by simplifying the API and making it easier to remember.
+<details>
+<summary><strong>Roadmap:</strong></summary><br>
+
+## Roadmap
+
 * [x] Create a way to quickly view dataframe data that is editable, shareable, and presentation ready.
 * [x] Add a way to include extra plots for a dataset.
-* [x] Add a way to include extra supporting dataframe worksheets.
-* [ ] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
+* [x] Add a barebones pivot that is ready to configure
+* [x] Make xleda even more accessible by simplifying the API and making it easier to remember.
 * [x] Add a way to include multiple xleda analyses in a single workbook.
-* [x] Test on MacOS
+* [x] Develop for MacOS
+* [ ] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
 * [ ] Your idea here.
 
 
-
-
+</details><br>
 
 
 ## Changelog
 
+
 <details> 
-<summary>Version 0.8.185 - New simplified API, simplified export, general polish
+<summary><strong>Version 0.8.185</strong> New simplified API, simplified export, general polish
 </summary>
 
 <br>
@@ -649,15 +766,11 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 	* You can find it at `wb().performance` for now.<br>
 
 <br>
-</details>
-
-<br><br>
+</details><br><br>
 
 <details> 
-<summary>Version 0.8.186 - Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
-</summary> 
-
-<br>
+<summary><strong>Version 0.8.186:</strong> Create xleda workbooks of multiple dataframes, module refactoring into classes, logging, general polish
+</summary><br>
 
 &emsp;**Implemented  `add_dfs`**
 
@@ -700,35 +813,42 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 * Adjusted Github Action script to remove all but last changelog and convert the details/summary to standard markdown.
 
 <br>
-</details>
-
-<br><br>
+</details><br><br>
 
 <details> 
-<summary>Version 0.8.193 - Added MacOS support
-</summary> 
-
-<br>
-
-&emsp;**Implemented  `MacOS support`**
-
+<summary><strong>Version 0.8.193:</strong> Added MacOS support
+</summary><br>
 
 &emsp;**Added MacOS support**
-* Used xlwings when possible
-* Used appscript/subprocess otherwise
-* Reduced os branching when possible
-* Used private methods to implement branching in most cases.
+* Used xlwings when possible, appscript/AppleScript/subprocess otherwise
+* Reduced OS branching when possible
+* Documentation/test/tools/examples updated to be cross platform.
 
 &emsp;**Other Updates**
-* Removed field logging from debug/logging
+* Removed field logging from logging/template
 * Simplified some of the pivot configuration where possible.
-* Documentation/test/tools/examples updated to be cross platform.
 * Added multi-threading for the progress bar which keeps the time elapsed ticking during longer iterations.
 
 &emsp;**Template Adjustments**
 * Moved the xlsx conversion to a pre-commit hook instead of an on-demand end-user task. 
-* Adjusted expand/collapse icons to be a more reliable cross-platform character
+* Adjusted expand/collapse icons to use a more reliable cross-platform character
 * Removed navigation shapes from the xlsx template.
 
 <br>
-</details>
+
+</details><br><br>
+
+
+
+<details> 
+<summary><strong>Version 0.8.194:</strong> Readme/pyproject.toml polish/minor fixes
+</summary><br>
+
+* Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README.
+* Fixed a cross-platform formatting issue with the debug worksheet
+* Updated a few older screenshots to use the current template.
+* Adjusted "type: ignore" lines where possible
+* Organized pyproject.toml, added "required-environments" section
+
+
+</details><br>

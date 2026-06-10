@@ -1,3 +1,9 @@
+# Build system
+[build-system]
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
+
+# Project Metadta
 [project]
 name = "xleda"
 version = "0.8.193"
@@ -47,17 +53,12 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
     ]
 
-
-[build-system]
-requires = ["uv_build>=0.11.2,<0.12.0"]
-build-backend = "uv_build"
-
-
 [project.urls]
 Homepage = "https://github.com/InfoDesigner/xleda"
 Issues = "https://github.com/InfoDesigner/xleda/issues"
 
 
+# Other dependency groups
 [dependency-groups]
 dev = [
     "faker>=40.18.0",
@@ -75,11 +76,27 @@ dev = [
     "twine>=6.2.0",
 ]
 
+
+# Tool Configurations
+[tool.uv]
+required-environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'win32'",]
+
+[tool.ruff]
+line-length = 120
+
+
+[tool.pytest.ini_options]
+addopts = "-p no:faulthandler --tb=no"
+
+
 [tool.pyrefly]
 # Disable gitignore scanning — the *.pyc/*.ipynb gitignore patterns
 # caused pyrefly to skip all Python files via glob overlap.
 # Run `uv run pyrefly check .` or `uv run pyrefly check src` manually.
 use-ignore-files = false
+
 project-includes = [
     "src/**/*.py",
     "tests/**/*.py",
@@ -90,10 +107,3 @@ project-excludes = [
     "**/__pycache__/**",
     "**/.venv/**",
 ]
-
-[tool.ruff]
-line-length = 120
-
-
-[tool.pytest.ini_options]
-addopts = "-p no:faulthandler --tb=no"
