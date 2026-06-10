@@ -721,6 +721,7 @@ app = xw.App()
 
 ## Changelog
 
+<br><br>
 
 <details> 
 <summary><strong>Version 0.8.185</strong> New simplified API, simplified export, general polish
@@ -841,7 +842,7 @@ app = xw.App()
 
 
 <details> 
-<summary><strong>Version 0.8.194:</strong> Readme/pyproject.toml polish/minor fixes
+<summary><strong>Version 0.8.195:</strong> Readme/pyproject.toml polish/minor fixes
 </summary><br>
 
 * Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README.
