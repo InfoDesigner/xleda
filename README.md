@@ -4,7 +4,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
-[![](https://img.shields.io/badge/Made%20By%20A%20Human-99%-blue)](https://github.com/InfoDesigner/xleda)
+[![Made by a Human](https://img.shields.io/badge/Made%20By%20A%20Human-99%-blue)](https://github.com/InfoDesigner/xleda)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
 
 
