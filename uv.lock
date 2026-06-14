@@ -3862,7 +3862,7 @@ wheels = [
 
 [[package]]
 name = "xleda"
-version = "0.8.200"
+version = "0.8.201"
 source = { editable = "." }
 dependencies = [
     { name = "appscript", marker = "sys_platform == 'darwin'" },
