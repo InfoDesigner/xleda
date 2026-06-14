@@ -859,10 +859,10 @@ app = xw.App()
 
 
 <details>
-<summary><strong>Version 0.8.199:</strong> Fixed matplotlib headless implementation
+<summary><strong>Version 0.8.200:</strong> Fixed matplotlib headless implementation
 </summary><br>
 
 * Changed the plotting implementation to only use a headless backend while producing plots.
 
 
-</details><br>
+</details><br><br>
