@@ -37,7 +37,6 @@ if mac:
     from appscript import k # type: ignore
 
 # Set matplotlib theme
-mpl.use("Agg")
 plt.style.use("dark_background")
 
 default_row_limit = 25_000
@@ -849,58 +848,60 @@ class Plotter():
         # --------------------------------------------------
         # Setup plot
         
-        # Initialize the plot
-        fig, ax = plt.subplots(figsize=(8, 8))
+        # Initialize the plot inside a context manager that creates headless plots
+        with mpl.rc_context({'backend': 'Agg'}):
+            
+            fig, ax = plt.subplots(figsize=(8, 8))
 
-        y_pos = range(len(categories))[::-1]
+            y_pos = range(len(categories))[::-1]
 
-        # Add bars to plot
-        ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
+            # Add bars to plot
+            ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
 
-        
-        # --------------------------------------------------
-        # Adjust Formatting
-        
-        # Remove spines
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+            
+            # --------------------------------------------------
+            # Adjust Formatting
+            
+            # Remove spines
+            for spine in ax.spines.values():
+                spine.set_visible(False)
 
-        # Remove other extra plot elements
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_title("")
+            # Remove other extra plot elements
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_title("")
 
-        # Make enough room for text on the left so they don't overlap
-        plt.subplots_adjust(left=0.4, right=0.9)
+            # Make enough room for text on the left so they don't overlap
+            plt.subplots_adjust(left=0.4, right=0.9)
 
-        max_val = max(values)
+            max_val = max(values)
 
 
 
-        # --------------------------------------------------
-        # Setup mpl data bars
+            # --------------------------------------------------
+            # Setup mpl data bars
 
-        for y, cat, val in zip(y_pos, categories, values):
-            pct = (val / total_records) * 100
+            for y, cat, val in zip(y_pos, categories, values):
+                pct = (val / total_records) * 100
 
-            # Truncate long category name
-            display_cat = str(cat)
-            if len(display_cat) > 6:
-                display_cat = display_cat[:5] + ".."
+                # Truncate long category name
+                display_cat = str(cat)
+                if len(display_cat) > 6:
+                    display_cat = display_cat[:5] + ".."
 
-            # Add category name and adjust left to prevent overlap
-            ax.text(-0.55, y, display_cat, color="white", va="center", 
-                    ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
+                # Add category name and adjust left to prevent overlap
+                ax.text(-0.55, y, display_cat, color="white", va="center", 
+                        ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-            # Add category percentage
-            ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
-                    fontsize=font_size, transform=ax.get_yaxis_transform(), )
+                # Add category percentage
+                ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
+                        fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-            # Add category count to the right of the bars
-            ax.text(val + max_val * 0.02, y, str(val), color="white",
-                    va="center", ha="left", fontsize=font_size, )
+                # Add category count to the right of the bars
+                ax.text(val + max_val * 0.02, y, str(val), color="white",
+                        va="center", ha="left", fontsize=font_size, )
 
-        return fig
+            return fig
 
 
 
@@ -920,52 +921,54 @@ class Plotter():
         # --------------------------------------------------
         # Setup plot area, plot
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.set_axis_off()
+        # Create the plot inside a context manager that creates headless plots
+        with mpl.rc_context({'backend': 'Agg'}):
+            fig, ax = plt.subplots(figsize=(5, 5))
+            ax.set_axis_off()
 
-        # Plot a histogram
-        sns.histplot(x=input_series, 
-                     color=self.theme_color, 
-                     stat="density", 
-                     alpha=0.5, 
-                     ax=ax)
+            # Plot a histogram
+            sns.histplot(x=input_series, 
+                        color=self.theme_color, 
+                        stat="density", 
+                        alpha=0.5, 
+                        ax=ax)
 
-        # Layer the KDE line
-        sns.kdeplot(x=input_series, 
+            # Layer the KDE line
+            sns.kdeplot(x=input_series, 
+                        color="silver", 
+                        linewidth=3, 
+                        ax=ax, 
+                        warn_singular=False
+                        )
+
+            
+            # --------------------------------------------------
+            # Add additional plot details
+
+            # Add vertical mean line
+            mean_val = input_series.mean()
+            ax.axvline(mean_val, 
                     color="silver", 
-                    linewidth=3, 
-                    ax=ax, 
-                    warn_singular=False
-                    )
+                    linestyle=":", 
+                    linewidth=2)
 
-        
-        # --------------------------------------------------
-        # Add additional plot details
+            # Remove tick labels
+            ax.tick_params(left=False, 
+                        bottom=False, 
+                        labelleft=False, 
+                        labelbottom=False)
 
-        # Add vertical mean line
-        mean_val = input_series.mean()
-        ax.axvline(mean_val, 
-                   color="silver", 
-                   linestyle=":", 
-                   linewidth=2)
+            # Add Min and Max text at the bottom corners
+            min_val = input_series.min()
+            max_val = input_series.max()
 
-        # Remove tick labels
-        ax.tick_params(left=False, 
-                       bottom=False, 
-                       labelleft=False, 
-                       labelbottom=False)
+            ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
+                    color="silver", ha="left", va="top",) 
+            
+            ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
+                    color="silver", ha="right", va="top", )
 
-        # Add Min and Max text at the bottom corners
-        min_val = input_series.min()
-        max_val = input_series.max()
-
-        ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
-                color="silver", ha="left", va="top",) 
-        
-        ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
-                color="silver", ha="right", va="top", )
-
-        return fig
+            return fig
 
 
     
