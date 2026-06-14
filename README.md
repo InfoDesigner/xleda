@@ -39,7 +39,7 @@
 * Once created, xleda workbooks should work in anything that reads Microsoft Excel workbooks.
 
 * It has been developed and tested on Windows and MacOS.
-	* See MacOS section below for additional details on MacOS support.
+	* See MacOS Support section below for details on MacOS usage.
 <br><br>
 
 # **Installation**
@@ -274,12 +274,12 @@ from pathlib import Path
 
 # Creates "c:\my_target_folder\Penguins.xlsm"
 wb(input_df=df,
-	name="Penguins",
+   name="Penguins",
    wb_path=Path(r"c:\my_target_folder"))
 
 # Creates "c:\my_awesome_workbook.xlsx"
 wb(input_df=df,
-	name="Penguins",
+   name="Penguins",
    wb_path=r"c:\my_awesome_workbook.xlsx")
    
 ```
@@ -480,7 +480,7 @@ wb(input_df=df,
 ```python
 # Creates "Titanic.xlsm" and exports the metadata dictionaries
 export_dicts = wb(input_df=df,
-           	   name="Titanic").export_dicts
+           	      name="Titanic").export_dicts
 
 # Returns the field metadata df from the primary dataframe
 export_dicts[0]['field_metadata'] 
@@ -536,14 +536,14 @@ from xleda import wb
 
 # Performs a full export from "Titanic Completed.xlsm"
 export_dicts = wb(input_df=df,
-					path="Titanic Completed.xlsm",
-					export=True).export_dicts
+				  path="Titanic Completed.xlsm",
+				  export=True).export_dicts
 
 
 # Returns dict_keys(['description', 'definitions', 'notes', 
 # 'lists', 'field_metadata', 'overview_metadata', 'source_data', 
 # 'altered_source_data'])
-print(export_dicts[0].keys()) 
+print(export_dicts[0].keys())
 ```
 
 <br>
@@ -773,7 +773,7 @@ app = xw.App()
 </details><br><br>
 
 <details> 
-<summary><strong>Version 0.8.186:</strong> Add multiple dataframes, module refactoring into classes, logging
+<summary><strong>Version 0.8.186:</strong> Add multiple dataframes, module refactoring into classes, add logging
 </summary><br>
 
 &emsp;**Implemented  `add_dfs`**
@@ -859,7 +859,7 @@ app = xw.App()
 
 
 <details>
-<summary><strong>Version 0.8.201:</strong> Fixed matplotlib headless implementation
+<summary><strong>Version 0.8.202:</strong> Fixed matplotlib headless backend implementation
 </summary><br>
 
 * Changed the plotting implementation to only use a headless backend while producing plots.
