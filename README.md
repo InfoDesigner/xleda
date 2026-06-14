@@ -855,14 +855,14 @@ app = xw.App()
 * Organized pyproject.toml, added "required-environments" section
 
 
-</details><br>
+</details><br><br>
 
 
 <details>
-<summary><strong>Version 0.8.199:</strong> Fixed matplotlib headless implementation
+<summary><strong>Version 0.8.201:</strong> Fixed matplotlib headless implementation
 </summary><br>
 
 * Changed the plotting implementation to only use a headless backend while producing plots.
 
 
-</details><br>
+</details><br><br>
