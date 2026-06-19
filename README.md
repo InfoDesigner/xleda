@@ -4,25 +4,24 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
 [![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
-[![Made by a Human](https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue)](https://github.com/InfoDesigner/xleda)
+[![Made by a Human](https://img.shields.io/badge/Made%20By%20A%20Human-95%25-blue)](https://github.com/InfoDesigner/xleda)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
 
 
 </div>
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/logo.webp?raw=true"  width="250" alt="Example Top View"    
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/logo.webp?raw=true" width="250" alt="Example Top View">
 	<br>
 </p>
-<p align="center" style="font-size: 26px; font-weight: bold;">A Microsoft Excel powered EDA tool for Python data.</p><br><br>
+<p align="center" style="font-size: 26px; font-weight: bold;">A Microsoft Excel powered EDA tool for Python data.</p>
 
-* Produces Microsoft Excel workbooks from pandas dataframes that are highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/data-analysis/what-is-exploratory-data-analysis/).<br><br>
+# **Overview**
+<br>Produces Microsoft Excel workbooks from dataframes or data files that are highly optimized to both perform and document [the activity of Exploratory Data Analysis](https://www.geeksforgeeks.org/what-is-exploratory-data-analysis-eda/).<br><br>
 
 * Visually explore your data, navigate with your keyboard, take field or record notes, create lists of fields/records for editing, round-trip your edits/analysis back into python, share your workbook with other contributors.<br><br>
 
 * There are some amazing EDA tools for Python.  You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
-
-* xleda provides a good start to a robust EDA.<br><br>
 
 * See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br><br>
 <p align="center">
@@ -34,50 +33,115 @@
 
 # **Requirements/Compatibility**
 
-* Requires the full version of Microsoft Excel to create workbooks. 
 
+#### **Desktop Excel**
+
+* Requires the full version of Microsoft Excel (2016+) to create workbooks. 
 * Once created, xleda workbooks should work in anything that reads Microsoft Excel workbooks.
 
+#### **Supported Data Sources**
+
+* Supports pandas dataframes and the following file types:
+	* CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML.
+
+#### **Operating Systems**
 * It has been developed and tested on Windows and MacOS.
 	* See MacOS Support section below for details on MacOS usage.
 <br><br>
 
 # **Installation**
 
-* Install with 
+#### **Package/CLI**
 
-	```bash
-	uv add xleda
-	```
-	or 
-	```bash
-	pip install xleda
-	```
-<br>
+
+```bash
+uv add xleda
+```
+or 
+```bash
+pip install xleda
+```
+
+#### **Right-Click Menu**
+
+xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.
+
+* Works on both Windows and MacOS
+* After installing as a package, use `xleda --install` or `xleda --uninstall` to add/remove these right-click menus.<br><br>
+
+<details>
+<summary><strong>Tip: Systemwide install using UV Tool</strong>
+</summary><br>
+
+* If you have UV installed, you can install/uninstall the package, CLI, and right-click menus systemwide without having to maintain a venv with these one-liners.<br><br>
+
+Windows PowerShell<br>
+
+```bash
+# Installs the package and right-click menus
+uv tool install xleda; if ($?) { xleda install }
+
+# Uninstalls the package and right-click menus
+xleda uninstall; if ($?) { uv tool uninstall xleda }
+
+```
+
+MacOS<br>
+
+```bash
+# Installs the package and right-click menus
+uv tool install xleda && xleda install
+
+# Uninstalls the package and right-click menus
+xleda uninstall && uv tool uninstall xleda
+```
+</details><br><br>
 
 # **Quick Start**
 
-* Use `wb()` to quickly create an xleda workbook of a dataframe. 
+Use `wb()` to quickly create an xleda workbook from a dataframe or a supported data file.
+* See the wb().configuration section below for how to name the workbook, set a theme, add additional dataframes/plots etc. 
 
-* See the configuration section below for how to name the workbook, set a theme, add additional dataframes/plots etc.  <br>
+#### **From a Dataframe:**
 
-	```python
-	from xleda import wb
-	import seaborn as sns
+```python
+from xleda import wb
+import seaborn as sns
 
-	# < your dataframe goes here >
-	df = sns.load_dataset("titanic")
+# < your dataframe goes here >
+df = sns.load_dataset("titanic")
 
-	# Creates xleda.xlsm in the current directory
-	wb(df)
-	```
-<br>
+# Creates xleda.xlsm in the current directory
+wb(df)
+```
+
+
+#### **From a File:**
+
+```python
+from xleda import wb
+
+# < your data file goes here >
+csv_file = Path("titanic.csv")
+
+# Creates titanic.xlsm in the current directory
+wb()
+```
+
+#### **From the CLI:**<br>
+
+```bash
+# Creates titanic.xlsm in the current directory
+xleda wb titanic.csv
+```
 
 # **xleda Components**
 
+All workbooks created with xleda include the following components.
+
 ### **Field Metadata**
 
-* Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
+Most of the field metadata comes from the built-in pandas features [describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html), [info](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html), and **[quantile](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.quantile.html)**<br><br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/basic_metadata.webp?raw=true"  width="600" alt="Basic Metadata"> 
 	<br>
@@ -87,7 +151,7 @@
 
 ### **Overview**
 
-* The `Overview` worksheet rotates the field metadata 90 degrees so that you can sort/filter fields by their name, metadata, or your notes/definitions/etc. <br><br>
+The `Overview` worksheet rotates the field metadata 90 degrees so that you can sort/filter fields by their name, metadata, or your notes/definitions/etc. <br><br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview.webp?raw=true"  width="600" alt="Composition Table"> 
 	<br>
@@ -109,7 +173,7 @@ Two charts are produced for each column in your dataframe.
 
 ### **Source Data Table**
 
-* A copy of your source data with it's index as an Excel table so you can visually inspect it, sort/filter it, etc. 
+A copy of your source data with it's index as an Excel table so you can visually inspect it, sort/filter it, etc. 
 
 * Includes a way to make lists of individual records. 
 
@@ -128,10 +192,9 @@ Two charts are produced for each column in your dataframe.
 
 ### **Pivot**
 
-* A bare-bones pivot table ready to be configured. <br><br>
-* Defaults to include:<br>
-  * The first 10 fields of the source data 
-  * Measures to to identify blanks/dataset composition.<br><br>
+A bare-bones pivot table ready to be configured. <br>
+* Defaults to include the first 10 fields of the source data 
+* Includes measures to to identify blanks/dataset composition.<br><br>
 
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/blanks.webp?raw=true"  width="600" alt="Blanks"> 
@@ -141,7 +204,7 @@ Two charts are produced for each column in your dataframe.
 
 ### **Debug**
 
-* A worksheet that includes details on configuration, environment, and how the time spent to produce an xleda workbook was allocated.<br><br>
+A worksheet that includes details on configuration, environment, and how the time spent to produce an xleda workbook was allocated.<br><br>
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/debug.webp?raw=true"  width="350" alt="Blanks"> 
 	<br>
@@ -151,13 +214,25 @@ Two charts are produced for each column in your dataframe.
 
 # **xleda.wb() Configuration**
 
-### **input_df** | Dataframe | Mandatory
+### **data** | Dataframe or Path or string | Mandatory
 
-* A pandas dataframe of any size<br><br>
+* Accepts either:
+	* A pandas dataframe
+	* A string/pathlib Path to data file of a supported file type.
+
+* When providing files as arguments:
+
+	* xleda will attempt to create dataframes from all tabular objects in the file and use them to create a workbook.
+
+	* The workbook will default to use the same directory as the provided file and the same name.
+
+	* Supported file types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML.
+
+	* See ***Data File Limitations*** below for additional details. <br><br>
 
 ### **name** | str | Optional
 
-* Name of the dataset/file name of the created workbook.
+* Name of the created workbook.
 
 * Punctuation will be removed to prevent issues with file name/workbook object names.
 
@@ -366,11 +441,32 @@ wb(input_df=df,
 <br>
 
 <details>
+<summary><strong>Data File Limitations</strong></summary><br>
+
+## Data file Limitations
+
+Providing data files to xleda comes with some important limitations.  
+
+* Not all files will parse successfully. 
+	* e.g. Deeply nested JSON/XML, a CSV file with tabs instead of commas, `.db` files that are neither SQLite or DuckDB files, or DuckDB files with a `.txt` extension.
+
+* Not all objects within a file can be represented by a dataframe.
+	* e.g.  R Functions from an RData file, or anything in an Excel file that isn't an Excel Table. 
+
+* Data types may not always translate well into Excel.
+	* e.g. xml fields will arrive into Excel as strings, or dates may or may not appear as dates in Excel.
+
+* If the provided data file doesn't parse correctly, try creating a dataframe first and use that with xleda instead of the file.
+
+</details><br>
+
+
+<details>
 <summary><strong>Performance</strong></summary><br>
 
 ## Performance
 
-* On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS 
+On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS 
 
 * Performance is largely dependent on how powerful of a machine you have and how large/complex your dataframes are.  
 
@@ -392,7 +488,7 @@ wb(input_df=df,
 
 ## Limits with Large Data Sets
 
-* To ensure workbooks are created quickly, defaults limit data to the first 50 columns and a random sample of 25,000 records. 
+To ensure workbooks are created quickly, defaults limit data to the first 50 columns and a random sample of 25,000 records. 
 
 * You can optionally override this to Excel's limits (see `large_report=True` above)
 
@@ -417,8 +513,7 @@ wb(input_df=df,
 
 ## Field/Record Lists
 
-* The `Field Lists` section helps you create lists of the fields in your data.
-	* e.g. lists of fields to rename, delete, standard scale, encode, impute, investigate, etc. 
+The `Field Lists` section helps you create lists of the fields in your data.
 
 * Anything not marked as `False` will be included in each list.   
 
@@ -442,15 +537,15 @@ wb(input_df=df,
 
 ## Columns Added to Source Data
 
-* Although the source data is unchanged before it goes into Excel,  there are some columns added to support an EDA workflow. 
+There are some columns added to your source data  to support an EDA workflow. 
 
-	* `HasBlank`: If any field in a record has a missing value, this will show 1 otherwise 0
+* `HasBlank`: If any field in a record has a missing value, this will show 1 otherwise 0
 
-	* `Record Hash`:  Uses a built-in pandas feature [hash_pandas_object](https://pandas.pydata.org/docs/reference/api/pandas.util.hash_pandas_object.html) to uniquely identify records.  If two records share all column values they also share a `Record Hash`. 
+* `Record Hash`:  Uses a built-in pandas feature [hash_pandas_object](https://pandas.pydata.org/docs/reference/api/pandas.util.hash_pandas_object.html) to uniquely identify records.  If two records share all column values they also share a `Record Hash`. 
 
-	* `Record List`:  Used to create a list of `Record Hash` values.  Like `Field Lists` above, anything not marked false gets added to a list.
+* `Record List`:  Used to create a list of `Record Hash` values.  Like `Field Lists` above, anything not marked false gets added to a list.
 
-	* `index`:  This is a copy of the index from the provided dataframe as a column.<br>
+* `index`:  This is a copy of the index from the provided dataframe as a column.<br>
 
 </details><br>
 
@@ -461,7 +556,7 @@ wb(input_df=df,
 
 ##### **Default Metadata**
 
-* Metadata from  all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, accessible through `xleda.wb().export_dicts`  <br>
+Metadata from  all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, accessible through `xleda.wb().export_dicts`  <br>
 
 
 * The following metadata is available without using `export=True`
@@ -490,7 +585,8 @@ export_dicts[0]['field_metadata']
 
 ##### **Expanded Metadata**
 
-* Using `xleda.wb(export=True)` reads an xleda workbook instead of creating one.  <br>
+Using `xleda.wb(export=True)` reads an xleda workbook instead of creating one.  <br>
+
 * It expands the available metadata within `xleda.wb().export_dicts` to include the following for each provided dataframe:
 
 	* `description`: Dataframe description if you've added one
@@ -599,7 +695,7 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 
 ## VBA Code
 
-* If you can't or don't want to enable VBA, you may want create a VBA-free, xlsx workbook.<br>
+If you can't or don't want to enable VBA, you may want create a VBA-free, xlsx workbook.<br>
 * You can do this by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`. 
 
 * The [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/vba.bas) in xleda workbooks is short, simple, and does two optional things. <br>
@@ -621,7 +717,7 @@ xleda will create the same workbooks in MacOS though creating them is signficant
 
 ## Extensibility
 
-* xleda is only meant to give a good start to EDA.<br>
+xleda is only meant to give a good start to EDA.<br>
 
 * If it accomplishes one thing it will be to give you a way to quickly get data into Excel so that you can see and make sense of it...without making you do everything from scratch.  <br>
 
@@ -700,7 +796,7 @@ app = xw.App()
 
 ## Built With
 
-* This was primarily built with [Python](https://www.python.org/), [xlwings](https://www.xlwings.org), [Pandas](https://pandas.pydata.org/), and of course, [Microsoft Excel](https://developer.microsoft.com/en-us/excel)
+This was primarily built with [Python](https://www.python.org/), [xlwings](https://www.xlwings.org), [Pandas](https://pandas.pydata.org/), and of course, [Microsoft Excel](https://developer.microsoft.com/en-us/excel)
 
 </details><br>
 
@@ -715,7 +811,7 @@ app = xw.App()
 * [x] Make xleda even more accessible by simplifying the API and making it easier to remember.
 * [x] Add a way to include multiple xleda analyses in a single workbook.
 * [x] Develop for MacOS
-* [ ] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
+* [x] Add a way to use on desktop files e.g. by right-clicking csv/parquet files/other tabular data files. 
 * [ ] Your idea here.
 
 
@@ -866,3 +962,17 @@ app = xw.App()
 
 
 </details><br><br>
+
+<details>
+<summary><strong>Version 0.9.001:</strong> Changed 'input_df' argument to 'data', added data file support, added CLI, added right-click context menu implementation for Mac/Windows
+</summary><br>
+
+* Changed the `input_df` argument to `data` and opened it up to accept both dataframes and data files.
+	* Enabled support for csv, feather, parquet, excel, duckdb, sqlite, rdata, xml, json, and pickle files.
+	* `created an `input_df` placeholder API for backwards compatibility.
+* Added a CLI interface which replicates much of the Python API
+* Added OS integrations which enable right-clicking on supported file types to create workbooks.
+	* Implemented on both MacOS and Windows
+
+
+</details><br>

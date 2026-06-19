@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import seaborn as sns
+# Base imports
 import random
 import colorsys
 import re
 import time
 import subprocess
-
 from collections import Counter
 from pathlib import Path
 import platform
@@ -19,36 +18,62 @@ from typing import Any
 import send2trash
 from collections import defaultdict
 
+# Plotting imports
+import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib as mpl 
 from matplotlib.figure import Figure
 
 
+# TQDM Imports
 from tqdm.auto import tqdm
 import threading
 
+# xlwings imports
 import xlwings as xw
 from xlwings.constants import Constants
 
+
+# ---------------------------------------------
+# Set variables
+
+# Set OS variables
 win = platform.system() == 'Windows'
 mac = platform.system() == 'Darwin'
 
+if win:
+    import winreg
+    
+
 if mac:
-    from appscript import k # type: ignore
+    from appscript import app, k # type: ignore
+    
 
 # Set matplotlib theme
 plt.style.use("dark_background")
+
+
+# DataFile variables
+db_file_extensions = ['.sqlite', '.sqlite3', '.db', '.db3', '.s3db', '.sl3', '.duckdb', '.ddb']
+excel_extension = ['.xlsx', '.xls', '.xlsm', '.xlsb']
+standalone_extensions = ['.csv', '.feather', '.parquet', '.xml', '.json', '.rdata', '.pkl', '.pickle', '.pck'] 
+supported_extensions = standalone_extensions + db_file_extensions + excel_extension
 
 default_row_limit = 25_000
 default_column_limit = 50
 upper_row_limit = 1_000_000
 upper_column_limit = 16_000
 
+
+# Template Variables
 xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
 xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
 
 
 separator = "\n" + ("-" * 100)
+
+
+
 
 
 
@@ -60,29 +85,30 @@ class Blueprint():
     def __init__(self, 
                  name: str,
                  title: str,
-                 input_df: pd.DataFrame, 
-                 large_report: bool,
+                 prepared_dataframe: PreparedDataFrame, 
                  overview:str,
                  field_analysis: str,
                  pivot:str = "") -> None:
 
         self.name = name
         self.title = title
-        self.input_df = input_df
-        self.large_report = large_report
+        self.source_data: pd.DataFrame = prepared_dataframe.df
+        
+        # Omits added columns
+        self.original_data: pd.DataFrame = self.source_data.iloc[:, 1: -3]
+        
+        self.large_report = prepared_dataframe.large_report
         self.overview=overview
         self.field_analysis= field_analysis
         self.pivot=pivot
         
-        # Add placeholder properties
-        self.warning_msg: str = ""
-        self.warning: bool = False
-        self.rows = len(input_df)
-        self.columns = len(input_df.columns)
 
-        # Configure Source Data
-        self.source_data: pd.DataFrame = self.configure_source_data()
+        self.warning_msg: str = prepared_dataframe.warning_msg
+        self.warning: bool = prepared_dataframe.warning
+        self.rows = prepared_dataframe.rows
+        self.columns = prepared_dataframe.columns
 
+        
 
         # add field_metadata/overview_metadata
         self.field_metadata: pd.DataFrame = self.create_field_metadata()
@@ -96,67 +122,6 @@ class Blueprint():
         self.notes: dict = {}
         self.lists: dict = {}
         self.altered_source_data: pd.DataFrame = pd.DataFrame()
-
-
-
-
-    def configure_source_data(self) -> pd.DataFrame:
-        
-        """
-        Configures source data for analysis and subsamples it if necessary
-
-        Returns:
-            source_df: A pandas dataframe object
-        
-        """
-
-        # --------------------------------------------------
-        # Configure variables and create a copy of index as the last column 
-
-        rows = self.rows
-        columns = self.columns
-        df = self.input_df
-        
-
-        above_default = rows > default_row_limit or columns > default_column_limit
-        above_limit = rows > upper_row_limit or columns > upper_column_limit
-          
-
-        # Source data is above default limits
-        if above_default and not self.large_report and not above_limit:
-
-            self.warning = True
-            self.warning_msg = ("This is only showing a sample because it is larger than the default "
-                                "limits of 25,000 rows/50 columns.  See documentation for details.")
-            rows = min(rows, default_row_limit)
-            columns = min(columns, default_column_limit)
-            
-
-        # Source data is larger than Excel's limits
-        elif above_limit:
-
-            self.warning = True
-            self.warning_msg = ("This is only showing a sample because it is larger than Excel's limits "
-                                "of 1,000,000 rows/16,000 columns.  See documentation for details.")
-            
-            rows = min(rows, upper_row_limit)
-            columns = min(columns, upper_column_limit)
-
-
-        # Subsample df if needed, record adjusted rows/columns
-        df = (df.iloc[:, :columns].sample(n=rows).sort_index())
-
-        self.rows = rows
-        self.columns = columns
-
-        # Add index, Record List, HasBlank, Record Hash fields to source_data
-        df['index'] = df.index
-        df.insert(loc=0, column="Record List", value="False")
-        df['HasBlank'] = df.isnull().any(axis=1).astype(int)
-        df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
-
-
-        return df
 
 
 
@@ -177,10 +142,10 @@ class Blueprint():
         # Collect metadata
 
         # Omit added columns
-        df = self.source_data.iloc[:, 1: -3]
+        df = self.original_data
 
         # Order of output fields
-        row_order = ["Data type", "Memory Usage", "Memory Usage %", "Distinct", "Distinct %", "Count", "Count %", "Missing", "Missing %", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR", ]
+        row_order = ["_", "Dataframe", "Field", "Definition", "Field Notes", "Data type", "Distinct %", "Missing %", "Memory Usage", "Memory Usage %", "Distinct", "Count", "Count %", "Missing", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR", ]
 
         # Get statistical summary
         rows_count = len(df)
@@ -201,6 +166,8 @@ class Blueprint():
         # Add additional components into a DataFrame
         info_df = pd.DataFrame(
             {
+                "_":"",
+                "Dataframe": self.name,
                 "Data type": df.dtypes.astype(str),
                 "Memory Usage": df.memory_usage(deep=True, index=False),
                 "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),
@@ -251,13 +218,17 @@ class Blueprint():
 
         """
 
-        df = self.input_df
+        df = self.original_data
 
-        df_metadata = {'Rows': self.rows,
+
+        df_metadata = {"_": "",
+                       'Dataframe': self.name,
+                       'Dataframe Description': "",
+                       'Memory Usage (bytes)': f"{df.memory_usage(deep=True).sum():,}",
+                       'Rows': self.rows,
                        'Columns': self.columns,
-                       'Memory Usage': f"{df.memory_usage(deep=True).sum():,} bytes",
-                       'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
-                       'Missing %': df.isnull().mean().mean(),}
+                       'Fields Defined %':"",
+                       'Missing Values %': df.isnull().mean().mean(),}
         
         return df_metadata
         
@@ -276,8 +247,8 @@ class Environment():
         # Primary environment detail
         
         self.os = platform.system()
-        self.win = self.os == 'Windows'
-        self.mac = self.os == 'Darwin'
+        self.win = win
+        self.mac = mac
         self.env_type = self.get_env_type()
         self.excel_version = self.get_excel_version()
         self.debug = debug
@@ -291,8 +262,6 @@ class Environment():
             self.junk_drawer = 'Recycle Bin'
         elif self.mac:
             self.junk_drawer = 'Trash'
-        else:
-            self.junk_drawer = 'None'
 
 
         # Additional environment details
@@ -308,6 +277,7 @@ class Environment():
         self.console_lines = terminal_size.lines
 
 
+
     def get_excel_version(self) -> str:
 
         """
@@ -317,22 +287,25 @@ class Environment():
         -------
         str
             The version of Excel discovered
-
+            
         """
-
-        app_version = ""
         
-        # Creates an xw.App object and pulls the version details
-
         try:
-            with xw.App() as app:
-                app_version = str(app.version.major)
+            if win:
+                # Read the current Excel version from Classes Root
+                with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key:
+                    app_version, _ = winreg.QueryValueEx(key, "")
+                    app_version = app_version.split(".")[-1]
+            if mac: 
+                # Ask macOS to look up the Excel application version
+                app_version = app("Microsoft Excel").version.get()
+            
+            return app_version
+        
         except Exception:
             return ""
+            
         
-        return app_version
-
-
 
     def get_env_type(self) -> str :
         
@@ -404,12 +377,22 @@ class Environment():
                 f"{'Requires Excel >=16.0':<25} | Detected {self.excel_version:<20} | {excel_compatibility:<20}\n"
                 + separator)
 
-            print(compatibility_msg)
+            self.warn_print(compatibility_msg)
 
             sys.exit()
 
 
 
+    def warn_print(self, text: str):
+        
+        """
+        Prints text in red bold for warning messages
+
+        """
+        
+        print(f"\033[1;31m{text}\033[0m")
+        
+        
 class Theme():
 
     """
@@ -566,18 +549,6 @@ class Theme():
         return (f"{color}{text}{reset}")
 
 
-
-    def warn_print(self, text: str):
-        
-        """
-        Prints text in red bold for warning messages
-
-        """
-        
-        print(f"\033[1;31m{text}\033[0m")
-
-
-
     def hex_to_rgb(self, hex_str):
 
         """
@@ -714,14 +685,14 @@ class Theme():
         
 
         
+        
+        # 26*10 > 255 limit for RGB so limit to 9
+        iteration = (iteration + 1) % 9
+        multiplier = 26 * iteration
 
-        # 52*5 > 255 limit for RGB so limit to 4
-        iteration = (iteration + 1) % 4
-        multiplier = 52 * iteration
 
-
-        # Set color for each dataframe's set of worksheets
-        for sheet in [bp.overview, bp.field_analysis]:
+        # Set color for field analysis worksheet
+        for sheet in [bp.field_analysis]:
             if self.env.win:
                 color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
                 book.sheets(sheet).api.Tab.Color = color
@@ -1014,18 +985,15 @@ class Config():
 
     def __init__(self, 
                  wb_path: str | Path,
-                 input_df: pd.DataFrame, 
                  theme: Theme,
                  env: Environment,
                  no_vba: bool, 
-                 large_report: bool,
                  name: str,
-                 add_plots: dict[str, Figure],
-                 add_dfs: dict[str, pd.DataFrame],
+                 plots: dict[str, Figure] | None,
                  overwrite: bool,
                  debug: bool,
                  open_wb: bool,
-                 ) -> None:
+                 dataset: DataSet) -> None:
         
         """
         Primary configuration object for an xleda workbook
@@ -1053,11 +1021,8 @@ class Config():
         name : str, optional
             The name provided or default
 
-        add_plots : dict[str, Figure], optional
+        plots : dict[str, Figure], optional
             The add_plots provided or default
-
-        add_dfs : dict[str, pd.DataFrame], optional
-            add_dfs provided or default
 
         overwrite : bool, optional
             The overwrite flag provided or default
@@ -1069,11 +1034,10 @@ class Config():
             The open_wb flag provided or default
 
         """
-        
+                
 
         self.name = name
         self.title = self.sanitize_name(name, file_name=True)
-        self.large_report = large_report
         self.theme: Theme = theme
         self.env = env
         self.no_vba = no_vba
@@ -1081,7 +1045,6 @@ class Config():
         self.overwrite: bool = overwrite
         self.debug: bool = debug
         self.open_wb: bool = open_wb
-        self.input_df = input_df.copy()
         self.exit_msg = separator
 
 
@@ -1095,14 +1058,14 @@ class Config():
         
         
         # Assemble blueprints for dataframes, name objects, configure plots to add
-        self.allocate_components(plots_to_add=add_plots,
-                                 dfs_to_add=add_dfs)
+        self.allocate_components(plots_to_add=plots,
+                                 dataset=dataset)
 
 
 
     def allocate_components(self,
-                            plots_to_add: dict[str, Figure], 
-                            dfs_to_add: dict[str, pd.DataFrame]):
+                            plots_to_add: dict[str, Figure] | None,
+                            dataset: DataSet):
 
         """ 
         Allocates xleda components.
@@ -1113,13 +1076,11 @@ class Config():
         # -----------------------------------------------------------------
         # Collect all titles/unique names together
 
-        titles = [self.sanitize_name(self.name, restricted_name=False)]
-        unique_names = [self.sanitize_name(self.name)]
+        df_list = dataset.df_list
         
-        if dfs_to_add:
-            titles += [self.sanitize_name(name, restricted_name=False) for name in list(dfs_to_add.keys())]
-            unique_names += [self.sanitize_name(name) for name in list(dfs_to_add.keys())]
-        
+        titles = [self.sanitize_name(df.name, restricted_name=False) for df in df_list]
+        unique_names = [titles[0]] + [self.sanitize_name(df.name) for df in df_list[1:]]
+                
         if plots_to_add:
             titles += [self.sanitize_name(name, restricted_name=False) for name in list(plots_to_add.keys())]
             unique_names += [self.sanitize_name(name) for name in list(plots_to_add.keys())]
@@ -1146,16 +1107,15 @@ class Config():
 
             for i, figure in enumerate(figures):
                 self.additional_plots.append({'title': plot_titles[i],
-                                               'name': plot_names[i],
-                                               'fig': figure})
+                                              'name': plot_names[i],
+                                              'fig': figure})
 
         
         # -----------------------------------------------------------------
         # Create blueprints for all dataframes
-
-        all_dfs = [self.input_df.copy()] + list(dfs_to_add.values())
+                          
         
-        for i, df in enumerate(all_dfs):
+        for i, prepared_dataframe in enumerate(df_list):
 
             
             # use clearer names for the primary dataframe
@@ -1172,20 +1132,15 @@ class Config():
 
             self.blueprints.append(Blueprint(name=unique_names[i],
                                              title=titles[i],
-                                             input_df=df,
-                                             large_report=self.large_report,
+                                             prepared_dataframe=prepared_dataframe,
                                              field_analysis= fa,
                                              overview=ov,
                                              pivot=pv))
 
 
 
-
-
-
     def calculate_full_path(self) -> Path:
     
-
         """    
         Calculates a full file path for an Excel workbook given 
             a path like string or Path object
@@ -1315,8 +1270,8 @@ class Config():
 
         if self.path.is_file() and not self.overwrite:
 
-            self.theme.warn_print(f"Error: There is already a workbook named {self.path}!")
-            self.theme.warn_print("Use overwrite=True or rename/remove the existing workbook")
+            self.env.warn_print(f"Error: There is already a workbook named {self.path}!")
+            self.env.warn_print("Use overwrite=True or rename/remove the existing workbook")
             
             sys.exit()
 
@@ -1332,12 +1287,12 @@ class Config():
                 
             except OSError:
                 
-                self.theme.warn_print("\nError: The workbook cannot be overwritten while open!")
+                self.env.warn_print("\nError: The workbook cannot be overwritten while open!")
                 sys.exit()
 
             except Exception:
                 
-                self.theme.warn_print(f"An unexpected error occurred when deleting {self.path.name}")
+                self.env.warn_print(f"An unexpected error occurred when deleting {self.path.name}")
                 sys.exit()
 
         progress_bar.update(2)
@@ -1428,7 +1383,7 @@ class Config():
 
         # Return the lenth limited one if it's restricted    
         if restricted_name:
-            return sanitized_name[:14]
+            return sanitized_name[:31]
         else:
             return sanitized_name
 
@@ -1458,10 +1413,11 @@ class Config():
                 pass
 
         else:
-            print("File does not exist.")
+            self.env.warn_print("File does not exist.")
 
 
     def vba_object_model_trusted(self) -> bool:
+        
         """
         Determines whether "Trust Access to the VBA Object Model" has been set.
 
@@ -1620,6 +1576,7 @@ class Config():
 
         """
         Hides Excel rows
+        
         """
         
         if self.env.win:
@@ -1638,7 +1595,6 @@ class Config():
 
         """
 
-
         sheet_name = sheet.name
         
         if self.env.mac:
@@ -1653,9 +1609,9 @@ class Config():
             '''
             subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
             
-        elif self.env.win:  # Windows
+        elif self.env.win:
             
-            # Windows expects Before and After
+            # Windows expects Before and After arguments
             last_sheet_api = book.sheets[-1].api
             sheet.api.Move(Before=None, After=last_sheet_api)
 
@@ -1669,7 +1625,8 @@ class PerformanceLogger():
     
     def __init__(self, 
                  input_args: dict,
-                 env: Environment) -> None:
+                 env: Environment,
+                 dataset: DataSet) -> None:
 
         # ------------------------------------------------------------------------------
         # Initialize Performance Logging
@@ -1684,12 +1641,15 @@ class PerformanceLogger():
         self.env: pd.DataFrame = pd.DataFrame()
         self.errors: pd.DataFrame = pd.DataFrame()
         self.total_production_time: float
+        self.dfs = ', '.join([df.name for df in dataset.df_list])
+        
 
         self.log_open(input_args, env=env)
         
 
 
-    def log_open(self, input_args: dict,
+    def log_open(self, 
+                 input_args: dict,
                  env: Environment):
         
         """
@@ -1700,15 +1660,24 @@ class PerformanceLogger():
         # ---------------------------------------------------------
         # Set up config df
        
-        # Remove large items from input args
-        del input_args['input_df']
-        del input_args['self']
-        input_args['wb_path'] = str(input_args['wb_path'])
-        input_args['add_plots'] = str([k for k in input_args['add_plots'].keys()])
-        input_args['add_dfs'] = str([k for k in input_args['add_dfs'].keys()])
+       
+        # Add dataframes/plots  
+        input_args['dataframes'] = self.dfs
+        
+        # Convert plots to only comma separated keys
+        if input_args['plots']:
+            input_args['plots'] = ', '.join(input_args['plots'].keys())
+        else:
+            input_args['plots'] = ''
 
+        
+        # Filter input args and convert to string
+        keys_to_keep = ['name', 'dataframes', 'plots', 'theme_color', 'large_report', 'overwrite', 'wb_path', 'open_wb', 'no_vba', 'export', 'debug']
+        input_args = {key: str(input_args[key]) for key in keys_to_keep}
+                
+        
         # Convert to dataframe, transpose, set column names, and store
-        input = pd.DataFrame.from_records([input_args]).T.astype(str)
+        input = pd.DataFrame.from_records([input_args]).T
         input = input.reset_index()
         input.columns = ['Input Argument', 'Value']
         
@@ -1721,7 +1690,8 @@ class PerformanceLogger():
         env_dict = vars(env).copy()
         del env_dict['win']
         del env_dict['mac']
-
+        
+        # Create a dataframe, transpose it, add column names, and save it
         env_df = pd.DataFrame.from_records([env_dict]).T
         env_df = env_df.reset_index()
         env_df.columns = ['Environment Variable', 'Value']
@@ -1755,7 +1725,7 @@ class PerformanceLogger():
       
 
 
-    def close(self, blueprints: list[Blueprint], additional_plots: int):
+    def close(self):
 
         """
         Closes performance logging by converting logs to dataframes
@@ -1791,3 +1761,505 @@ class PerformanceLogger():
 
 
 
+class DataError(Exception):
+    
+    """
+    An exception class for capturing file parsing errors
+
+    """
+    
+    def __init__(self, 
+                 message: str):
+        
+        super().__init__(message)
+
+
+        
+class DataSet():
+
+    def __init__(self, 
+                 data: Path | dict[str, pd.DataFrame],
+                 large_report: bool = False):
+
+        self.data = data
+        self.large_report = large_report
+        self.df_list: list[PreparedDataFrame] = []
+        
+
+        # If a dict of dataframes is provided, use it to create a list of PreparedDataFrames 
+        if isinstance(data, dict) and all(isinstance(v, pd.DataFrame) for v in data.values()):
+            self.from_dataframes()
+
+        # If a path is provided, use it to create a list of PreparedDataFrames 
+        elif isinstance(data, Path):
+            self.file_path = data
+            self.file_name = data.stem
+            self.read_data_file()
+
+ 
+
+    def read_data_file(self):
+        
+        """
+        Creates a list of PreparedDataFrame objects from from supported data files
+
+        """    
+        
+        assert isinstance(self.file_path, Path)
+
+        extension = self.file_path.suffix.lower()
+        is_file = self.file_path.is_file()
+        
+        # Handle .rdata files that don't have an extension
+        if is_file and not extension:
+            extension = self.file_path.name.lower()
+            
+        # if a file with an unsupported extension is provided, raise an error 
+        if not is_file or extension not in supported_extensions:
+            supported = ", ".join(sorted(supported_extensions))
+            raise DataError(f"Unsupported file type '{extension}'. Supported files: {supported}")
+
+
+        # ----------------------------------------------------
+        # Create datasets from tabular files
+        
+        elif extension == ".csv":
+            self.from_csv()
+
+        elif extension == ".feather":
+            self.from_feather()
+           
+        elif extension == ".parquet":
+            self.from_parquet()
+            
+        elif extension in ['.xml', '.json']:
+            self.from_xml_json()
+        
+        # ----------------------------------------------------
+        # Create datasets from multidimensional files
+        
+        elif extension == ".rdata":
+            self.from_rdata()
+            
+        elif extension in db_file_extensions:
+            self.from_db_file()
+            
+        elif extension in excel_extension:
+            self.from_excel()
+
+               
+
+
+    def identify_db_type(self) -> str:
+        
+        """
+        Identifies the correct database type from files that could be duckdb, sqlite, or unknown
+
+        """
+        
+        db_type = ""
+        
+        try:
+            with open(self.file_path, 'rb') as f:
+                header = f.read(16)
+                
+                # sqlite format
+                if header.startswith(b'SQLite format 3'):
+                    db_type = "sqlite"
+                
+                # duckdb format
+                elif header[8:12] == b'DUCK':
+                    db_type = "duckdb"
+                    
+        except Exception:
+            pass
+        
+        return db_type
+
+
+
+    def from_xml_json(self):
+
+        """
+        Creates a list of PreparedDataFrame objects from a supported from xml or json files
+
+        """
+        
+        # Datafile imports
+        import xmltodict
+        import json
+        
+
+        try: 
+            with open(self.file_path) as file: 
+                
+                # Parse xml 
+                if self.file_path.suffix == '.xml': 
+                    data = xmltodict.parse(file.read())
+                    
+                    # Identify the root xml node 
+                    if isinstance(data, dict) and len(data) == 1:
+                        root_val = list(data.values())[0]
+                        
+                        # If the root contains a list of items, parse the values
+                        if isinstance(root_val, dict) and len(root_val) == 1:
+                            data = list(root_val.values())[0]
+                        else:
+                            data = root_val
+
+                # Parse json 
+                elif self.file_path.suffix == '.json': 
+                    data = json.load(file) 
+                
+                # Create a dataframe
+                df = pd.json_normalize(data) 
+                self.df_list.append(PreparedDataFrame(input_df=df,
+                                                      name=self.file_name,
+                                                      large_report=self.large_report))
+
+                
+        except Exception: 
+            raise DataError("XML/JSON file not successfully parsed") 
+            
+        
+
+    def from_pickle(self):
+        
+        """
+        Creates a list of PreparedDataFrame objects from dataframes inside a pickle file
+
+        """
+        
+
+        # Datafile imports
+        import pickle
+        
+        try: 
+
+            # Open the pickle file
+            with open(self.file_path, 'rb') as f:
+                while True:
+                    
+                    # Load the next available object
+                    data = pickle.load(f)
+                    
+                    # Save the the object to df_list if it is a dataframe
+                    if isinstance(data, pd.DataFrame):
+
+                        self.df_list.append(PreparedDataFrame(input_df=data,
+                                                              name=self.file_name,
+                                                              large_report=self.large_report))
+        except Exception: 
+            raise DataError("Pickle file not successfully parsed")      
+
+
+        
+
+    def from_rdata(self):
+        """
+        Creates a list of PreparedDataFrame objects from an RData file
+        
+        """
+        # Datafile imports
+        import rdata
+        
+        try:
+            # Parse the file into pure Python/R objects.
+            parsed_file = rdata.parser.parse_file(str(self.file_path))
+            
+            # Convert the entire workspace to its Python equivalents
+            converted_data = rdata.conversion.convert(parsed_file)
+            
+        except Exception as e:
+
+            raise DataError(f"RData file not successfully parsed: {e}")
+        
+        # Iterate through variables and extract valid DataFrames
+        for name, value in converted_data.items():
+            try:
+                df = None
+                
+                # Objects that have already been converted to a dataframe
+                if isinstance(value, pd.DataFrame):
+                    df = value
+                    
+                # Convert to a dataframe if possible
+                elif isinstance(value, dict) or hasattr(value, '__array__'):
+                    try:
+                        df = pd.DataFrame(value)
+                    
+                    # Continue to the next object if it doesn't convert successfully
+                    except Exception:
+                        continue
+                
+                # Append successfully converted dfs
+                if df is not None and not df.empty:
+                    self.df_list.append(PreparedDataFrame(input_df=df,
+                                                          name=name,
+                                                          large_report=self.large_report))
+                    
+            except Exception:
+                
+                pass
+
+
+
+
+
+    def from_db_file(self):
+        
+        """
+        Creates a list of PreparedDataFrame objects from a supported database file
+
+        """
+        
+        # Datafile imports
+        import duckdb
+
+        
+        db_type = self.identify_db_type()
+
+            
+        # Handle unsupported database file types
+        if not db_type:
+            
+            # database file type undetermined
+            raise DataError("Database file not successfully parsed")
+
+
+        # Create sqlite connection/query
+        if db_type == 'sqlite':
+
+            # Open a DuckDB instance
+            conn = duckdb.connect()
+
+            # Attach SQLite file
+            conn.sql(f"ATTACH '{self.file_path}' AS sqlite_db (TYPE sqlite);")
+            
+            query = """
+                SELECT name AS table_name 
+                FROM sqlite_schema 
+                WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+            """
+            
+        # Create duckdb connection/query
+        elif db_type == 'duckdb':
+            
+            conn = duckdb.connect(self.file_path)
+            
+            # Adds schema. to the table name
+            query = """
+                SELECT table_schema || '.' || table_name 
+                FROM information_schema.tables 
+                WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
+            """
+            
+        # Create a dataframe from each table
+        try:
+        
+            # Gather schema.table and table lists to test for collissions
+            long_table_names = [row[0] for row in conn.execute(query).fetchall()]
+            short_table_names = [table.split('.')[-1] for table in long_table_names]
+            has_name_collissions = len(short_table_names) != len(set(short_table_names))
+            
+            # Use the concise name if possible
+            if has_name_collissions:
+                tables = long_table_names
+            else:
+                tables = short_table_names
+
+        
+            for table in tables:
+                
+                # Use an underscore format for the dictionary key if necessary
+                if has_name_collissions:
+                    table = table.replace('.', '_')
+
+                                
+                # Create dataframes for each table
+                if db_type == 'sqlite':
+                    table_query = conn.sql(f"SELECT * FROM sqlite_db.{table}")
+                    df = table_query.df()
+                                
+                # Use a faster read process for duckdb tables
+                elif db_type == 'duckdb':
+                    df = conn.execute(f"SELECT * FROM {table}").df()
+                                        
+                    
+                self.df_list.append(PreparedDataFrame(input_df=df,
+                                                      name=table,
+                                                      large_report=self.large_report))
+                    
+        except Exception:
+            raise DataError("Database file not successfully parsed")
+                
+        finally:
+                conn.close()
+            
+
+
+    def from_excel(self):
+        
+        """
+        Creates a list of PreparedDataFrame objects from an Excel file
+
+        """    
+        
+        try:
+            # Open the target workbook
+            with xw.App(visible=False) as app:
+                
+                book = app.books.open(self.file_path)
+                
+                # Loop through all worksheets
+                for sheet in book.sheets:
+                    
+                    # Loop through tables
+                    for table in sheet.tables:
+                        
+                        # Create dataframes from each
+                        df = table.range.options(pd.DataFrame, index=False, header=True).value
+                        
+                        self.df_list.append(PreparedDataFrame(input_df=df,
+                                                              name=table.name,
+                                                              large_report=self.large_report))
+                        
+                book.close()
+                
+        except Exception:
+            raise DataError("Excel file not successfully parsed")
+
+
+    def from_feather(self):
+            
+            """
+            Creates a list of PreparedDataFrame objects from a feather file
+
+            """    
+            
+            try:
+                self.df_list.append(PreparedDataFrame(input_df=pd.read_feather(self.file_path),
+                                                      name=self.file_name, 
+                                                      large_report=self.large_report))
+                    
+            except Exception:
+                raise DataError("Feather file not successfully parsed")
+
+    def from_csv(self):
+            
+            """
+            Creates a list of PreparedDataFrame objects from a feather file
+
+            """    
+            
+            try:
+                self.df_list.append(PreparedDataFrame(input_df=pd.read_csv(self.file_path),
+                                                      name=self.file_name, 
+                                                      large_report=self.large_report))
+                    
+            except Exception:
+                raise DataError("CSV file not successfully parsed")
+
+    def from_parquet(self):
+            
+            """
+            Creates a list of PreparedDataFrame objects from a feather file
+
+            """
+            
+            try:
+                self.df_list.append(PreparedDataFrame(input_df=pd.read_parquet(self.file_path),
+                                                      name=self.file_name, 
+                                                      large_report=self.large_report))
+                    
+            except Exception:
+                raise DataError("Parquet file not successfully parsed")
+
+
+    def from_dataframes(self):
+            
+        """
+        Creates a list of PreparedDataFrame objects from a dictionary of dataframes
+
+        """    
+        
+        assert isinstance(self.data, dict)
+        
+        try:
+            
+            for name, df in self.data.items():
+
+                self.df_list.append(PreparedDataFrame(input_df=df,
+                                                      name=name,
+                                                      large_report=self.large_report))
+
+                
+        except Exception:
+            raise DataError("Dataframes not successfully parsed")
+
+
+
+
+
+class PreparedDataFrame():
+    
+    """
+    A class that represents a dataframe that has been appropriately subsampled
+    
+    """
+    
+    
+    def __init__(self, 
+                 name: str,
+                 large_report: bool = False,
+                 input_df: pd.DataFrame = pd.DataFrame()):
+        
+        self.large_report = large_report
+        self.df: pd.DataFrame = input_df.copy()
+        
+        
+        self.name: str = name
+        self.warning: bool = False
+        self.warning_msg: str = ""
+        
+        rows = len(input_df)
+        columns = len(input_df.columns)
+        
+
+        above_default = rows > default_row_limit or columns > default_column_limit
+        above_limit = rows > upper_row_limit or columns > upper_column_limit
+            
+
+        # Source data is above default limits
+        if above_default and not large_report and not above_limit:
+
+            self.warning = True
+            self.warning_msg = ("This is only showing a sample because it is larger than the default "
+                                "limits of 25,000 rows/50 columns.  See documentation for details.")
+            
+            rows = min(rows, default_row_limit)
+            columns = min(columns, default_column_limit)
+            
+
+        # Source data is larger than Excel's limits
+        elif above_limit:
+
+            self.warning = True
+            self.warning_msg = ("This is only showing a sample because it is larger than Excel's limits "
+                                "of 1,000,000 rows/16,000 columns.  See documentation for details.")
+            
+            rows = min(rows, upper_row_limit)
+            columns = min(columns, upper_column_limit)
+
+
+        # Subsample df if needed, record adjusted rows/columns
+        self.df = (self.df.iloc[:, :columns].sample(n=rows).sort_index())
+        self.rows = rows
+        self.columns = columns
+        
+        
+        # Add index, Record List, HasBlank, Record Hash fields to source_data
+        self.df['index'] = self.df.index
+        self.df.insert(loc=0, column="Record List", value="False")
+        self.df['HasBlank'] = self.df.isnull().any(axis=1).astype(int)
+        self.df["Record Hash"] = pd.util.hash_pandas_object(self.df, index=False)

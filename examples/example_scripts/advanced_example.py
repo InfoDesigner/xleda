@@ -23,15 +23,15 @@ null_matrix = msno.matrix(penguins).get_figure()
 null_matrix.set_size_inches(9.35, 4.5) # type: ignore
 
 
-# Creates "OG Penguins.xlsm" in the current directory that includes:
+# Creates "Penguins.xlsm" in the current directory that includes:
 #    * Two additonal plot worksheets
 #    * xleda analyses for two additonal dataframes.
 
-wb(input_df=penguins, 
-   name="Penguins", 
+wb(data={'Penguins': penguins,
+         'Sea Ice': seaice,
+         'OG Penguins': og_penguins},
    theme_color="#817CA2",
    overwrite=True,
-   add_plots={'Pair Plots': pair_plots,
-              'Null Matrix': null_matrix}, # type: ignore
-   add_dfs={'Sea Ice': seaice,
-            'OG Penguins': og_penguins})
+   plots={'Pair Plots': pair_plots,
+          'Null Matrix': null_matrix}, # type: ignore
+)

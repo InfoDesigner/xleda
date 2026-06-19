@@ -6,12 +6,17 @@ import pytest
 import xlwings as xw
 from matplotlib.figure import Figure
 import platform
+import sys
 
 
 from xleda import wb
 from tools.create_examples import (seaborn_datasets, penguins, 
                                    african_soil, titanic, titanic_completed, 
                                    titanic_incompleted, nyc_taxi)
+from xleda import os_interface
+from src.xleda.utilities import DataError
+from src.xleda.main import wb_cli
+
 
 
 os = platform.system()
@@ -58,7 +63,7 @@ nyc_xlsx_dict = {'input_df': nyc_taxi,
 def get_df_hash(input_df: pd.DataFrame) -> str:
     
     """
-        Converts a dataframe to a sha256 hash in order to test equality
+    Converts a dataframe to a sha256 hash in order to test equality
 
     Parameters
     ----------
@@ -85,7 +90,7 @@ def get_df_hash(input_df: pd.DataFrame) -> str:
 def test_examples_are_created():
 
     """
-        Tests that all examples workbooks are created
+    Tests that all examples workbooks are created
     
     """
 
@@ -119,7 +124,7 @@ def test_examples_are_created():
 def test_example_workbooks(wb_dict: dict):
 
     """ 
-        Tests example workbooks for structure and content
+    Tests example workbooks for structure and content
     
     """
 
@@ -281,7 +286,7 @@ def test_example_workbooks(wb_dict: dict):
 def test_export_dict():
     
     """
-        Tests the Titanic Completed example and the export functionality
+    Tests the Titanic Completed example and the export functionality
 
     """
    
@@ -289,7 +294,7 @@ def test_export_dict():
     with open(r"tests/export_dict.pkl", "rb") as f:
         expected = pickle.load(f)
 
-    actual_wb = wb(input_df=titanic,
+    actual_wb = wb(data=titanic,
                    wb_path=examples_path / 'Titanic Completed.xlsm', 
                    name='Titanic',
                    no_vba=True,
@@ -305,3 +310,83 @@ def test_export_dict():
 
     
     assert actual == expected
+    
+    
+    
+def test_create_wb_from_file():
+
+    """
+    Tests the ability to create an xleda workbook from a json file
+    
+    """
+
+
+    json_path = Path.cwd().parent / "testing_data/sample.json"
+    expected_wb_path = json_path.parent / 'sample.xlsm'
+    
+    # Remove old workbook before testing
+    if expected_wb_path.exists():
+        expected_wb_path.unlink()
+        
+    # Create a new workbook 
+    wb_cli(str(json_path))
+    
+    assert expected_wb_path.exists()
+    
+
+def test_invalid_data_file():
+    
+    """
+    Tests the ability to fail correctly when trying to parse an invalidly constructed json file
+    
+    """
+    
+    invalid_data_structure = Path().cwd().parent / r"testing_data/invalid.json"
+
+    with pytest.raises(DataError, match="XML/JSON file not successfully parsed"):
+        wb_cli(str(invalid_data_structure))
+
+
+
+def test_unsupported_extension():
+
+    """
+    Tests the ability to fail correctly when trying to work with an unsupported file extension
+    
+    """
+
+    unsupported_extension = Path().cwd().parent / r"testing_data/unsupported_extension.xleda"
+
+    with pytest.raises(DataError, match="Unsupported file type"):
+        wb_cli(str(unsupported_extension))
+        
+        
+
+@pytest.mark.skipif(sys.platform == 'win32', reason="Does not work on Windows")
+def test_macos_workflow():
+    
+    """
+    Verifies the shell script opens terminal and that the
+      xleda command is available to the current Python interpreter
+      
+    """
+    script = os_interface.macos_workflow_shell_script()
+
+    assert "Terminal" in script
+    assert "-m xleda wb" in script
+
+
+@pytest.mark.skipif(sys.platform == 'darwin', reason="Does not work on macOS")
+def test_windows_command():
+    
+    """
+    Verifies the windows command can open PowerShell and that the
+      xleda command is available to the current Python interpreter
+      
+    """
+    
+    command = os_interface.windows_command()
+
+    assert "powershell.exe" in command
+    assert "-m xleda wb" in command
+    assert "%1" in command

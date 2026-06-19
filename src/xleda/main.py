@@ -3,13 +3,46 @@ from pathlib import Path
 import ast
 import sys
 import time
+import typer
+
 
 from tqdm.auto import tqdm
 from matplotlib.figure import Figure
 import xlwings as xw
 
-from .utilities import (Environment, Config, Theme, Plotter,
-                        Blueprint, ExportDict, PerformanceLogger)
+from .utilities import (Environment, Config, Theme, Plotter, DataSet,
+                        Blueprint, ExportDict, PerformanceLogger, DataError)
+
+from .os_interface import install, uninstall, supported_extensions
+
+separator = "\n" + ("-" * 100)
+
+
+def construct_help_msg() -> str:
+    separator = "-" * 80
+
+    
+    message = (
+        f"{separator}\n\n"
+        r"Use 'xleda wb \<data file path\>' to create a workbook" + "\n\n"
+        "### Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML" + "<br><br>\n\n"
+        f"### Expected extensions:{str(supported_extensions)[1:-1]}\n\n"
+        "For more documentation, visit https://github.com/InfoDesigner/xleda"
+        )
+    return message
+
+
+
+
+app = typer.Typer(epilog=construct_help_msg(), rich_markup_mode="markdown")
+
+app.command()(install)
+app.command()(uninstall)
+
+
+
+
+
 
 
 
@@ -17,7 +50,26 @@ from .utilities import (Environment, Config, Theme, Plotter,
 # Set primary vars/config
 
 
-separator = "\n" + ("-" * 100)
+
+
+@app.command(name="wb", epilog=construct_help_msg())
+def wb_cli(data: str = typer.Argument(..., help="Path to a supported data file"),
+           name: str = typer.Option(None, show_default=False, help="Name of the created workbook. Defaults to the same name as the data file"),
+           theme_color: str = typer.Option("#262626", "--theme_color", help="Hex color used for theme in workbook and default plots"),
+           export: bool = typer.Option(False, help="Export from an xleda workbook"),
+           large_report: bool = typer.Option(False, "--large_report", help="Only subsample when required to fit within Excel's worksheet limits"),
+           overwrite: bool = typer.Option(False, help="Overwrite existing workbook"),
+           wb_path: Path = typer.Option(Path().cwd(), "--wb_path", show_default=False, help="Workbook directory with/without filename"),
+           open_wb: bool = typer.Option(True, "--open_wb", help="Automatically open the workbook on finish"),
+           no_vba: bool = typer.Option(False, "--no_vba", help="Create an xlsx file without VBA")):
+
+    """
+    Creates an xleda workbook from a supported data file
+
+    """
+
+
+    return wb(**locals())
 
 
 
@@ -28,52 +80,53 @@ class wb():
 
     """
 
-    def __init__(self, 
-                 input_df: pd.DataFrame, 
-                 name: str = 'xleda', 
-                 theme_color: str = "#262626", 
-                 add_plots: dict[str, Figure] = {},
-                 add_dfs: dict[str, pd.DataFrame] = {},
-                 large_report: bool = False, 
-                 overwrite: bool = False, 
-                 wb_path: Path | str = Path().cwd(),
-                 open_wb: bool = True,
-                 no_vba: bool = False,
+    def __init__(self,
+                 data: pd.DataFrame | str | Path | dict[str, pd.DataFrame] | None = None,         
+                 # Every other argument is keyword only
+                 *,
+                 name: str = 'xleda',
+                 theme_color: str = "#262626",
+                 plots: dict[str, Figure] | None = None,
                  export: bool = False,
                  debug: bool = False,
-                 ) -> None:
-
+                 large_report: bool = False,
+                 overwrite: bool = False,
+                 wb_path: str | Path = Path().cwd(),
+                 open_wb: bool = True,
+                 no_vba: bool = False,
+                 
+                 # TODO: Remove this on 8.18
+                 input_df: pd.DataFrame | None = None) -> None:
         """
         Creates an xleda workbook
 
         Parameters
         ----------
 
-        input_df : pd.DataFrame
-            * A pandas dataframe of any size.  
+        data : pd.DataFrame | str | Path | dict[str, pd.DataFrame]
+            * Options:
+                * A pandas dataframe
+                * A str or Path to a supported data file
+                * Dictonary of pandas dataframes in '{'df1_name': df1, 'df2_name': df2, ...}' format
             * Will create an xleda workbook that is 25,000 rows/50 columns by default.  
-            * Use large_report=True to expand this to Excel's limits.
 
         name : str
             * Name of the workbook to be created.
-
+            * Defaults to:
+                * The name of the file provided for 'wb_path' or 'data'
+                * The first key if a dict[str, pd.DataFrame] argument is provided for 'data'
+                * 'xleda' if neither option above is valid
+                
         theme_color : str, optional
             * A hexidecimal color used for charts/accent color.  
             * Use theme_color='random' for random colors
             * Defaults to "#262626"
 
-        add_plots : dict[str, Figure], optional
+        plots : dict[str, Figure], optional
             * Additional plots to be included 
             * Uses "{'plot1_name': Plot1Figure, 'plot2_name': Plot2Figure, ...}" format.  
             * Each entry will get it's own worksheet.  
             * No resizing or syling is done for plots added this way
-            * Defaults to None
-
-        add_dfs : dict[str, pd.Dataframe], optional
-            * Additional dataframes to be included
-            * Creates Field Analyis/Overview worksheets for each additional df
-            * Uses "{'df1_name': df1, 'df2_name': df2, ...}" format.  
-            * Each df will get it's own entry in export_dicts.
             * Defaults to None
 
         large_report : bool, optional
@@ -86,7 +139,7 @@ class wb():
             * Defaults to False
 
         wb_path : Path | string, optional
-            * String or Pathlib path of a directory or file
+            * String or Pathlib path
             * If a directory is provided, the workbook will be created in that directory.
             * If a file name ending in ".xlsm" or ".xlsx" is provided, 
                 it will either create that file or export from that file, 
@@ -124,23 +177,62 @@ class wb():
                                          ** Note that data types will likely change in the round-trip translation. **
 
         debug: bool, optional
-            * Shows the workbook being created                          
+            * Shows the workbook being created
+            
+            
+        input_df: pd.DataFrame, optional
+            * A placeholder to retain backwards compatibility for the new 'data' argument
 
         """
 
         # ------------------------------------------------------------------------------
-        # Configure xleda
+        # Check Environment/Create Dataset
 
 
         # Initialize/Check Environment
         self.env = Environment()
+        
+        # Allocate placeholder variables
+        self.name = name
+        self.large_report = large_report
+        self.wb_path = wb_path
+        
+        
+        # -------------------------------------------------
+        # Handle placeholder argument for backwards compatibility
+        
+        # Handle neither data argument provided
+        if data is None and input_df is None:
+            self.env.warn_print("No Data Provided")
+        
+        # Handle the old placeholder argument provided
+        elif (input_df is not None and data is None):
+            self.env.warn_print("input_df has been changed to 'data'")
+            self.data = input_df
+            
+        # Handle both the old and new arguments provided
+        elif (input_df is not None and data is not None):
+            self.env.warn_print("input_df has been changed to 'data'")
+            self.data = data
+        
+        # Handle the remaing path, which is all that will remain after removing api stub
+        else:
+            self.data = data
+        
+
+        # Create a DataSet
+        self.dataset: DataSet = self._configure_dataset()
 
 
+
+        # ------------------------------------------------------------------------------
+        # Initialize other components
+            
 
         # Initialize logger/log input variables
         self.logger = PerformanceLogger(input_args=locals().copy(),
-                                        env=self.env)
-
+                                        env=self.env,
+                                        dataset=self.dataset)
 
         # Intialize theme
         self.theme = Theme(theme_color,
@@ -149,28 +241,24 @@ class wb():
         # Intialize plotter
         self.plotter = Plotter(theme=self.theme,
                                env=self.env)
-    
 
         # Intialize Config
         self.cfg = Config(wb_path=wb_path,
-                          input_df=input_df,
                           theme=self.theme,
                           env=self.env,
                           debug=debug,
-                          large_report=large_report,
                           overwrite=overwrite,
                           no_vba=no_vba,
                           name=name,
-                          add_plots=add_plots,
-                          add_dfs=add_dfs,
-                          open_wb=open_wb)
+                          plots=plots,
+                          open_wb=open_wb,
+                          dataset=self.dataset)
         
 
         # Set placeholder vars
         self.blueprints: list[Blueprint] = self.cfg.blueprints
         self.export_dicts: list[ExportDict] = [ExportDict(bp) for bp in self.blueprints]
     
-       
 
         # ------------------------------------------------------------------------------
         # Either create a workbook or export
@@ -179,6 +267,51 @@ class wb():
             self._export_analysis()
         else:
             self._assemble_wb()
+
+
+
+    def _configure_dataset(self) -> DataSet:
+        
+        """
+        Create a DataSet/adjust properties as needed
+        
+        """
+        
+        # If a dataframe is provided, create a dataset from it
+        if isinstance(self.data, pd.DataFrame):
+            source_data = {self.name: self.data}
+            return DataSet(data=source_data,
+                           large_report=self.large_report)
+            
+        # If a dictionary of dataframes is provided, create a dataset from it
+        elif isinstance(self.data, dict) and all(isinstance(v, pd.DataFrame) for v in self.data.values()):
+            return DataSet(data=self.data,
+                           large_report=self.large_report)
+        
+        # If a path has been provided, parse it for other details and create a dataset from it
+        elif isinstance(self.data, Path) or isinstance(self.data, str):
+        
+            # Resolve the path, including any provided user profile components
+            resolved_path = Path(self.data).expanduser().resolve()
+        
+            # Use the datafile name for name if it hasn't been explicitly provided
+            if not self.name or self.name == 'xleda':
+                self.name = resolved_path.stem
+                
+                # Adjust the name if the source file is an xlsm file
+                if resolved_path.suffix in ['.xlsm', '.xlsx']:
+                    self.name += '_xleda'
+        
+            # Use the datafile directory for wb_path if it hasn't been explicitly provided
+            if not self.wb_path:
+                self.wb_path = resolved_path.parent
+                
+            return DataSet(data=resolved_path,
+                           large_report=self.large_report)
+        else:
+            
+            msg = f"Unsupported data argument was provided: {type(self.data)!r}"
+            raise DataError(msg)
 
 
 
@@ -335,8 +468,7 @@ class wb():
                 
                 
                 # Close logs and write to workbook
-                self.logger.close(blueprints=self.blueprints,
-                                  additional_plots=len(self.cfg.additional_plots))
+                self.logger.close()
                 
                 self._add_debug()
 
@@ -405,8 +537,8 @@ class wb():
         # Print closing message
         self.theme.print(exit_msg + '\n' + separator)
     
-
-
+        
+        
     def _create_worksheets(self, progress_bar: tqdm):
 
         """
@@ -424,7 +556,7 @@ class wb():
         missing_sheets = [sht for sht in expected_sheets if sht not in book.sheet_names]
 
         if expected_sheets != actual_sheets:
-            self.theme.warn_print(f"Template has been modifed, the following worksheets are missing\n    {missing_sheets}")
+            self.env.warn_print(f"Template has been modifed, the following worksheets are missing\n    {missing_sheets}")
             sys.exit()
 
 
@@ -632,10 +764,12 @@ class wb():
 
             book = self.book
             df = bp.overview_metadata
-            ws = book.sheets(bp.overview)
+            ws = book.sheets("Overview")
+            
             overview_table = ws.tables[0]
-
-            col_order = ['Field', 'Definition', 'Field Notes', 'Data type', 'Distinct %', 'Missing %', 'Memory Usage %', 'Memory Usage', 'Distinct', 'Count', 'Count %', 'Missing', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance', 'Min', '5%', '25%', '50%', '75%', '95%', 'Max', 'Range', 'IQR']
+            
+            
+            col_order = ['_', 'Field', 'Definition', 'Field Notes', 'Data type', 'Distinct %', 'Missing %', 'Memory Usage %', 'Memory Usage', 'Distinct', 'Count', 'Count %', 'Missing', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance', 'Min', '5%', '25%', '50%', '75%', '95%', 'Max', 'Range', 'IQR']
 
 
             # Set name/theme/warning if necessary
@@ -652,6 +786,7 @@ class wb():
             # --------------------------------------------------
             # Configure overview df, reorder columns
 
+            # TODO: Add extra columns here
             df['Field Notes'], df['Definition'], df['Field'] = None, None, df.index
             df = df[col_order]
 
@@ -870,12 +1005,7 @@ class wb():
                             left=plot_range.left, 
                             top=plot_range.top)
             
-            
             progress_bar.update(1)
-
-
-
-
 
 
     def _configure_pivot(self, progress_bar: tqdm):
@@ -896,11 +1026,11 @@ class wb():
         # Set vars/intialize logging
 
         bp = self.blueprints[0]
-        df = bp.input_df.copy()
+        df = bp.original_data.copy()
         book = self.book
 
         # Fields to be added to the pivot tables
-        pivot_fields = df.columns.to_list()[:min(10, bp.columns)]
+        pivot_fields = df.columns.to_list()[:min(10, len(df.columns))]
         
 
         if bp.pivot is not None:
@@ -1200,9 +1330,9 @@ class wb():
         
         if missing_dfs:
             
-            self.theme.warn_print("\nExports for the following dataframes were not found:\n")
+            self.env.warn_print("\nExports for the following dataframes were not found:\n")
             for sht in missing_dfs:
-                self.theme.warn_print(f"    {sht}")
+                self.env.warn_print(f"    {sht}")
                         
 
         duration = time.time() - self.logger.start
@@ -1212,11 +1342,6 @@ class wb():
 
 
 
-
-
-
-
-    
     
 
 
@@ -1238,11 +1363,11 @@ class FieldAnalysis(wb):
         Use xleda.wb to both configure and create a workbook
              
         """
-        self.theme.warn_print(separator + 
+        self.env.warn_print(separator + 
               "\nCreating a separate Field Analysis configuration is no longer required.\n"
               "Use xleda.wb to both configure and create a workbook\n" + separator)
 
-        super().__init__(input_df=input_df,
+        super().__init__(data=input_df,
                          **kwargs)
 
 
@@ -1278,5 +1403,3 @@ class FieldAnalysis(wb):
         self._export_analysis()
 
         return self.export_dicts
-
-
