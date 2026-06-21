@@ -79,14 +79,14 @@ def create_all_sizes():
         # Create without large report flag
         wb(data=df,
            theme_color='random',
-           name=name + '_small',
+           file_name=name + '_small',
            wb_path=output_path)
         
 
         # Create with large report flag
         wb(data=df,
            theme_color='random',
-           name=name + '_large',
+           file_name=name + '_large',
            wb_path=output_path,
            large_report=True)
         

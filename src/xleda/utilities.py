@@ -34,6 +34,13 @@ import xlwings as xw
 from xlwings.constants import Constants
 
 
+# Import wb for typing
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .main import wb
+
+
 # ---------------------------------------------
 # Set variables
 
@@ -49,8 +56,9 @@ if mac:
     from appscript import app, k # type: ignore
     
 
-# Set matplotlib theme
+# Plot/print vars
 plt.style.use("dark_background")
+separator = "\n" + ("-" * 100)
 
 
 # DataFile variables
@@ -59,6 +67,7 @@ excel_extension = ['.xlsx', '.xls', '.xlsm', '.xlsb']
 standalone_extensions = ['.csv', '.feather', '.parquet', '.xml', '.json', '.rdata', '.pkl', '.pickle', '.pck'] 
 supported_extensions = standalone_extensions + db_file_extensions + excel_extension
 
+# Dataset variables
 default_row_limit = 25_000
 default_column_limit = 50
 upper_row_limit = 1_000_000
@@ -70,168 +79,11 @@ xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
 xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
 
 
-separator = "\n" + ("-" * 100)
+template_objects ={"meta":[],
+                   "SinglePlot": [],
+                   "Field Analysis": ["tbl_SourceData"],
+                   "|": ["tbl_FieldOverview", "tbl_debug_environment", "tbl_debug_config", "tbl_DfOverview",  "tbl_debug_errors", "tbl_debug_section"]}
 
-
-
-
-
-
-class Blueprint():
-
-    """ 
-    Class that represents an xleda blueprint"""
-
-    def __init__(self, 
-                 name: str,
-                 title: str,
-                 prepared_dataframe: PreparedDataFrame, 
-                 overview:str,
-                 field_analysis: str,
-                 pivot:str = "") -> None:
-
-        self.name = name
-        self.title = title
-        self.source_data: pd.DataFrame = prepared_dataframe.df
-        
-        # Omits added columns
-        self.original_data: pd.DataFrame = self.source_data.iloc[:, 1: -3]
-        
-        self.large_report = prepared_dataframe.large_report
-        self.overview=overview
-        self.field_analysis= field_analysis
-        self.pivot=pivot
-        
-
-        self.warning_msg: str = prepared_dataframe.warning_msg
-        self.warning: bool = prepared_dataframe.warning
-        self.rows = prepared_dataframe.rows
-        self.columns = prepared_dataframe.columns
-
-        
-
-        # add field_metadata/overview_metadata
-        self.field_metadata: pd.DataFrame = self.create_field_metadata()
-        self.df_metadata: dict[str, Any] = self.create_df_metadata()
-        self.overview_metadata = self.field_metadata.T
-
-
-        # Add export placeholders
-        self.description = ""
-        self.definitions: dict = {}
-        self.notes: dict = {}
-        self.lists: dict = {}
-        self.altered_source_data: pd.DataFrame = pd.DataFrame()
-
-
-
-    def create_field_metadata(self) -> pd.DataFrame:
-
-        """
-        Produces a field_metadata dataframe
-
-        Returns
-        -------
-        pd.DataFrame
-            A dataframe with field metadata 
-        
-        """
-
-
-        # --------------------------------------------------
-        # Collect metadata
-
-        # Omit added columns
-        df = self.original_data
-
-        # Order of output fields
-        row_order = ["_", "Dataframe", "Field", "Definition", "Field Notes", "Data type", "Distinct %", "Missing %", "Memory Usage", "Memory Usage %", "Distinct", "Count", "Count %", "Missing", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR", ]
-
-        # Get statistical summary
-        rows_count = len(df)
-        desc = df.describe(include="all", percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])
-
-
-        # Add missing describe entries if they don't exist
-        all_describe_fields = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'unique', 'top', 'freq', '5%', '95%']
-        desc = desc.reindex(all_describe_fields)
-
-        
-        # Calculate variance without failing on unsupported types such as timedelta
-        try:
-            variance = desc.loc["std"] ** 2
-        except TypeError:
-            variance = None
-        
-        # Add additional components into a DataFrame
-        info_df = pd.DataFrame(
-            {
-                "_":"",
-                "Dataframe": self.name,
-                "Data type": df.dtypes.astype(str),
-                "Memory Usage": df.memory_usage(deep=True, index=False),
-                "Memory Usage %": df.memory_usage(deep=True, index=False) / df.memory_usage(deep=True).sum(),
-                "Count": rows_count - df.isnull().sum(),
-                "Count %": (rows_count - df.isnull().sum()) / rows_count,
-                "Missing": df.isnull().sum(),
-                "Missing %": df.isnull().sum() / rows_count,
-                "IQR": desc.loc["75%"] - desc.loc["25%"],
-                "Median": desc.loc["50%"],
-                "Mode": df.mode().iloc[0],
-                "Range": desc.loc["max"] - desc.loc["min"],
-                "Variance": variance,
-                "Distinct": df.nunique(),
-                "Distinct %": df.nunique() / rows_count,
-                }).T
-
-
-        # --------------------------------------------------
-        # Combine/Format Metadata
-
-        
-        # Combine info and describe dfs
-        summary_df = pd.concat([info_df, desc])
-
-        # Field name map
-        field_map = {
-            "mean": "Mean",
-            "std": "Standard Deviation",
-            "min": "Min",
-            "max": "Max",
-            }
-
-        # Rename index fields, reorder, filter rows
-        summary_df = summary_df.rename(index=field_map)
-        summary_df = summary_df.loc[row_order]
-
-        # convert to string to prevent issues with timedelta/random datatypes
-        summary_df = summary_df.astype(str)
-
-        return summary_df
-
-
-
-    def create_df_metadata(self) -> dict[str, Any]:
-
-        """
-        Creates a dictonary of df-level metadata
-
-        """
-
-        df = self.original_data
-
-
-        df_metadata = {"_": "",
-                       'Dataframe': self.name,
-                       'Dataframe Description': "",
-                       'Memory Usage (bytes)': f"{df.memory_usage(deep=True).sum():,}",
-                       'Rows': self.rows,
-                       'Columns': self.columns,
-                       'Fields Defined %':"",
-                       'Missing Values %': df.isnull().mean().mean(),}
-        
-        return df_metadata
-        
 
 
 class Environment():
@@ -392,7 +244,8 @@ class Environment():
         
         print(f"\033[1;31m{text}\033[0m")
         
-        
+
+
 class Theme():
 
     """
@@ -676,15 +529,12 @@ class Theme():
 
 
 
-    def greyscale_tabs(self, bp: Blueprint, iteration:int, book: xw.Book, config: Config):
+    def greyscale_tab(self, ws: xw.Sheet, iteration:int):
 
         """
         Colors worksheet tabs to a shade of grey for contrast with adjacent worksheets
             
         """
-        
-
-        
         
         # 26*10 > 255 limit for RGB so limit to 9
         iteration = (iteration + 1) % 9
@@ -692,16 +542,13 @@ class Theme():
 
 
         # Set color for field analysis worksheet
-        for sheet in [bp.field_analysis]:
-            if self.env.win:
-                color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
-                book.sheets(sheet).api.Tab.Color = color
-            
-            elif self.env.mac:
-                color = ((multiplier), (multiplier), (multiplier))
-
-                book.sheets(sheet).api.sheet_tab.color.set((color))
-
+        if self.env.win:
+            color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
+            ws.api.Tab.Color = color
+        
+        elif self.env.mac:
+            color = ((multiplier), (multiplier), (multiplier))
+            ws.api.sheet_tab.color.set((color))
 
 
 
@@ -942,8 +789,6 @@ class Plotter():
             return fig
 
 
-    
-
 
 class ExportDict(dict):
 
@@ -952,7 +797,7 @@ class ExportDict(dict):
     
     """
 
-    def __init__(self, bp: Blueprint) -> None:
+    def __init__(self, ds: DataSet) -> None:
         
         """
         Generates an ExportDict object that provides access to xleda 
@@ -960,16 +805,17 @@ class ExportDict(dict):
 
         Parameters
         ----------
-        bp : Blueprint
-            An xleda blueprint
+        ds : 
+            An xleda dataset
 
         """
 
 
-        for key in ['description', 'definitions', 'notes', 'lists', 'field_metadata', 'overview_metadata', 'altered_source_data']:
+        for key in ['description', 'definitions', 'notes', 'lists', 'field_overview', 'df_overview', 'altered_source_data']:
             
-            val = eval(f"bp.{key}")
+            val = eval(f"ds.{key}")
 
+            # If the value exists or is a dataframe, add it to the dictionary and class object
             if isinstance(val, pd.DataFrame) or val:
                 setattr(self, key, eval(f"bp.{key}"))
                 self[key] = eval(f"bp.{key}")
@@ -983,159 +829,39 @@ class Config():
 
     """
 
-    def __init__(self, 
-                 wb_path: str | Path,
-                 theme: Theme,
-                 env: Environment,
-                 no_vba: bool, 
-                 name: str,
-                 plots: dict[str, Figure] | None,
-                 overwrite: bool,
-                 debug: bool,
-                 open_wb: bool,
-                 dataset: DataSet) -> None:
+    def __init__(self,
+                 wb: wb,
+                 **kwargs: Any) -> None:
         
         """
         Primary configuration object for an xleda workbook
 
-        Parameters
-        ----------
-        input_path : str | Path
-            The wb_path provided or default
-
-        input_df : pd.DataFrame
-            The primary dataframe provided or default
-
-        theme : Theme
-            The theme provided or default
-
-        env : Environment
-            The operating environment in Environment form
-
-        input_no_vba : bool, optional
-            The no_vba flag provided or default
-            
-        large_report : bool, optional
-            The large_report flag provided or default
-
-        name : str, optional
-            The name provided or default
-
-        plots : dict[str, Figure], optional
-            The add_plots provided or default
-
-        overwrite : bool, optional
-            The overwrite flag provided or default
-
-        debug : bool, optional
-            The debug flag provided or default
-
-        open_wb : bool, optional
-            The open_wb flag provided or default
+        
 
         """
-                
-
-        self.name = name
-        self.title = self.sanitize_name(name, file_name=True)
-        self.theme: Theme = theme
-        self.env = env
-        self.no_vba = no_vba
-        self.wb_path = wb_path
-        self.overwrite: bool = overwrite
-        self.debug: bool = debug
-        self.open_wb: bool = open_wb
+        
+        # Set file name
+        self.file_name = self.sanitize_name(input_str=kwargs['name'], name_type='file')
+        self.env = wb.env
+        self.no_vba = kwargs['no_vba']
+        self.wb_path = kwargs['wb_path']
+        self.overwrite: bool = kwargs['overwrite']
+        self.debug: bool = kwargs['debug']
+        self.open_wb: bool = kwargs['open_wb']
         self.exit_msg = separator
+        self.large_report = kwargs['large_report']
+        self.export = kwargs['export']
+
 
 
         # Calculate the target file path        
         self.path: Path = self.calculate_full_path()
 
-
-        # Set placeholder variables
-        self.additional_plots: list[dict[str, Any]] = []
-        self.blueprints: list[Blueprint] = []
         
-        
-        # Assemble blueprints for dataframes, name objects, configure plots to add
-        self.allocate_components(plots_to_add=plots,
-                                 dataset=dataset)
+        # Ensure unique names for all worksheets/tables
+        self.ensure_unique(wb=wb)
 
 
-
-    def allocate_components(self,
-                            plots_to_add: dict[str, Figure] | None,
-                            dataset: DataSet):
-
-        """ 
-        Allocates xleda components.
-
-        """        
-
-
-        # -----------------------------------------------------------------
-        # Collect all titles/unique names together
-
-        df_list = dataset.df_list
-        
-        titles = [self.sanitize_name(df.name, restricted_name=False) for df in df_list]
-        unique_names = [titles[0]] + [self.sanitize_name(df.name) for df in df_list[1:]]
-                
-        if plots_to_add:
-            titles += [self.sanitize_name(name, restricted_name=False) for name in list(plots_to_add.keys())]
-            unique_names += [self.sanitize_name(name) for name in list(plots_to_add.keys())]
-
-
-
-        # -----------------------------------------------------------------
-        # Append an index number to duplicates
-
-        unique_names = self.ensure_unique(unique_names)
-
-        
-        # -----------------------------------------------------------------
-        # Allocate additional plots
-        
-
-        if plots_to_add:
-            
-            # Get titles/names/figures           
-            plot_titles = [titles.pop(-1) for title in range(len(plots_to_add))]
-            plot_names = [unique_names.pop(-1) for title in range(len(plots_to_add))]
-            figures = plots_to_add.values()
-
-
-            for i, figure in enumerate(figures):
-                self.additional_plots.append({'title': plot_titles[i],
-                                              'name': plot_names[i],
-                                              'fig': figure})
-
-        
-        # -----------------------------------------------------------------
-        # Create blueprints for all dataframes
-                          
-        
-        for i, prepared_dataframe in enumerate(df_list):
-
-            
-            # use clearer names for the primary dataframe
-            if not i:
-                fa = 'Field Analysis'
-                ov = 'Overview'
-                pv = 'Pivot'
-            
-            else:
-                fa = f'Field Analysis | {unique_names[i]}'
-                ov = f'Overview | {unique_names[i]}'
-                pv = ''
-
-
-            self.blueprints.append(Blueprint(name=unique_names[i],
-                                             title=titles[i],
-                                             prepared_dataframe=prepared_dataframe,
-                                             field_analysis= fa,
-                                             overview=ov,
-                                             pivot=pv))
 
 
 
@@ -1161,13 +887,14 @@ class Config():
         # Handle correct extension is passed
         if wb_path.suffix in ['.xlsx', '.xlsm']:
 
-            # If full path is provided
+            # If full path is provided, use it
             if wb_path.is_absolute():      
                 new_path = wb_path
-
+                            
             # if a full path isn't provided, construct it
             else:
                 new_path = Path().cwd() / wb_path
+
             
             return new_path
             
@@ -1199,12 +926,10 @@ class Config():
         # If only a directory has been calculated, add file name to it
         if not new_path:
         
-            name = self.sanitize_name(self.name, file_name=True)
-
             if self.no_vba:
-                wb_file_name = f"{name}.xlsx"
+                wb_file_name = f"{self.file_name}.xlsx"
             else:
-                wb_file_name = f"{name}.xlsm"
+                wb_file_name = f"{self.file_name}.xlsm"
 
             new_path = wb_directory / wb_file_name
         
@@ -1213,49 +938,108 @@ class Config():
 
 
 
-    def ensure_unique(self, str_list: list) -> list:
+    def ensure_unique(self, wb: wb):
         
         """
-        Ensures each list item is unique by appending 
-            numbers to duplicates
-
-        Parameters
-        ----------
-        str_list : list
-            A list with potentially duplicate items
-
-        Returns
-        -------
-        list
-            A list of unique items
+        Ensures:
+            Each dataframe has a unique name for worksheets and tables
+            Each plot has a unique name for worksheet
             
         """
+        
+        datasets = wb.datasets
 
-        # Track how many times we have seen each item
+
+        # --------------------------------------------------------
+        # Set up counter
+        
+        # Track how many times each item has been seen
         seen_counts = Counter()
-        result = []
+                              
 
-        for item in str_list:
-            seen_counts[item] += 1
-            if seen_counts[item] > 1:
+        # Add pre-existing worksheet/table names to counter
+        pre_existing_worksheets = list(template_objects.keys()) + ["Pivot"]
+        pre_existing_tables = [table for table_list in template_objects.values() for table in table_list] + ["pvt_Pivot"]
+        pre_existing_names = pre_existing_worksheets + pre_existing_tables
+        
+        for name in pre_existing_names:
+            seen_counts[name] += 1
 
+
+        # --------------------------------------------------------
+        # Ensure unique names for each prepared dataframe
+        
+                
+        for dataset in datasets:
+            
+            # Set vars
+            title = self.sanitize_name(dataset.name, name_type='title')
+            table_name = self.sanitize_name(dataset.name, name_type='table')
+            
+            # Update seen counts
+            seen_counts[title] += 1
+            seen_counts[table_name] += 1
+            
+            
+            # ------------------------------------------------------
+            # Handle title
+            
+            # Append the occurrence number to duplicates
+            if seen_counts[title] > 1:
                 
                 # Append the occurrence number to the duplicate
-                
-                # Make room if needed
-                if len(item) > 12:
-                    limit = len(item) - 14
-                    result.append(f"{item[:limit]}_{seen_counts[item]}")
-                
-                else:
-                    result.append(f"{item}_{seen_counts[item]}")
+                if len(title) > 31:
+                    past_limit = len(title) - 31
+                    title = f"{title[:past_limit]}_{seen_counts[title]}"
 
-            else:
-                
-                # Keep the first occurrence as-is
-                result.append(item)
+            dataset.update_name(title)
+            
 
-        return result
+            # ------------------------------------------------------
+            # Handle table_name
+            
+            # Append the occurrence number to duplicates
+            if seen_counts[table_name] > 1:
+                
+                # Append the occurrence number to the duplicate
+                if len(table_name) > 31:
+                    past_limit = len(table_name) - 31
+                    table_name = f"{table_name[:past_limit]}_{seen_counts[table_name]}"
+
+            dataset.table_name = table_name
+                
+
+        # ------------------------------------------------------
+        # Handle plots
+        
+        if self.plots:
+            
+            # Replacement dictionary
+            new_plots = {}
+
+
+            
+            for plot_name, figure in self.plots.items():
+                
+                # Set var, update count
+                plot_name = self.sanitize_name(plot_name, name_type='title')
+                seen_counts[plot_name] += 1
+                                
+                
+                # Append the occurrence number to duplicates
+                if seen_counts[plot_name] > 1:
+                    
+
+                    if len(plot_name) > 31:
+                        past_limit = len(plot_name) - 31
+                        plot_name = f"{plot_name[:past_limit]}_{seen_counts[plot_name]}"
+                
+                # Add amended plot to the replacement dictionary
+                new_plots[plot_name] = figure
+                
+            
+            self.plots = new_plots
+                
 
 
     def create_blank_template(self, progress_bar: tqdm):
@@ -1354,38 +1138,32 @@ class Config():
 
 
     def sanitize_name(self, 
-                      input_str: str, 
-                      restricted_name: bool = True, 
-                      file_name: bool = False):
+                      input_str: str,
+                      name_type: str) -> str:
+        
+        """
+        Prepares names for use as file/worksheet/table names
+        
+        """
 
-        """
-        Strips out all punctuation from a string and optionally removes 
-            limits to 14 characters to fit within the 31 character 
-            limit of worksheet names
-        
-        """
-        
-        
-        # Strip out illegal file name characters
+        # Handle file names that only need certain punctuation marks
+        #  removed and can retain a long length and spaces
         file_name_pattern =   r'[\\/:*?"<>|]'
-
-        if file_name:
+        if name_type == 'file':
             return re.sub(file_name_pattern, '', input_str)
         
-
-        
-        # Strip out illegal characters from potential worksheet/table objects/object names
-
-        # Remove all punctuation, leaves spaces
-        sanitized_name_patttern = r'[^a-zA-Z0-9 _-]'
-        sanitized_name = re.sub(sanitized_name_patttern, '', input_str)
-
-
-        # Return the lenth limited one if it's restricted    
-        if restricted_name:
-            return sanitized_name[:31]
         else:
+            
+            # All other names have most punctuation removed
+            sanitized_name_patttern = r'[^a-zA-Z0-9 _-]'
+            sanitized_name = re.sub(sanitized_name_patttern, '', input_str)[:31]
+                     
+            # Table names also have spaces removed
+            if name_type == 'table':
+                sanitized_name = sanitized_name.replace(" ","")
+            
             return sanitized_name
+
 
 
     def white_list_templates(self):
@@ -1414,6 +1192,7 @@ class Config():
 
         else:
             self.env.warn_print("File does not exist.")
+
 
 
     def vba_object_model_trusted(self) -> bool:
@@ -1486,14 +1265,35 @@ class Config():
         """
         
         if self.env.win:
-            
             input_range.api.Orientation = degrees
         
         elif self.env.mac:
-            
             input_range.api.text_orientation.set(degrees)
+            
+            
+
+    def get_updated_pivot(self,
+                          pt_name: str,
+                          ws: xw.Sheet) -> Any:
+        
+        
+        if self.env.mac:
+            
+            # Update pivot table
+            pt = ws.api.pivot_tables[pt_name]
+            pt.refresh_table()
+        
+        elif self.env.win:
+            
+            # Update pivot table
+            pt = ws.api.PivotTables(pt_name)
+            pt.PivotCache().Refresh()
+            
+        return pt
 
 
+        
+        
 
     def get_configured_pivot_range(self,
                                    ws: xw.Sheet,
@@ -1503,14 +1303,11 @@ class Config():
 
         """
 
-
+        pt = self.get_updated_pivot(ws=ws,
+                                    pt_name="pvt_Pivot")
 
         if self.env.mac:
             
-            # Update pivot table
-            pt = ws.api.pivot_tables['pvt_Pivot']
-            pt.refresh_table()
-
             # Add fields
             pt.add_fields_to_pivot_table(row_fields=pivot_fields)
             
@@ -1539,9 +1336,6 @@ class Config():
         
         elif self.env.win:
             
-            # Update pivot table
-            pt = ws.api.PivotTables('pvt_Pivot')
-            pt.PivotCache().Refresh()
 
             # Add fields
             pt.AddFields(RowFields=pivot_fields)
@@ -1568,8 +1362,6 @@ class Config():
         return pivot_range
 
 
-
-
     def hide_rows(self,
                   input_range: xw.Range,
                   hide: bool=True):
@@ -1587,35 +1379,6 @@ class Config():
 
 
 
-
-    def move_sheet_to_end(self, book: xw.Book, sheet: xw.Sheet):
-
-        """
-        Moves a worksheet to be the last sheet.
-
-        """
-
-        sheet_name = sheet.name
-        
-        if self.env.mac:
-            
-            # Use AppleScript on MacOS
-            script = f'''
-            tell application "Microsoft Excel"
-                tell workbook "{self.path.name}"
-                    move sheet "{sheet_name}" to after sheet (count of sheets)
-                end tell
-            end tell
-            '''
-            subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
-            
-        elif self.env.win:
-            
-            # Windows expects Before and After arguments
-            last_sheet_api = book.sheets[-1].api
-            sheet.api.Move(Before=None, After=last_sheet_api)
-
-
 class PerformanceLogger():
 
     """
@@ -1623,10 +1386,8 @@ class PerformanceLogger():
 
     """
     
-    def __init__(self, 
-                 input_args: dict,
-                 env: Environment,
-                 dataset: DataSet) -> None:
+    def __init__(self,
+                 wb: wb) -> None:
 
         # ------------------------------------------------------------------------------
         # Initialize Performance Logging
@@ -1640,17 +1401,15 @@ class PerformanceLogger():
         self.config: pd.DataFrame = pd.DataFrame()
         self.env: pd.DataFrame = pd.DataFrame()
         self.errors: pd.DataFrame = pd.DataFrame()
-        self.total_production_time: float
-        self.dfs = ', '.join([df.name for df in dataset.df_list])
+        self.total_production_time: float       
+
+        self.config  = self.add_config_log(wb=wb)
+        self.env = self.add_env_log(wb=wb)
         
 
-        self.log_open(input_args, env=env)
-        
 
-
-    def log_open(self, 
-                 input_args: dict,
-                 env: Environment):
+    def add_config_log(self,
+                       wb: wb) -> pd.DataFrame:
         
         """
         Logs an xleda configuration for loggging
@@ -1659,35 +1418,35 @@ class PerformanceLogger():
 
         # ---------------------------------------------------------
         # Set up config df
-       
-       
-        # Add dataframes/plots  
-        input_args['dataframes'] = self.dfs
-        
-        # Convert plots to only comma separated keys
-        if input_args['plots']:
-            input_args['plots'] = ', '.join(input_args['plots'].keys())
-        else:
-            input_args['plots'] = ''
+               
+        config = {'file_name': wb.file_name,
+                  'dataframes': ''.join([ds.name for ds in wb.datasets]),
+                  'plots': ', '.join(wb.plots.keys()), 
+                  'theme_color': wb.theme.theme_color, 
+                  'large_report': wb.cfg.large_report, 
+                  'overwrite': wb.cfg.overwrite, 
+                  'wb_path': wb.cfg.wb_path, 
+                  'open_wb': wb.cfg.open_wb, 
+                  'no_vba': wb.cfg.open_wb, 
+                  'export': wb.cfg.export, 
+                  'debug': wb.cfg.debug}
 
-        
-        # Filter input args and convert to string
-        keys_to_keep = ['name', 'dataframes', 'plots', 'theme_color', 'large_report', 'overwrite', 'wb_path', 'open_wb', 'no_vba', 'export', 'debug']
-        input_args = {key: str(input_args[key]) for key in keys_to_keep}
-                
         
         # Convert to dataframe, transpose, set column names, and store
-        input = pd.DataFrame.from_records([input_args]).T
-        input = input.reset_index()
-        input.columns = ['Input Argument', 'Value']
+        config_df = pd.DataFrame.from_records([config]).T
+        config_df = config_df.reset_index()
+        config_df.columns = ['Input Argument', 'Value']
         
-        self.config = input
+        return config_df
         
 
+    def add_env_log(self,
+                    wb:wb) -> pd.DataFrame:
+        
         # ---------------------------------------------------------
         # Set up envirnment df
 
-        env_dict = vars(env).copy()
+        env_dict = vars(wb.env).copy()
         del env_dict['win']
         del env_dict['mac']
         
@@ -1695,7 +1454,8 @@ class PerformanceLogger():
         env_df = pd.DataFrame.from_records([env_dict]).T
         env_df = env_df.reset_index()
         env_df.columns = ['Environment Variable', 'Value']
-        self.env = env_df
+        
+        return env_df
 
 
 
@@ -1758,9 +1518,6 @@ class PerformanceLogger():
 
 
 
-
-
-
 class DataError(Exception):
     
     """
@@ -1775,7 +1532,7 @@ class DataError(Exception):
 
 
         
-class DataSet():
+class DataSetParser():
 
     def __init__(self, 
                  data: Path | dict[str, pd.DataFrame],
@@ -1783,7 +1540,7 @@ class DataSet():
 
         self.data = data
         self.large_report = large_report
-        self.df_list: list[PreparedDataFrame] = []
+        self.datasets: list[DataSet] = []
         
 
         # If a dict of dataframes is provided, use it to create a list of PreparedDataFrames 
@@ -1913,9 +1670,9 @@ class DataSet():
                 
                 # Create a dataframe
                 df = pd.json_normalize(data) 
-                self.df_list.append(PreparedDataFrame(input_df=df,
-                                                      name=self.file_name,
-                                                      large_report=self.large_report))
+                self.datasets.append(DataSet(input_df=df,
+                                                  name=self.file_name,
+                                                  large_report=self.large_report))
 
                 
         except Exception: 
@@ -1946,9 +1703,9 @@ class DataSet():
                     # Save the the object to df_list if it is a dataframe
                     if isinstance(data, pd.DataFrame):
 
-                        self.df_list.append(PreparedDataFrame(input_df=data,
-                                                              name=self.file_name,
-                                                              large_report=self.large_report))
+                        self.datasets.append(DataSet(input_df=data,
+                                                          name=self.file_name,
+                                                          large_report=self.large_report))
         except Exception: 
             raise DataError("Pickle file not successfully parsed")      
 
@@ -1994,7 +1751,7 @@ class DataSet():
                 
                 # Append successfully converted dfs
                 if df is not None and not df.empty:
-                    self.df_list.append(PreparedDataFrame(input_df=df,
+                    self.datasets.append(DataSet(input_df=df,
                                                           name=name,
                                                           large_report=self.large_report))
                     
@@ -2086,7 +1843,7 @@ class DataSet():
                     df = conn.execute(f"SELECT * FROM {table}").df()
                                         
                     
-                self.df_list.append(PreparedDataFrame(input_df=df,
+                self.datasets.append(DataSet(input_df=df,
                                                       name=table,
                                                       large_report=self.large_report))
                     
@@ -2120,7 +1877,7 @@ class DataSet():
                         # Create dataframes from each
                         df = table.range.options(pd.DataFrame, index=False, header=True).value
                         
-                        self.df_list.append(PreparedDataFrame(input_df=df,
+                        self.datasets.append(DataSet(input_df=df,
                                                               name=table.name,
                                                               large_report=self.large_report))
                         
@@ -2138,9 +1895,9 @@ class DataSet():
             """    
             
             try:
-                self.df_list.append(PreparedDataFrame(input_df=pd.read_feather(self.file_path),
-                                                      name=self.file_name, 
-                                                      large_report=self.large_report))
+                self.datasets.append(DataSet(input_df=pd.read_feather(self.file_path),
+                                                  name=self.file_name,
+                                                  large_report=self.large_report))
                     
             except Exception:
                 raise DataError("Feather file not successfully parsed")
@@ -2153,9 +1910,9 @@ class DataSet():
             """    
             
             try:
-                self.df_list.append(PreparedDataFrame(input_df=pd.read_csv(self.file_path),
-                                                      name=self.file_name, 
-                                                      large_report=self.large_report))
+                self.datasets.append(DataSet(input_df=pd.read_csv(self.file_path),
+                                                  name=self.file_name, 
+                                                  large_report=self.large_report))
                     
             except Exception:
                 raise DataError("CSV file not successfully parsed")
@@ -2168,9 +1925,9 @@ class DataSet():
             """
             
             try:
-                self.df_list.append(PreparedDataFrame(input_df=pd.read_parquet(self.file_path),
-                                                      name=self.file_name, 
-                                                      large_report=self.large_report))
+                self.datasets.append(DataSet(input_df=pd.read_parquet(self.file_path),
+                                                  name=self.file_name, 
+                                                  large_report=self.large_report))
                     
             except Exception:
                 raise DataError("Parquet file not successfully parsed")
@@ -2189,9 +1946,9 @@ class DataSet():
             
             for name, df in self.data.items():
 
-                self.df_list.append(PreparedDataFrame(input_df=df,
-                                                      name=name,
-                                                      large_report=self.large_report))
+                self.datasets.append(DataSet(input_df=df,
+                                             name=name,
+                                             large_report=self.large_report))
 
                 
         except Exception:
@@ -2199,12 +1956,11 @@ class DataSet():
 
 
 
-
-
-class PreparedDataFrame():
+class DataSet():
     
     """
-    A class that represents a dataframe that has been appropriately subsampled
+    A class that represents a dataframe that has been appropriately 
+    subsampled and includes all necessary metadata
     
     """
     
@@ -2214,16 +1970,64 @@ class PreparedDataFrame():
                  large_report: bool = False,
                  input_df: pd.DataFrame = pd.DataFrame()):
         
+        # Capture inputs/placeholder values
         self.large_report = large_report
-        self.df: pd.DataFrame = input_df.copy()
-        
-        
         self.name: str = name
+        self.table_name: str = ""
         self.warning: bool = False
         self.warning_msg: str = ""
         
-        rows = len(input_df)
-        columns = len(input_df.columns)
+        # Subsample input_df if necessary and record new dimensions
+        self.original_df: pd.DataFrame = self.create_original_df(input_df=input_df)
+        self.rows = len(self.original_df)
+        self.columns = len(self.original_df.columns)
+        
+        
+        # Add Record List, HasBlank, Record Hash fields to source_data
+        self.source_data = self.create_source_data()
+       
+
+        # add field_overview/df_overview/df_metadata
+        self.field_metadata: pd.DataFrame = self.create_field_metadata()
+        self.field_overview: pd.DataFrame = self.create_field_overview()
+        self.df_overview: pd.DataFrame = self.create_df_overview()
+        
+        
+        # Add field analysis metadata dfs
+        self.df_metadata: dict[str, Any] = self.create_df_metadata()
+        self.composition_df = self.field_metadata.loc[["Data type", "Distinct %", "Missing %", "Memory Usage %", "Memory Usage", "Distinct", "Count", "Missing"]]
+        self.summary_stats_df = self.field_metadata.loc[["Mean", "Median", "Mode", "Standard Deviation", "Variance"]]
+        self.percentiles_df = self.field_metadata.loc[["Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]]
+        
+
+        # Add export placeholders
+        self.description = ""
+        self.definitions: dict = {}
+        self.notes: dict = {}
+        self.lists: dict = {}
+        self.source_data: pd.DataFrame = pd.DataFrame()
+    
+
+    def update_name(self, 
+                    new_name: str):
+        
+        """
+        Updates the dataframe name across the PreparedDataframe object
+        
+        """
+        
+        self.name = new_name
+        self.field_overview['Dataframe'] = new_name
+        self.df_overview['Dataframe'] = new_name
+        
+        
+        
+    def create_original_df(self,
+                           input_df: pd.DataFrame) -> pd.DataFrame:
+        
+        df = input_df.copy()
+        rows = len(df)
+        columns = len(df)
         
 
         above_default = rows > default_row_limit or columns > default_column_limit
@@ -2231,7 +2035,7 @@ class PreparedDataFrame():
             
 
         # Source data is above default limits
-        if above_default and not large_report and not above_limit:
+        if above_default and not self.large_report and not above_limit:
 
             self.warning = True
             self.warning_msg = ("This is only showing a sample because it is larger than the default "
@@ -2250,16 +2054,169 @@ class PreparedDataFrame():
             
             rows = min(rows, upper_row_limit)
             columns = min(columns, upper_column_limit)
-
-
-        # Subsample df if needed, record adjusted rows/columns
-        self.df = (self.df.iloc[:, :columns].sample(n=rows).sort_index())
-        self.rows = rows
-        self.columns = columns
         
         
-        # Add index, Record List, HasBlank, Record Hash fields to source_data
-        self.df['index'] = self.df.index
-        self.df.insert(loc=0, column="Record List", value="False")
-        self.df['HasBlank'] = self.df.isnull().any(axis=1).astype(int)
-        self.df["Record Hash"] = pd.util.hash_pandas_object(self.df, index=False)
+        
+        # Add index, subsample if needed, record adjusted rows/columns
+        df['index'] = df.index
+        df = (df.iloc[:, :columns].sample(n=rows).sort_index())
+        
+        return df
+
+        
+
+    def create_source_data(self) -> pd.DataFrame:
+        
+        """
+        Configures source data by adding EDA workflow columns        
+
+        """
+        
+        df = self.original_df.copy()
+        df.insert(loc=0, column="Record List", value="False")
+        df['HasBlank'] = self.source_data.isnull().any(axis=1).astype(int)
+        df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
+        
+        return df
+        
+        
+
+    def create_field_metadata(self) -> pd.DataFrame:
+
+        """
+        Produces a field_metadata dataframe
+
+        """
+
+
+        # --------------------------------------------------
+        # Collect metadata
+
+        # Omit added columns
+        df = self.original_df
+
+        # Order of output fields
+        row_order = ["Data type", "Memory Usage", "Memory Usage %", "Distinct", "Distinct %", "Count", "Count %", "Missing", "Missing %", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]
+        
+        # Get statistical summary
+        rows_count = len(df)
+        desc = df.describe(include="all", percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])
+
+        # Add missing describe entries if they don't exist
+        all_describe_fields = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'unique', 'top', 'freq', '5%', '95%']
+        desc = desc.reindex(all_describe_fields)
+
+        
+        # Calculate variance without failing on unsupported types such as timedelta
+        try:
+            variance = desc.loc["std"] ** 2
+        except TypeError:
+            variance = None
+        
+        # Add additional components into a DataFrame
+        info_df = pd.DataFrame(
+            {
+                "Data type": df.dtypes.astype(str),
+                "Memory Usage": df.memory_usage(deep=True),
+                "Memory Usage %": df.memory_usage(deep=True) / df.memory_usage(deep=True).sum(),
+                "Count": rows_count - df.isnull().sum(),
+                "Count %": (rows_count - df.isnull().sum()) / rows_count,
+                "Missing": df.isnull().sum(),
+                "Missing %": df.isnull().sum() / rows_count,
+                "IQR": desc.loc["75%"] - desc.loc["25%"],
+                "Median": desc.loc["50%"],
+                "Mode": df.mode().iloc[0],
+                "Range": desc.loc["max"] - desc.loc["min"],
+                "Variance": variance,
+                "Distinct": df.nunique(),
+                "Distinct %": df.nunique() / rows_count,
+                }).T
+
+
+        # --------------------------------------------------
+        # Combine/Format Metadata
+
+        
+        # Combine info and describe dfs
+        summary_df = pd.concat([info_df, desc])
+
+        # Field name map
+        field_map = {
+            "mean": "Mean",
+            "std": "Standard Deviation",
+            "min": "Min",
+            "max": "Max",
+            }
+
+        # Rename index fields, reorder, filter rows
+        summary_df = summary_df.rename(index=field_map)
+        summary_df = summary_df.loc[row_order]
+
+        # convert to string to prevent issues with timedelta/random datatypes
+        summary_df = summary_df.astype(str)        
+
+        return summary_df        
+
+
+
+    def create_field_overview(self) -> pd.DataFrame:
+
+        """
+        Creates a transposed copy of the field metadata and adds placeholder columns
+        
+        """
+        
+        df = self.field_metadata.T
+        
+        col_order = ['_', 'Dataframe', 'Field', 'Definition', 'Field Notes', 'Data type', 'Distinct %', 'Missing %', 'Memory Usage %', 'Memory Usage', 'Distinct', 'Count', 'Count %', 'Missing', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance', 'Min', '5%', '25%', '50%', '75%', '95%', 'Max', 'Range', 'IQR']
+        
+        df['Field'] = df.index
+        df['Dataframe'] = self.name
+        
+        df = df.assign(**dict.fromkeys(['_', 'Field Notes', 'Definition'], None))
+        df = df[col_order]
+        
+        return df
+
+
+
+    def create_df_metadata(self) -> dict[str, Any]:
+
+        """
+        Creates a dictonary of df-level metadata
+
+        """
+        
+        df = self.original_df
+
+        df_metadata = {'Rows': self.rows,
+                       'Columns': self.columns,
+                       'Memory Usage (bytes)': df.memory_usage(deep=True).sum(),
+                       'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
+                       'Missing %': df.isnull().mean().mean(),}
+        
+        return df_metadata
+        
+        
+        
+    def create_df_overview(self) -> pd.DataFrame:
+
+        """
+        Creates a dataframe of df-level metadata
+
+        """
+
+        df = self.original_df
+
+        df_metadata = {'_': '',
+                       'Dataframe': self.name,
+                       'Dataframe Description': '',
+                       'Memory Usage (bytes)': df.memory_usage(deep=True).sum(),
+                       'Rows': self.rows,
+                       'Columns': self.columns,
+                       'Fields Defined %'
+                       'Missing Values %': df.isnull().mean().mean(),
+                       'Subsampled': bool(self.warning_msg)}
+        
+        return pd.DataFrame.from_records([df_metadata])
+                

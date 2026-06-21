@@ -154,7 +154,7 @@ def create_other_examples():
 
         # Configure xleda
         xleda = wb(data=df,
-                   name=proper_title,
+                   file_name=proper_title,
                    theme_color='random',
                    wb_path=other_examples_path,
                    overwrite=True,
@@ -220,7 +220,7 @@ def complete_titanic_wb(update_pickle: bool=False):
         print("Updating pickle export")
         export_dict = wb(data=titanic,
                          wb_path=examples_path / 'Titanic Completed.xlsm',
-                         name='Titanic',
+                         file_name='Titanic',
                          export=True).export_dicts
         
         save_pickle(pickle_path=pickle_path, cucumber=export_dict)
@@ -283,7 +283,7 @@ def create_feather_examples():
             df = pd.read_feather(datafile)
 
             xleda = wb(data=df,
-                       name=name.replace("-", " ").title(),
+                       file_name=name.replace("-", " ").title(),
                        theme_color='random',
                        wb_path=other_examples_path,
                        overwrite=True,
@@ -329,7 +329,7 @@ def create_performance_wb():
 
 
     wb(data=section_df,
-       name="Performance Timing",
+       file_name="Performance Timing",
        overwrite=True)
 
 

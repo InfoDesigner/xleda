@@ -5,17 +5,24 @@ import sys
 import time
 import typer
 
-
 from tqdm.auto import tqdm
 from matplotlib.figure import Figure
 import xlwings as xw
 
-from .utilities import (Environment, Config, Theme, Plotter, DataSet,
-                        Blueprint, ExportDict, PerformanceLogger, DataError)
+from .utilities import (Environment, Config, Theme, Plotter, DataSet, DataSetParser, ExportDict, 
+                        PerformanceLogger, DataError, template_objects)
 
 from .os_interface import install, uninstall, supported_extensions
 
 separator = "\n" + ("-" * 100)
+
+
+
+
+
+
+# -------------------------------------------------
+# Construct CLI
 
 
 def construct_help_msg() -> str:
@@ -32,24 +39,10 @@ def construct_help_msg() -> str:
     return message
 
 
-
-
 app = typer.Typer(epilog=construct_help_msg(), rich_markup_mode="markdown")
 
 app.command()(install)
 app.command()(uninstall)
-
-
-
-
-
-
-
-
-# -------------------------------------------------
-# Set primary vars/config
-
-
 
 
 @app.command(name="wb", epilog=construct_help_msg())
@@ -73,6 +66,10 @@ def wb_cli(data: str = typer.Argument(..., help="Path to a supported data file")
 
 
 
+# -------------------------------------------------------
+# Primary class
+
+
 class wb():
 
     """
@@ -84,9 +81,9 @@ class wb():
                  data: pd.DataFrame | str | Path | dict[str, pd.DataFrame] | None = None,         
                  # Every other argument is keyword only
                  *,
-                 name: str = 'xleda',
+                 file_name: str = 'xleda',
                  theme_color: str = "#262626",
-                 plots: dict[str, Figure] | None = None,
+                 plots: dict[str, Figure] = {},
                  export: bool = False,
                  debug: bool = False,
                  large_report: bool = False,
@@ -110,7 +107,7 @@ class wb():
                 * Dictonary of pandas dataframes in '{'df1_name': df1, 'df2_name': df2, ...}' format
             * Will create an xleda workbook that is 25,000 rows/50 columns by default.  
 
-        name : str
+        file_name : str
             * Name of the workbook to be created.
             * Defaults to:
                 * The name of the file provided for 'wb_path' or 'data'
@@ -167,14 +164,15 @@ class wb():
                 * `lists`: Any lists showing in the compiled lists section
                 * 'field_metadata': A basic metadata dataframe, combining information from 
                                     pandas info/describe/quantile.
-                * 'overview_metadata': A transposed copy of the field_metadata.
-                * `source_data`: A copy of your unaltered source data that includes 
-                                `Record Hash`/`Record List`/`HasBlank` columns.
-                * `altered_source_data`: source data from the workbook that includes 
-                                         any manual edits you've made such as removing 
-                                         records, renaming fields, etc. 
-                                         
-                                         ** Note that data types will likely change in the round-trip translation. **
+                
+                * 'df_overview': df metadata exported from the Overview worksheet.
+                * 'field_overview': Field overview metadata exported from the Overview worksheet.
+                
+                
+                * `source_data`: Source data exported from the workbook that includes any manual edits you've 
+                                 made such as removing records, renaming fields, etc. 
+                                 
+                                 ** Note that data types will likely change in the round-trip translation. **
 
         debug: bool, optional
             * Shows the workbook being created
@@ -192,36 +190,14 @@ class wb():
         # Initialize/Check Environment
         self.env = Environment()
         
-        # Allocate placeholder variables
-        self.name = name
-        self.large_report = large_report
-        self.wb_path = wb_path
+    
         
+        # TODO: Progress bar should start here 
         
-        # -------------------------------------------------
-        # Handle placeholder argument for backwards compatibility
-        
-        # Handle neither data argument provided
-        if data is None and input_df is None:
-            self.env.warn_print("No Data Provided")
-        
-        # Handle the old placeholder argument provided
-        elif (input_df is not None and data is None):
-            self.env.warn_print("input_df has been changed to 'data'")
-            self.data = input_df
-            
-        # Handle both the old and new arguments provided
-        elif (input_df is not None and data is not None):
-            self.env.warn_print("input_df has been changed to 'data'")
-            self.data = data
-        
-        # Handle the remaing path, which is all that will remain after removing api stub
-        else:
-            self.data = data
-        
-
-        # Create a DataSet
-        self.dataset: DataSet = self._configure_dataset()
+        # Add source datasets and plots
+        self.datasets: list[DataSet] = self._configure_datasets(data=data,
+                                                                input_df=input_df)
+        self.plots: dict[str, Figure] = plots
 
 
 
@@ -230,9 +206,7 @@ class wb():
             
 
         # Initialize logger/log input variables
-        self.logger = PerformanceLogger(input_args=locals().copy(),
-                                        env=self.env,
-                                        dataset=self.dataset)
+        self.logger = PerformanceLogger(wb=self)
 
         # Intialize theme
         self.theme = Theme(theme_color,
@@ -243,21 +217,10 @@ class wb():
                                env=self.env)
 
         # Intialize Config
-        self.cfg = Config(wb_path=wb_path,
-                          theme=self.theme,
-                          env=self.env,
-                          debug=debug,
-                          overwrite=overwrite,
-                          no_vba=no_vba,
-                          name=name,
-                          plots=plots,
-                          open_wb=open_wb,
-                          dataset=self.dataset)
-        
+        self.cfg = Config(wb=self, **locals())
 
-        # Set placeholder vars
-        self.blueprints: list[Blueprint] = self.cfg.blueprints
-        self.export_dicts: list[ExportDict] = [ExportDict(bp) for bp in self.blueprints]
+        # Add initial export dicts
+        self.export_dicts: list[ExportDict] = [ExportDict(ds) for ds in self.datasets]
     
 
         # ------------------------------------------------------------------------------
@@ -269,50 +232,74 @@ class wb():
             self._assemble_wb()
 
 
-
-    def _configure_dataset(self) -> DataSet:
+    def _configure_datasets(self,input_df: pd.DataFrame | None,
+                            data: pd.DataFrame | str | Path | dict[str, pd.DataFrame] | None) -> list[DataSet]:
         
         """
         Create a DataSet/adjust properties as needed
         
         """
         
+        
+        # ----------------------------------------------------------
+        # Parse data from input arguments
+        
+        
+        # TODO: Delete me on 8.18
+         # Handle neither data argument provided
+        if data is None and input_df is None:
+            self.env.warn_print("No Data Provided")
+            sys.exit()
+        
+        # Handle the old placeholder argument provided
+        elif (input_df is not None and data is None):
+            self.env.warn_print("The 'input_df' argument has been changed to 'data'")
+            data = input_df
+            
+        # Handle both the old and new arguments provided
+        elif (input_df is not None and data is not None):
+            self.env.warn_print("The 'input_df' argument has been changed to 'data'")
+
+        
+        
+        # ----------------------------------------------------------
+        # Create dataset from data source
+        
         # If a dataframe is provided, create a dataset from it
-        if isinstance(self.data, pd.DataFrame):
-            source_data = {self.name: self.data}
-            return DataSet(data=source_data,
-                           large_report=self.large_report)
+        if isinstance(data, pd.DataFrame):
+            source_data = {self.file_name: data}
+            return DataSetParser(data=source_data,
+                                 large_report=self.cfg.large_report).datasets
             
         # If a dictionary of dataframes is provided, create a dataset from it
-        elif isinstance(self.data, dict) and all(isinstance(v, pd.DataFrame) for v in self.data.values()):
-            return DataSet(data=self.data,
-                           large_report=self.large_report)
+        elif isinstance(data, dict) and all(isinstance(v, pd.DataFrame) for v in data.values()):
+            return DataSetParser(data=data,
+                                 large_report=self.cfg.large_report).datasets
         
         # If a path has been provided, parse it for other details and create a dataset from it
-        elif isinstance(self.data, Path) or isinstance(self.data, str):
+        elif isinstance(data, Path) or isinstance(data, str):
         
             # Resolve the path, including any provided user profile components
-            resolved_path = Path(self.data).expanduser().resolve()
+            resolved_path = Path(data).expanduser().resolve()
         
             # Use the datafile name for name if it hasn't been explicitly provided
-            if not self.name or self.name == 'xleda':
-                self.name = resolved_path.stem
+            if not self.file_name or self.file_name == 'xleda':
+                self.file_name = resolved_path.stem
                 
                 # Adjust the name if the source file is an xlsm file
                 if resolved_path.suffix in ['.xlsm', '.xlsx']:
-                    self.name += '_xleda'
+                    self.file_name += '_xleda'
         
             # Use the datafile directory for wb_path if it hasn't been explicitly provided
             if not self.wb_path:
                 self.wb_path = resolved_path.parent
                 
-            return DataSet(data=resolved_path,
-                           large_report=self.large_report)
+            return DataSetParser(data=resolved_path,
+                                 large_report=self.cfg.large_report).datasets
         else:
             
-            msg = f"Unsupported data argument was provided: {type(self.data)!r}"
+            msg = f"Unsupported data argument was provided: {type(data)!r}"
             raise DataError(msg)
-
 
 
 
@@ -329,12 +316,7 @@ class wb():
 
         entry_message = separator
 
-        if self.cfg.name == 'xleda':
-            entry_message += f"\nPreparing an xleda workbook located at:\n    {self.cfg.path}\n"
-        else:
-            entry_message += f"\nPreparing an xleda workbook with {self.blueprints[0].title}"
-            entry_message += f" data located at:\n    {self.cfg.path}"
-
+        entry_message += f"\nPreparing an xleda workbook located at:\n    {self.cfg.path}\n"
         entry_message += (f"\n\nProcess started at {time.strftime('%H:%M:%S')}\n")
 
         # Print entry message
@@ -344,7 +326,7 @@ class wb():
         # --------------------------------------------------
         # Create the template and initial progress bar
         
-        total_iteratons = 7 + (len(self.blueprints[1:])) + (2*len(self.blueprints))
+        total_iteratons = 7 + (len(self.datasets[1:])) + (2*len(self.datasets))
         pbar = self.theme.create_progress_bar(desc="Creating Workbook...",
                                               total=total_iteratons)
         self.cfg.create_blank_template(progress_bar=pbar)
@@ -389,7 +371,7 @@ class wb():
             # Adding Data
 
             with self.theme.create_progress_bar(desc="Adding Data...", 
-                                                total=8*len(self.blueprints)) as pbar:
+                                                total=8*len(self.datasets)) as pbar:
                 
                 
                 # Add field metadata
@@ -417,12 +399,12 @@ class wb():
             # --------------------------------------------------
             # Adding Plots
             
-            total_iteratons = sum([bp.columns for bp in self.blueprints]) + len(self.cfg.additional_plots)
+            total_iteratons = sum([ds.columns for ds in self.datasets]) + len(self.cfg.plots or {})
             with self.theme.create_progress_bar(desc="Adding Plots...",
                                                 total=total_iteratons) as pbar:
             
                 # Adds additional plots
-                if self.cfg.additional_plots:
+                if self.cfg.plots:
                     self._add_additional_plots(progress_bar=pbar)
 
 
@@ -437,7 +419,7 @@ class wb():
             # --------------------------------------------------
             # Configuring Workbook
 
-            total_iteratons = 8 + len(self.blueprints)
+            total_iteratons = 8 + len(self.datasets)
 
             with self.theme.create_progress_bar(desc="Configuring Workbook...", 
                                                 total=total_iteratons) as pbar:
@@ -458,10 +440,10 @@ class wb():
                 
                 # Add performance_metadata log
                 self.logger.log(log_type='performance_metadata',
-                                details={'Dataframes Included': len(self.blueprints),
-                                         'Plots Included': len(self.cfg.additional_plots) + len(self.logger.performance_logs['plots']),
-                                         'Columns Included': sum([bp.columns for bp in self.blueprints]),
-                                         'Rows Included': sum([bp.rows for bp in self.blueprints]),
+                                details={'Dataframes Included': len(self.datasets),
+                                         'Plots Included': len(self.cfg.plots or {}) + len(self.logger.performance_logs['plots']),
+                                         'Columns Included': sum([bp.columns for bp in self.datasets]),
+                                         'Rows Included': sum([bp.rows for bp in self.datasets]),
                                          'Production Time': self.logger.total_production_time})
                 
                 pbar.update(1)
@@ -480,7 +462,7 @@ class wb():
 
                         
                 # Set focus to primary field analysis worksheet
-                book.sheets(self.blueprints[0].field_analysis).activate()
+                book.sheets(self.datasets[0].name).activate()
 
                 # Restore app settings
                 app.display_alerts = True
@@ -517,28 +499,85 @@ class wb():
 
 
         # Note additional plots
-        if self.cfg.additional_plots:
+        if self.cfg.plots:
             
-            exit_msg += "Additional plots included:"
-            
-            for plot in self.cfg.additional_plots:
-                exit_msg += f"    {plot['title']}\n"
-        
+            plots = (",").join(self.cfg.plots.keys())
+            exit_msg += f"Additional plots included:    {plots}\n"
+
    
         # Note additional DFs
-        if len(self.blueprints) > 1:
+        if len(self.datasets) > 1:
             
-            exit_msg += "\nAdditional dataframes included:\n"
-            
-            for df_title in [bp.title for bp in self.blueprints[1:]]:
-                exit_msg += f"    {df_title}\n"
-
+            dataframes = ", ".join([ds.name for ds in self.datasets])
+            exit_msg += f"\nDataframes included:\n    {dataframes}\n"
 
         # Print closing message
         self.theme.print(exit_msg + '\n' + separator)
     
         
+    
+    def _validate_template(self):
         
+        """
+        Validates that expected objects are present in the workbook
+        
+        """
+
+        valid = True
+        
+        try:
+            
+            # ---------------------------------------------
+            # Validate worksheets and tables exist
+            
+            actual_objects = {}
+
+            for sheet in self.book.sheets:
+
+                # Omit Pivot which will be handled separately
+                if sheet.name != "Pivot":
+                    actual_objects[sheet.name] = [tbl.name for tbl in sheet.tables]
+                
+                else:
+
+                    # ---------------------------------------------
+                    # Validate pivot table exists
+                    
+                    sheet_api = self.book.sheets["Pivot"].api
+                    
+                    if self.env.win:
+                        
+                        # Windows uses name string
+                        sheet_api.PivotTables("pvt_Pivot")
+
+                    elif self.env.mac:
+                        
+                        # Appscript uses lowercase dictionary-style bracket
+                        sheet_api.pivot_tables["pvt_Pivot"]()
+                        
+                    actual_objects['Pivot'] = "pvt_Pivot"
+            
+        except Exception:
+            
+            valid = False
+        
+        if not (valid and actual_objects != template_objects):
+            
+            # Collate missing worksheets
+            missing_sheets = [sheet for sheet in template_objects.keys() if sheet not in actual_objects.keys()]
+            
+            # Collate missing tables
+            expected_tables = [table for table_list in template_objects.values() for table in table_list]
+            actual_tables = [table for table_list in actual_objects.values() for table in table_list]
+            missing_tables = [table for table in expected_tables if table not in actual_tables]
+            
+
+            self.env.warn_print(f"Template has been modifed:\n\nThe following worksheets are missing\n    {missing_sheets}\n\nThe following tables are missing\n    {missing_tables}")
+
+            sys.exit()
+
+        
+    
     def _create_worksheets(self, progress_bar: tqdm):
 
         """
@@ -549,48 +588,31 @@ class wb():
         book = self.book
         
         # -----------------------------------------------------------------
-        # Validate template worksheets are present
-
-        expected_sheets = ['Field Analysis', 'Overview', 'Pivot', 'debug', 'SinglePlot', 'MultiplePlots']
-        actual_sheets = [sht for sht in expected_sheets if sht in book.sheet_names]
-        missing_sheets = [sht for sht in expected_sheets if sht not in book.sheet_names]
-
-        if expected_sheets != actual_sheets:
-            self.env.warn_print(f"Template has been modifed, the following worksheets are missing\n    {missing_sheets}")
-            sys.exit()
-
-
-        # If there are additonal dataframes, add worksheets for them
-        if len(self.blueprints) > 1:
-
-            for i, bp in enumerate(self.blueprints[1:]):
-                        
-                # Copy the sheet, rename the table
-                book.sheets('Field Analysis').copy(name=bp.field_analysis)
-                book.sheets(bp.field_analysis).tables[0].name = f'tbl_SourceData_{bp.name.replace(" ","")}'
-
-                # Copy the sheet, rename the table
-                book.sheets('Overview').copy(name=bp.overview)
-                book.sheets(bp.overview).tables[0].name = f'tbl_Overview_{bp.name.replace(" ","")}'
-                
-                # Add a color gradient to the tabs to distinguish among them
-                self.theme.greyscale_tabs(bp=bp,
-                                          book=self.book,
-                                          iteration=i,
-                                          config=self.cfg)
+        # Validates that the expected template objects are present
         
-                progress_bar.update(1)
+        self._validate_template()
+
+
+        # Add field analysis worksheets for each dataframe
+
+        for i, dataset in enumerate(self.datasets):
+                    
+            # Copy the sheet, rename the table
+            ws = book.sheets('Field Analysis').copy(name=dataset.name)
+            ws.tables[0].name = dataset.table_name
+
+            # Add a color gradient to the worksheet tab to distinguish among them
+            self.theme.greyscale_tab(ws=ws,
+                                     iteration=i)
+    
+            progress_bar.update(1)
 
         
-        # Care for the default worksheets
-        bp = self.blueprints[0]
-
-
-        book.sheets("Field Analysis").name = bp.field_analysis
-        book.sheets("Overview").name = bp.overview
-        book.sheets("Pivot") .name = bp.pivot
+        # Delete the default worksheet now that the rest have bene cared for
+        book.sheets("Field Analysis").delete
 
         progress_bar.update(1)
+
 
 
     def _configure_field_analyses(self, progress_bar: tqdm):
@@ -601,13 +623,13 @@ class wb():
         """
 
         
-        for bp in self.blueprints:
+        for ds in self.datasets:
 
             # --------------------------------------------------
             # Set variables
 
             book = self.book
-            ws = book.sheets(bp.field_analysis)
+            ws = book.sheets(ds.name)
             ws.activate()
 
 
@@ -615,13 +637,13 @@ class wb():
             # Format metadata placeholders
 
             # Set worksheet theme/name
-            self.cfg.expand_range(name="Theme", ws=ws, columns=bp.columns + 2)
+            self.cfg.expand_range(name="Theme", ws=ws, columns=ds.columns + 2)
             self.theme.set_theme(ws.range("Theme"))
-            ws.range("Name").value = bp.title
+            ws.range("Name").value = ds.name
 
 
 
-            columns_to_format = bp.columns -3
+            columns_to_format = ds.columns -3
             if columns_to_format > 0:
                 format_from = ws.range("FormatRange")
                 format_to = (ws.range("FormatRange").offset(0, 1).resize(None, columns_to_format))
@@ -632,8 +654,9 @@ class wb():
             book.app.cut_copy_mode = False
             
             # Add all header values except Record List
-            headers = bp.source_data.columns.to_list()[1:]
+            headers = ds.source_data.columns.to_list()[1:]
             ws.range("Headers_Start").value = headers
+            
             
             
             progress_bar.update(1)
@@ -651,7 +674,7 @@ class wb():
                 
                 self.cfg.expand_range(name=name_range, 
                                       ws=ws, 
-                                      columns=bp.columns)
+                                      columns=ds.columns)
 
                 # Add placeholder values if necessary.
                 if name_range in ["Notes", "Definitions"]:    
@@ -659,20 +682,25 @@ class wb():
 
                 elif name_range.startswith("FieldList"):
                     ws.range(name_range).value = "FALSE"
+                    
+            
+            # Add worksheet level named ranges for each field
+            for cell in ws.range("Headers"):
+                ws.names.add(name=cell.value, refers_to=cell.address)
 
 
             # Set FieldLists range so that it also includes the names on the left
             # Used to recreate completed examples
             self.cfg.expand_range(name="FieldLists", 
                                   ws=ws, 
-                                  columns=bp.columns + 1)
+                                  columns=ds.columns + 1)
 
 
             # Show/Hide Data Size Warning
-            if bp.warning:
+            if ds.warning:
                 
-                ws.range("Warning").value = bp.warning_msg
-                self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
+                ws.range("Warning").value = ds.warning_msg
+                self.cfg.hide_rows(ws.range("Warning"), hide=not ds.warning)
 
             progress_bar.update(1)
 
@@ -693,52 +721,24 @@ class wb():
 
 
 
-        for bp in self.blueprints:
+        for ds in self.datasets:
 
             # --------------------------------------------------
             # Set variables
 
-            df = bp.field_metadata
             book = self.book
-            ws = book.sheets(bp.field_analysis)
+            ws = book.sheets(ds.name)
             ws.activate()
-
-
-
-            # --------------------------------------------------
-            # Add basic metadata
-
-            # Add Data Description metadata
-            ws.range("Dimensions").options(transpose=True).value = list(bp.df_metadata.values())
-            
-            progress_bar.update(1)
-
-
-
-
-            # --------------------------------------------------
-            # Split base analysis into Field Analysis sections
-
-            composition_df = df.loc[["Data type", "Distinct %", "Missing %", "Memory Usage %", "Memory Usage", "Distinct", "Count", "Missing"]]
-            summary_stats_df = df.loc[["Mean", "Median", "Mode", "Standard Deviation", "Variance"]]
-            percentiles_df = df.loc[["Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]]
-
-            progress_bar.update(1)
-
-
 
             # --------------------------------------------------
             # Add Field Analysis sections to workbook
 
-            ws.range("Composition")[0, 0].offset(0,1).value = composition_df.values
-            ws.range("Summary_Stats")[0, 0].offset(0,1).value = summary_stats_df.values
-            ws.range("Percentiles")[0, 0].offset(0,1).value = percentiles_df.values
+            ws.range("Dimensions").options(transpose=True).value = list(ds.df_metadata.values())
+            ws.range("Composition")[0, 0].offset(0,1).value = ds.composition_df.values
+            ws.range("Summary_Stats")[0, 0].offset(0,1).value = ds.summary_stats_df.values
+            ws.range("Percentiles")[0, 0].offset(0,1).value = ds.percentiles_df.values
 
             progress_bar.update(1)
-
-
-
-
 
 
 
@@ -755,66 +755,76 @@ class wb():
         
         """
 
-
-        for bp in self.blueprints:
-
-
-            # --------------------------------------------------
-            # Set variables and theme
-
-            book = self.book
-            df = bp.overview_metadata
-            ws = book.sheets("Overview")
-            
-            overview_table = ws.tables[0]
-            
-            
-            col_order = ['_', 'Field', 'Definition', 'Field Notes', 'Data type', 'Distinct %', 'Missing %', 'Memory Usage %', 'Memory Usage', 'Distinct', 'Count', 'Count %', 'Missing', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance', 'Min', '5%', '25%', '50%', '75%', '95%', 'Max', 'Range', 'IQR']
-
-
-            # Set name/theme/warning if necessary
-            ws.range("Name").value = bp.title
-            self.theme.set_theme(overview_table.range[0,:])
-
-            # Show/Hide Data Size Warning
-            if bp.warning:
-                ws.range("Warning").value = bp.warning_msg
-                self.cfg.hide_rows(ws.range("Warning"), hide= not bp.warning)
-
-
-
-            # --------------------------------------------------
-            # Configure overview df, reorder columns
-
-            # TODO: Add extra columns here
-            df['Field Notes'], df['Definition'], df['Field'] = None, None, df.index
-            df = df[col_order]
-
-
-            progress_bar.update(1)
-
-
-
-            # --------------------------------------------------
-            # Add metadata/overview table, configure the Field Notes/Definitions columns
-
-            ws.range("Metadata").options(transpose=True).value = list(bp.df_metadata.values())
-            overview_table.update(df, index=False)
-            
-            # -------------------------------------------------------------------------
-            # Add Formulas to pull field definitions, notes into overview table
-            
-            source_ws_name = bp.field_analysis
-            definitions_formula = f'''=IF(INDEX('{source_ws_name}'!Definitions,1,MATCH([@Field],'{source_ws_name}'!Headers,0))="Definition","",INDEX('{source_ws_name}'!Definitions,1,MATCH([@Field],'{source_ws_name}'!Headers,0)))'''
-            notes_formula = f'''=IF(INDEX('{source_ws_name}'!Notes,1,MATCH([@Field],'{source_ws_name}'!Headers,0))="Note","",INDEX('{source_ws_name}'!Notes,1,MATCH([@Field],'{source_ws_name}'!Headers,0)))'''
-
-            overview_table.range[1:, 1][0].formula = definitions_formula
-            overview_table.range[1:, 2][0].formula = notes_formula
-            
-
-
-            progress_bar.update(1)
-
+        
+        # --------------------------------------------------
+        # Set variables
+        
+        book = self.book
+        ws = book.sheets("|")
+        df_overview_table = ws.tables["tbl_DfOverview"]
+        field_overview_table = ws.tables["tbl_FieldOverview"]
+        
+        # Set aside placeholder variables for all metadata
+        df_overview_df = pd.concat([ds.df_overview for ds in self.datasets], ignore_index=True)
+        field_overview_df = pd.concat([ds.field_overview for ds in self.datasets], ignore_index=True)
+        
+        progress_bar.update(1)
+        
+        
+        # --------------------------------------------------
+        # Add rows to make room for df_overview table
+        
+        start_row = df_overview_table.range.last_cell.row + 1
+        end_row = start_row + len(self.datasets) - 1
+        row_range_string = f"{start_row}:{end_row}"
+        ws.range(row_range_string).insert(shift="down")
+        
+        # Adjust named ranges to fit new data
+        ws.range("Dataframes").resize(row_size=len(df_overview_df) +3, column_size=None).name = "Dataframes"
+        ws.range("Fields").resize(row_size=len(field_overview_df) +3, column_size=None).name = "Fields"
+                        
+        progress_bar.update(1)
+        
+        
+        
+        # --------------------------------------------------
+        # Set theme, and write data to tables
+                    
+        # Set theme on target tables
+        self.theme.set_theme(df_overview_table.range[0,:])
+        self.theme.set_theme(field_overview_table.range[0,:])
+        
+        # Update the primary tables
+        df_overview_table.update(df_overview_df, index=False)
+        field_overview_table.update(field_overview_df, index=False)
+        
+        progress_bar.update(1)
+        
+        
+        # --------------------------------------------------
+        # Add formulas to tables 
+        
+        # Set formulas
+        df_description_formula = '''=INDIRECT("'"&[@Dataframe]&"'!Description")'''
+        df_links_formula = '''=HYPERLINK("#'"&[@Dataframe]&"'!Headers_Start", "Link")'''
+        df_fields_defined_pct_formula = '''=IFERROR(SUMPRODUCT((tbl_FieldOverview[Dataframe]=[@Dataframe]) * (tbl_FieldOverview[Definition]<>"Definition"))/[@Columns],"")'''
+        field_links_formula = '''=HYPERLINK("#'"&[@Dataframe]&"'!"&SUBSTITUTE([@Field]," ","_"), "Link")'''
+        field_definitions_formula = '''=XLOOKUP([@Field],INDIRECT("'"&[@Dataframe]&"'!Headers"),INDIRECT("'"&[@Dataframe]&"'!Definitions"),"")'''
+        field_notes_formula = '''=XLOOKUP([@Field],INDIRECT("'"&[@Dataframe]&"'!Headers"),INDIRECT("'"&[@Dataframe]&"'!Notes"),"")'''
+        
+        
+        # Add df_overview formulas
+        ws.range("tbl_DfOverview[_]").formula = df_links_formula
+        ws.range("tbl_DfOverview[Dataframe description").formula = df_description_formula
+        ws.range("tbl_DfOverview[Fields Defined %").formula = df_fields_defined_pct_formula
+        
+        
+        # Add field_overview formulas
+        ws.range("tbl_FieldOverview[_]").formula = field_links_formula
+        ws.range("tbl_FieldOverview[Definition").formula = field_definitions_formula
+        ws.range("tbl_FieldOverview[Field Notes").formula = field_notes_formula
+                    
+        progress_bar.update(1)
 
 
 
@@ -833,14 +843,14 @@ class wb():
         """
 
 
-        for bp in self.blueprints:
+        for ds in self.datasets:
 
             # --------------------------------------------------
             # Set variables, dtype conversion if necessary
 
             book = self.book
-            ws = book.sheets(bp.field_analysis)
-            df = bp.source_data
+            ws = book.sheets(ds.name)
+            df = ds.source_data
 
 
             # Convert fields with datatypes that Excel doesn't support to string
@@ -865,7 +875,7 @@ class wb():
             except Exception:
                 self.logger.log(log_type="error", 
                                 details={'Error Type': 'Error writing source data that required string conversion',
-                                         'Detail': bp.name})
+                                         'Detail': ds.name})
                 source_table.update(df.astype(str), index=False)
 
             progress_bar.update(1)
@@ -907,14 +917,14 @@ class wb():
         
 
       
-        for bp in self.blueprints:
+        for ds in self.datasets:
         
             # --------------------------------------------------
             # Set vars, start performance logging
 
             book = self.book
-            ws = book.sheets(bp.field_analysis)
-            df = bp.source_data.iloc[:, 1:-3]
+            ws = book.sheets(ds.name)
+            df = ds.source_data.iloc[:, 1:-3]
                 
 
             # Set initial ranges for added plots and ensure they aren't hidden
@@ -964,8 +974,6 @@ class wb():
 
 
 
-
-
     def _add_additional_plots(self, progress_bar: tqdm):
             
         """
@@ -983,29 +991,30 @@ class wb():
 
 
 
-        for plot in self.cfg.additional_plots:
+        for plot_name, figure in self.plots:
            
             
-            # Plots will be added after last primary dataframe sheet
-            after_sheet = self.book.sheets(self.blueprints[0].pivot)
+            # Plots will be added before all other sheets
+            anchor_sheet = self.book.sheets[0]
             
             # Create a copy of the SinglePlot template, make it visible, set theme
-            ws = book.sheets("SinglePlot").copy(after=after_sheet, name=plot['name'])
+            ws = book.sheets("SinglePlot").copy(before=anchor_sheet, name=plot_name)
             ws.visible = True
             self.theme.set_theme(ws.range("Theme"))
 
             # Set target range, title, and autofit title range
             plot_range = ws.range("SinglePlot")
-            ws.range("SinglePlotTitle").value = plot['title']
-            ws.range("SinglePlotTitle").columns.autofit()
+            ws.range("Name").value = plot_name
+
             
-            ws.pictures.add(plot['fig'], 
-                            name=plot['name'], 
+            ws.pictures.add(figure, 
+                            name=plot_name, 
                             update=True,
                             left=plot_range.left, 
                             top=plot_range.top)
             
             progress_bar.update(1)
+
 
 
     def _configure_pivot(self, progress_bar: tqdm):
@@ -1025,17 +1034,15 @@ class wb():
         # --------------------------------------------------
         # Set vars/intialize logging
 
-        bp = self.blueprints[0]
-        df = bp.original_data.copy()
+        ds = self.datasets[0]
+        df = ds.original_df.copy()
         book = self.book
 
         # Fields to be added to the pivot tables
         pivot_fields = df.columns.to_list()[:min(10, len(df.columns))]
         
-
-        if bp.pivot is not None:
-            ws = book.sheets(bp.pivot)
-            ws.activate()
+        ws = book.sheets("Pivot")
+        ws.activate()
         
         progress_bar.update(1)
 
@@ -1047,9 +1054,9 @@ class wb():
 
         self.theme.set_theme(ws.range("Theme"))
 
-        if bp.warning:
-            ws.range("Warning").value = bp.warning_msg
-            self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
+        if ds.warning:
+            ws.range("Warning").value = ds.warning_msg
+            self.cfg.hide_rows(ws.range("Warning"), hide=not ds.warning)
 
         
         # Show field limit warning for datasets with >10 columns
@@ -1073,8 +1080,24 @@ class wb():
         header_column = pivot_range[: , 0]
         
         progress_bar.update(1)
-
-            
+        
+        
+        
+        
+        # --------------------------------------------------
+        # Update the metadata table and refresh it's slicers and pivot table
+        
+        tables_table = book.sheets("meta").tables("tbl_Tables")
+        
+        tables_df = pd.DataFrame({"TableNames": [ds.table_name for ds in self.datasets],
+                                  "WorksheetNames": [ds.name for ds in self.datasets]})
+        
+        tables_table.update(tables_df, index=False)
+        
+        
+        self.cfg.get_updated_pivot(ws=book.sheets("meta"), 
+                                   pt_name = 'pvt_TableSelector')
+                  
             
         # --------------------------------------------------
         # Format headers, first column, and column width
@@ -1107,6 +1130,7 @@ class wb():
         progress_bar.update(1)
             
 
+
     def _initialize_ui(self, progress_bar: tqdm):
                 
         """
@@ -1117,15 +1141,14 @@ class wb():
         book = self.book
 
 
-        # Loop through all blueprints and configure Field Analysis worksheets
+        # Loop through all datasets and configure Field Analysis worksheets
 
-        for bp in self.blueprints:
-            ws = book.sheets(bp.field_analysis)
+        for ds in self.datasets:
+            ws = book.sheets(ds.name)
             ws.activate()
             ws.range('Headers_Start').select()
 
             # Orient toggles, and collapse subsections
-
             self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
             self.cfg.set_text_orientation(input_range=ws.range("TopToggle"), degrees=-90)
 
@@ -1136,7 +1159,7 @@ class wb():
 
             progress_bar.update(1)
 
-            ws.range("A2").select()
+            ws.range("Headers_Start").select()
 
 
 
@@ -1148,7 +1171,7 @@ class wb():
         """
         
         book = self.book
-        ws = book.sheets('debug')
+        ws = book.sheets('Overview')
         ws.activate()
        
         
@@ -1165,13 +1188,8 @@ class wb():
 
         # Hide config section and set toggle orientation
         self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
-        self.cfg.hide_rows(ws.range("Config"), hide=True)
+        self.cfg.hide_rows(ws.range("Debug"), hide=True)
         
-        
-        # Move sheet to end
-        self.cfg.move_sheet_to_end(sheet=ws, book=self.book)
-
-
 
 
     def _export_analysis(self):
@@ -1214,7 +1232,7 @@ class wb():
            
 
             with self.theme.create_progress_bar(desc="Reading workbook...",
-                                                total=4 + (2 * len(self.blueprints))) as pbar:
+                                                total=4 + (2 * len(self.datasets))) as pbar:
                               
                 pbar.update(2)
 
@@ -1227,20 +1245,17 @@ class wb():
                     sys.exit()
 
                 
-                for bp in self.blueprints:
+                for ds in self.datasets:
 
                     definitions = {}
                     notes = {}
                     lists = {}
 
-
-
-                    
-                    if bp.field_analysis in wb.sheet_names:
-                        ws = wb.sheets(bp.field_analysis)
+                    if ds.name in wb.sheet_names:
+                        ws = wb.sheets(ds.name)
                     else:
 
-                        missing_dfs.append(bp.name)
+                        missing_dfs.append(ds.name)
                         
                         continue
                    
@@ -1298,20 +1313,22 @@ class wb():
 
 
                     # --------------------------------------------------
-                    # Extract altered_source_data
+                    # Extract altered_source_data, field_overview, and df_overview
                     
-                    bp.altered_source_data = ws.tables(1).range.options(pd.DataFrame, index=False).value
-
+                    ds.source_data = ws.tables[ds.table_name].range.options(pd.DataFrame, index=False).value     
+                                   
+                    ds.df_overview = self.book.sheets("|").tables["tbl_DfOverview"].range.options(pd.DataFrame, index=False).value
+                    ds.field_overview = self.book.sheets("|").tables["tbl_FieldOverview"].range.options(pd.DataFrame, index=False).value
                     
 
                     # --------------------------------------------------
                     # Prepare exports
 
                     # Add export properties
-                    bp.description = description
-                    bp.definitions = definitions
-                    bp.notes = notes
-                    bp.lists = lists
+                    ds.description = description
+                    ds.definitions = definitions
+                    ds.notes = notes
+                    ds.lists = lists
         
                     pbar.update(1)
             
@@ -1320,9 +1337,8 @@ class wb():
 
 
         # Add an ExportDict object for each dataframe into self.export_dicts
-        self.export_dicts = [ExportDict(bp) for bp in self.blueprints]
+        self.export_dicts = [ExportDict(ds) for ds in self.datasets]
 
-        
 
         # --------------------------------------------------
         # Print closing output
@@ -1338,11 +1354,6 @@ class wb():
         duration = time.time() - self.logger.start
         self.theme.print(f"\nExport completed after {int(duration)} seconds" + separator)
 
-
-
-
-
-    
 
 
 

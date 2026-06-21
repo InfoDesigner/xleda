@@ -72,7 +72,7 @@ if __name__ == '__main__':
     
     df = collect_dimensions()
 
-    wb = wb(name="Dataset Dimensions", 
+    wb = wb(file_name="Dataset Dimensions", 
             data=df, 
             overwrite=True)
 

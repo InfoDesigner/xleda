@@ -296,7 +296,7 @@ def test_export_dict():
 
     actual_wb = wb(data=titanic,
                    wb_path=examples_path / 'Titanic Completed.xlsm', 
-                   name='Titanic',
+                   file_name='Titanic',
                    no_vba=True,
                    export=True)
     
