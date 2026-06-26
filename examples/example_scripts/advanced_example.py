@@ -30,8 +30,7 @@ null_matrix.set_size_inches(9.35, 4.5) # type: ignore
 wb(data={'Penguins': penguins,
          'Sea Ice': seaice,
          'OG Penguins': og_penguins},
-   theme_color="#817CA2",
+   theme_color="#3019C6",
    overwrite=True,
    plots={'Pair Plots': pair_plots,
-          'Null Matrix': null_matrix}, # type: ignore
-)
+          'Null Matrix': null_matrix}) # type: ignore

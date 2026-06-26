@@ -15,7 +15,7 @@ from tools.create_examples import (seaborn_datasets, penguins,
                                    titanic_incompleted, nyc_taxi)
 from xleda import os_interface
 from src.xleda.utilities import DataError
-from src.xleda.main import wb_cli
+from src.xleda.main import wb
 
 
 
@@ -135,7 +135,7 @@ def test_example_workbooks(wb_dict: dict):
 
 
     wb_object = wb(**wb_dict)
-    blueprints = wb_object.blueprints
+    datasets = wb_object.datasets
     wb_path = wb_object.cfg.path
        
     expected = {}
@@ -149,16 +149,16 @@ def test_example_workbooks(wb_dict: dict):
         book = app.books.open(wb_path)
 
 
-        for bp in blueprints:
+        for ds in datasets:
             
 
             # ---------------------------------------------
             # Collect basic expectations from each blueprint
 
-            expected[bp.name] = {'rows': bp.rows,
-                                 'columns': bp.columns,
-                                 'headers': bp.columns,
-                                 'name': bp.title,
+            expected[ds.name] = {'rows': ds.rows,
+                                 'columns': ds.columns,
+                                 'headers': ds.columns,
+                                 'name': ds.name,
                                  'plots': []}
             
             
@@ -166,8 +166,8 @@ def test_example_workbooks(wb_dict: dict):
             # ---------------------------------------------
             # Collect basic actuals for each blueprint
 
-            ws = book.sheets(bp.field_analysis)
-            df = bp.source_data.iloc[:, 1:-3]
+            ws = book.sheets(ds.name)
+            df = ds.source_data.iloc[:, 1:-3]
             table = ws.tables[0]
             
             # Ensure source data is there
@@ -181,7 +181,7 @@ def test_example_workbooks(wb_dict: dict):
             name = ws.range("Name").value
 
 
-            actual[bp.name] = {'rows': rows,
+            actual[ds.name] = {'rows': rows,
                                'columns': columns,
                                'headers': headers,
                                'name': name,
@@ -196,10 +196,10 @@ def test_example_workbooks(wb_dict: dict):
 
             # Loop through columns and identify expected plots
             for col in df.columns:
-                expected[bp.name]['plots'].append(f'composition_{col}')
+                expected[ds.name]['plots'].append(f'composition_{col}')
 
                 if pd.api.types.is_numeric_dtype(df[col]):
-                    expected[bp.name]['plots'].append(f'histogram_{col}')
+                    expected[ds.name]['plots'].append(f'histogram_{col}')
             
                 
 
@@ -218,7 +218,7 @@ def test_example_workbooks(wb_dict: dict):
 
             
             # Collect actuals
-            actual[bp.name]['plots'] = [shape.name for shape in ws.shapes
+            actual[ds.name]['plots'] = [shape.name for shape in ws.shapes
                                         if 'histogram_' in shape.name or 'composition_' in shape.name and
                                         shape.height / 72 > 1.5 and shape.width / 72 > 1.5]
 
@@ -228,51 +228,30 @@ def test_example_workbooks(wb_dict: dict):
         # ---------------------------------------------
         # Checks the additional plots
 
-        if wb_object.cfg.additional_plots:
+        if wb_object.plots:
 
-            expected['additional_plots'] = [plot['title'] for plot in wb_object.cfg.additional_plots]
+            expected['plots'] = [plot_name for plot_name, figure in wb_object.plots]
 
 
-            actual['additional_plots'] = [plot for plot in expected['additional_plots'] if 
-                                          plot in book.sheet_names and 
-                                          book.sheets(plot).shapes(plot) is not None]
+            actual['plots'] = [plot for plot in expected['additional_plots'] if 
+                               plot in book.sheet_names and 
+                               book.sheets(plot).shapes(plot) is not None]
             
 
-        # ---------------------------------------------
-        # Checks the pivot tables/sheets
-
-
-        expected['pivot'] = [blueprints[0].pivot]
-
-
-
-        if win:
-
-            actual['pivot'] = [pivot for pivot in expected['pivot'] if 
-                               book.sheets(pivot).api.PivotTables('pvt_Pivot') is not None]
-        if mac:
-
-            actual['pivot'] = [pivot for pivot in expected['pivot'] if 
-                               book.sheets(pivot).api.pivot_tables['pvt_Pivot'] is not None]
 
 
         # ---------------------------------------------
         # Checks that all expected worksheets are included
 
-        # Start with additonal plots
-        expected['sheets'] = [plot['title'] for plot in wb_object.cfg.additional_plots]
+        # Start with additonal plots and Overview
+        expected['sheets'] = [plot_title for plot_title, figure in wb_object.plots.items()] + ['Overview']
 
         
         # Add the rest
-        for bp in blueprints:
+        for ds in datasets:
             
             # Add all basic sheets
-            expected['sheets'].append(bp.field_analysis)
-            expected['sheets'].append(bp.overview)
-
-            # Add the pivot if it's not an empty string            
-            if bp.pivot:
-                expected['sheets'].append(bp.pivot)
+            expected['sheets'].append(ds.name)
 
 
         actual['sheets'] = [sht for sht in expected['sheets'] if book.sheets(sht) is not None]
@@ -329,7 +308,7 @@ def test_create_wb_from_file():
         expected_wb_path.unlink()
         
     # Create a new workbook 
-    wb_cli(str(json_path))
+    wb(str(json_path))
     
     assert expected_wb_path.exists()
     
@@ -344,7 +323,7 @@ def test_invalid_data_file():
     invalid_data_structure = Path().cwd().parent / r"testing_data/invalid.json"
 
     with pytest.raises(DataError, match="XML/JSON file not successfully parsed"):
-        wb_cli(str(invalid_data_structure))
+        wb(str(invalid_data_structure))
 
 
 
@@ -358,7 +337,7 @@ def test_unsupported_extension():
     unsupported_extension = Path().cwd().parent / r"testing_data/unsupported_extension.xleda"
 
     with pytest.raises(DataError, match="Unsupported file type"):
-        wb_cli(str(unsupported_extension))
+        wb(str(unsupported_extension))
         
         
 

@@ -1,7 +1,5 @@
 from pathlib import Path
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import missingno as msno
 import xlwings as xw
 import pickle
@@ -12,7 +10,17 @@ import platform
 import openml
 from sklearn.datasets import fetch_openml
 
+import matplotlib
+matplotlib.use('Agg')  # Set the silent, non-interactive backend
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+
 from xleda import wb
+
+debug = True
+
 
 os = platform.system()
 win = os == 'Windows'
@@ -60,7 +68,7 @@ section_dfs = []
 def save_pickle(pickle_path: Path, cucumber: Any):
 
     """
-        Saves a dictionary as a pickle file
+    Saves a dictionary as a pickle file
 
     Parameters
     ----------
@@ -96,31 +104,25 @@ def create_primary_examples():
 
 
     primary_examples = [
-                     {'input_df': air_bnb,
-                      'name': "Airbnb",
+                     {'data': {"Airbnb": air_bnb},
                       'theme_color': "#B30934",},
-                     {'input_df': african_soil,
-                      'name': 'African Soil',
+                     {'data': {'African Soil': african_soil},
                       'theme_color': "#0A7F02",
                       'large_report': True},
-                     {'input_df': mlb,
-                      'name': "MLB",
+                     {'data': {"MLB": mlb},
                       'theme_color': "#031835",},
-                     {'input_df': nyc_taxi,
-                      'name': "NYC Taxi",
+                     {'data': {"NYC Taxi": nyc_taxi},
                       'theme_color': "#8E6505",
                       'no_vba': True},
-                     {'input_df': titanic,
-                      'name': "Titanic",
+                     {'data': {"Titanic": titanic},
                       'theme_color': 'random'},
-                     {'input_df': penguins,
-                      'name': "Penguins",
+                     {'data': {"Penguins": penguins,
+                               'Sea Ice': seaice,
+                               'OG Penguins': og_penguins},
                       'theme_color': 'random',
-                      'add_dfs':{'Sea Ice': seaice,
-                                'OG Penguins': og_penguins},
-                      'add_plots': {'Pair Plots': pair_plots,
-                                    'Null Matrix': null_matrix,}}
-                    ]
+                      'plots': {'Pair Plots': pair_plots,
+                                'Null Matrix': null_matrix,}}
+                                ]
     
 
     for example in primary_examples[::-1]:
@@ -128,6 +130,7 @@ def create_primary_examples():
         xleda = wb(overwrite=True,
                    wb_path=examples_path,
                    open_wb=False,
+                   debug=debug,
                    **example)
         
         compile_performance_data(xleda)
@@ -140,7 +143,7 @@ def create_primary_examples():
 def create_other_examples():
 
     """
-       Creates other examples using the current template
+    Creates other examples using the current template
     
     """
     
@@ -157,6 +160,7 @@ def create_other_examples():
                    file_name=proper_title,
                    theme_color='random',
                    wb_path=other_examples_path,
+                   debug=debug,
                    overwrite=True,
                    open_wb=False)
         
@@ -168,7 +172,8 @@ def create_other_examples():
 
 def complete_titanic_wb(update_pickle: bool=False):
     """
-        Creates a copy of the completed Titanic example from the current template 
+        
+    Creates a copy of the completed Titanic example from the current template 
         optionally exports into a pickle file for testing
 
     """
@@ -176,14 +181,15 @@ def complete_titanic_wb(update_pickle: bool=False):
     print("Recreating the Titanic Completed example")
 
 
-    with xw.App(visible=False, add_book=False) as app:
+    with xw.App(visible=debug, add_book=False) as app:
 
 
+        
         source_wb = app.books.open(titanic_completed)
         target_wb = app.books.open(titanic_incompleted)
         
-        source_ws = source_wb.sheets("Field Analysis")
-        target_ws = target_wb.sheets("Field Analysis")
+        source_ws = source_wb.sheets("Titanic")
+        target_ws = target_wb.sheets("Titanic")
 
 
         # Update data
@@ -194,7 +200,9 @@ def complete_titanic_wb(update_pickle: bool=False):
         target_ws.range("Notes").value = source_ws.range("Notes").value
         target_ws.range("Definitions").value = source_ws.range("Definitions").value
         target_ws.range("Description").value = source_ws.range("Description").value
-        target_ws.range("FieldLists").value = source_ws.range("FieldLists").value
+                
+        # Test me
+        target_ws.range("Field_Lists").current_region.value = source_ws.range("Field_Lists").current_region.value
 
 
         # Unhide completed sections
@@ -230,7 +238,7 @@ def complete_titanic_wb(update_pickle: bool=False):
 def download_openml_dataset():
     
     """
-       Downloads the current top openML datasets
+    Downloads the current top openML datasets
 
     Parameters
     ----------
@@ -265,8 +273,9 @@ def download_openml_dataset():
 
 
 def create_feather_examples():
+    
     """
-       Creates xleda workbooks from all feather files in a directory
+    Creates xleda workbooks from all feather files in a directory
     
     """
 
@@ -287,32 +296,39 @@ def create_feather_examples():
                        theme_color='random',
                        wb_path=other_examples_path,
                        overwrite=True,
+                       debug=debug,
                        open_wb=False)
             
             compile_performance_data(xleda)
 
 
-def compile_performance_data(input_wb: wb):
-
+def compile_performance_data(wb: wb):
 
 
     global section_dfs
 
 
+    # Add production timing to section performance
+    section_df = wb.logger.section_performance.set_index('Production Section').T
+    section_df = section_df.stack().to_frame().T # type: ignore
+    
+    new_columns = []
+    
+    
+    # Combine mullti-index column names
+    for level0, level1 in section_df.columns:
+        if 'Seconds' in level0:
+            new_columns.append(f"{level1} - Seconds")
+        else:
+            new_columns.append(f"{level1} - Pct")
+    section_df.columns = new_columns
 
-    # Get rows/columns from overall metadta
-    performance_metadata = input_wb.logger.performance_metadata
-    section_performance = input_wb.logger.section_performance
+    # Combine section performance and df_overview
+    df_overview = pd.concat([ds.df_overview for ds in wb.datasets], ignore_index=True)
+    output_df = pd.concat([df_overview, section_df], axis=1)
+    
 
-    rows = performance_metadata['Rows Included'].squeeze()
-    columns = performance_metadata['Columns Included'].squeeze()
-
-    section_performance['Rows'] = rows
-    section_performance['Columns'] = columns
-    section_performance['Dataset'] = input_wb.blueprints[0].title
-
-
-    section_dfs.append(section_performance)
+    section_dfs.append(output_df)
 
 
             
@@ -342,7 +358,7 @@ if __name__ == '__main__':
 
     create_feather_examples()
     create_primary_examples()
-    complete_titanic_wb(update_pickle=False)
+    complete_titanic_wb(update_pickle=True)
     create_other_examples()
     create_performance_wb()
     

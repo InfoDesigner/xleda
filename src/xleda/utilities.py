@@ -11,18 +11,20 @@ from pathlib import Path
 import platform
 import shutil
 import sys
-import datetime
+from datetime import datetime
 import os
 import pandas as pd
 from typing import Any
 import send2trash
 from collections import defaultdict
+import shlex
 
-# Plotting imports
-import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib as mpl 
-from matplotlib.figure import Figure
+# Persistent settings imports
+import json
+from importlib.metadata import version
+from packaging.version import parse
+import urllib.request
+
 
 
 # TQDM Imports
@@ -33,31 +35,37 @@ import threading
 import xlwings as xw
 from xlwings.constants import Constants
 
-
 # Import wb for typing
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .main import wb
 
+# Plotting imports
+import seaborn as sns
+import matplotlib.style as mpl_style 
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+mpl_style.use("dark_background")
+
 
 # ---------------------------------------------
 # Set variables
+
 
 # Set OS variables
 win = platform.system() == 'Windows'
 mac = platform.system() == 'Darwin'
 
+
+# Platform specific imports
 if win:
     import winreg
-    
-
 if mac:
     from appscript import app, k # type: ignore
-    
 
-# Plot/print vars
-plt.style.use("dark_background")
+
+# print vars
 separator = "\n" + ("-" * 100)
 
 
@@ -79,33 +87,45 @@ xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
 xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
 
 
-template_objects ={"meta":[],
-                   "SinglePlot": [],
+template_objects ={"SinglePlot": [],
                    "Field Analysis": ["tbl_SourceData"],
-                   "|": ["tbl_FieldOverview", "tbl_debug_environment", "tbl_debug_config", "tbl_DfOverview",  "tbl_debug_errors", "tbl_debug_section"]}
+                   "Overview": ["tbl_FieldOverview", "tbl_debug_environment", "tbl_debug_config", "tbl_DfOverview",  "tbl_debug_errors", "tbl_debug_section"]}
+
+
+help_message = (f"{separator}\n\n"
+                r"Use 'xleda wb \<data file path\>' to create a workbook" + "\n\n"
+                "### Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML" + "<br><br>\n\n"
+                f"### Expected extensions:{str(supported_extensions)[1:-1]}\n\n"
+                "For more documentation, visit https://github.com/InfoDesigner/xleda")
 
 
 
 class Environment():
     
 
-    def __init__(self, debug: bool = False) -> None:
+    def __init__(self, 
+                 input_vars={}, 
+                 version: bool = False) -> None:
         
         """
-        Gathers os, python, and terminal details for debugging.
+        Gathers OS, Python, and terminal details for debugging.
 
         """    
         
         # Primary environment detail
-        
+
         self.os = platform.system()
         self.win = win
         self.mac = mac
         self.env_type = self.get_env_type()
         self.excel_version = self.get_excel_version()
-        self.debug = debug
+        self.settings_path: str = self.get_settings_path()
+        self.data_argument: str = ''
+        
 
-
+        
+        
+        # Verify Compatibility
         self.validate_compatibility()
         
 
@@ -118,7 +138,7 @@ class Environment():
 
         # Additional environment details
         terminal_size = shutil.get_terminal_size()
-        self.date = datetime.datetime.now().date().strftime("%#m/%#d/%Y")
+        self.date = datetime.now().date().strftime("%#m/%#d/%Y")
         self.os_release = platform.release()
         self.os_version = platform.version()
         self.architecture = platform.machine()
@@ -127,13 +147,48 @@ class Environment():
         self.python_implementation = platform.python_implementation()
         self.console_columns = terminal_size.columns
         self.console_lines = terminal_size.lines
+    
+    
+        # Runtime settings
+        self.overwrite: bool = input_vars.get('overwrite', False)
+        self.debug: bool = input_vars.get('debug', False)
+        self.open_wb: bool = input_vars.get('open_wb', True)
+        self.large_report = input_vars.get('large_report', False)
+        self.export = input_vars.get('export', False)
+        
+    
+        # Persistent Settings
+        self.no_vba: bool = False
+        self.theme_color: str = "#262626"
+        self.version_check_date: str = datetime.now().isoformat()
+        self.update_msg = ''
+
+        # Override defaults with persistent settings from disk if they exist
+        self.load_settings()
+        
+        # If version is passed, run the update check
+        if version:
+            self.version_check()
+            
+        elif input_vars:
+        
+            # Otherwise, parse inputs 
+            self.parse_inputs(input_args=input_vars)
+            
+            # Write persistent settings to disk
+            self.save_settings()
+            
+            # TODO: Figure out when/if to incorporate this
+            # # Check for updates if enough time has passed
+            # if (datetime.now() - datetime.fromisoformat(self.version_check_date)).days > 3:
+            #     self.version_check()
 
 
 
     def get_excel_version(self) -> str:
 
         """
-        Uses xlwings to obtain the Excel version
+        Uses Windows Registry/Appscript to obtain the Excel version
 
         Returns
         -------
@@ -144,12 +199,15 @@ class Environment():
         
         try:
             if win:
-                # Read the current Excel version from Classes Root
+                
+                # Read the current Excel version from the Windows registry
                 with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key:
                     app_version, _ = winreg.QueryValueEx(key, "")
                     app_version = app_version.split(".")[-1]
-            if mac: 
-                # Ask macOS to look up the Excel application version
+                    
+            if mac:
+                
+                # Use appscript to look up the Excel application version
                 app_version = app("Microsoft Excel").version.get()
             
             return app_version
@@ -200,6 +258,8 @@ class Environment():
         """
 
         self.compatible = True
+       
+        
 
         # Determine if a supported OS is being used
         if self.mac or self.win:
@@ -219,6 +279,7 @@ class Environment():
             excel_compatibility = "Incompatible"
 
         
+        # Provide a debug output if an incompatible environment is detected
         if not self.compatible:
 
             compatibility_msg = (
@@ -243,7 +304,149 @@ class Environment():
         """
         
         print(f"\033[1;31m{text}\033[0m")
+
+
+    def get_settings_path(self) -> str:
         
+        """
+        Determines persistent settings folder
+        
+        """
+        
+        # Windows: AppData/Local
+        if win:
+            base_dir = Path(os.environ.get("LOCALAPPDATA", "~")).expanduser()
+            
+        # macOS: ~/Library/Application Support
+        if mac:
+            base_dir = Path("~/Library/Application Support").expanduser()
+
+        # Create/use a hidden xleda folder
+        assert isinstance(base_dir, Path)
+        storage_dir = base_dir / '.xleda'
+        
+        # Try to write settings but fail silently
+        try:
+            storage_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+        
+        # Return settings.json path
+        return str(storage_dir / "settings.json")
+
+
+    def parse_inputs(self,
+                     input_args: dict):
+        
+        """
+        Update persistent settings as needed
+        
+        """
+
+        no_vba = input_args.get('no_vba', None)
+        theme_color = input_args.get('theme_color', '')
+
+        
+        # if provided arguments are explicit, change class properties
+        if no_vba is not None:        
+            self.no_vba = no_vba
+            
+        # if provided arguments are explicit, change class properties
+        if theme_color:
+            self.theme_color = theme_color
+
+    
+    def version_check(self):
+        
+        
+        # Get versions to compare
+        installed_version = version('xleda')
+
+        
+        # Pull the latest version from pypi
+        pypi_url = "https://pypi.org/pypi/xleda/json"
+        try:
+            with urllib.request.urlopen(pypi_url) as response:
+                data = json.loads(response.read().decode('utf-8'))
+                latest_ver = data['info']['version']
+                
+        except Exception:
+            pass
+
+        # Provide an update suggestion if a newer version is available
+        if parse(latest_ver) > parse(installed_version):
+
+            # Store the update version message
+            
+            # TODO: Figure out when/if to incorporate this into runtime
+            self.update_msg += separator + "\n\n✨ A newer version of xleda is available\n\n"
+            self.update_msg += f"   Installed version: {installed_version}\n"
+            self.update_msg += f"   Latest PyPI version: {latest_ver}\n" + separator
+            
+            
+        else:
+
+            # Store the update version message
+            self.update_msg += separator + "\n\n✨ You are running the latest version of xleda\n\n"
+            self.update_msg += f"   Installed version: {installed_version}\n"
+            self.update_msg += f"   Latest PyPI version: {latest_ver}\n" + separator
+        
+        # Reset the counter
+        self.version_check_date = datetime.now().isoformat()
+
+
+    def load_settings(self):
+        
+        """
+        Loads persistent data from disk
+        
+        """
+        path = Path(self.settings_path)
+        
+        if path.is_file():
+
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    
+                    json_data = json.load(f)
+                    
+                    # Save persistent settings to self
+                    self.no_vba = json_data.get('no_vba', False)
+                    self.theme_color = json_data.get('theme_color', "#262626") 
+                    self.version_check_date = json_data.get('version_check_date', datetime.now())
+                            
+                
+            except (json.JSONDecodeError, OSError):
+                
+                pass
+
+
+    def save_settings(self) -> None:
+        
+        """
+        Saves persistent settings to disk
+        
+        """
+        
+        path = Path(self.settings_path)
+        
+        # Write to a temporary file first, then rename it
+        tmp_path = path.with_suffix(".tmp")
+        
+        persistent_settings = {'no_vba': self.no_vba,
+                               'theme_color': self.theme_color,
+                               'version_check_date': self.version_check_date,
+                               'update_msg': self.version_check_date}
+        
+
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(persistent_settings, f, indent=4)
+            tmp_path.replace(path)
+            
+        except OSError:
+            if tmp_path.exists():
+                tmp_path.unlink() 
 
 
 class Theme():
@@ -253,7 +456,8 @@ class Theme():
     
     """
 
-    def __init__(self, theme_color: str, env: Environment) -> None:
+    def __init__(self,
+                 env: Environment) -> None:
 
         """
         Configures an xleda theme that includes workbook 
@@ -265,10 +469,11 @@ class Theme():
         # ------------------------------------------------------------------------------
         # Configure Theme
         
-        if theme_color == 'random':
+        
+        if env.theme_color == 'random':
             self.theme_color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
         else:
-            self.theme_color: str = theme_color[:7]
+            self.theme_color: str = env.theme_color[:7]
             
         self.black_text: bool = self.use_black_text(self.theme_color)
         self.print_theme: str = self.ensure_readable(self.theme_color[:7])
@@ -337,7 +542,6 @@ class Theme():
 
         Returns
         -------
-        
         An Excel Index color on Windows or an RGB tuple for MacOS
             
         """
@@ -365,7 +569,6 @@ class Theme():
         
         print(self.color_formatter(text=text, theme=self.print_theme))
 
-        
 
     def hex_to_ansi(self, hex_color):
         
@@ -537,8 +740,8 @@ class Theme():
         """
         
         # 26*10 > 255 limit for RGB so limit to 9
-        iteration = (iteration + 1) % 9
-        multiplier = 26 * iteration
+        iteration = (iteration + 1) % 19
+        multiplier = 13 * iteration
 
 
         # Set color for field analysis worksheet
@@ -558,12 +761,7 @@ class Plotter():
     Class that represents a xleda plotting object
 
     """
-    
-    """
-    Class that represents a xleda plotting object
 
-    """
-    
     def __init__(self, theme: Theme, env: Environment) -> None:
         
         """
@@ -586,8 +784,10 @@ class Plotter():
             target_range (Range): An Excel cell
 
         """
+        
         # --------------------------------------------------
         # Calculate size/position
+
 
         # Calculate 90% of cell dimensions
         target_width = target_range.width * 0.9
@@ -642,8 +842,6 @@ class Plotter():
             Figure: A matplotlib Figure object
         """
 
-
-
         # --------------------------------------------------
         # Setup values
 
@@ -666,60 +864,59 @@ class Plotter():
         # --------------------------------------------------
         # Setup plot
         
-        # Initialize the plot inside a context manager that creates headless plots
-        with mpl.rc_context({'backend': 'Agg'}):
-            
-            fig, ax = plt.subplots(figsize=(8, 8))
-
-            y_pos = range(len(categories))[::-1]
-
-            # Add bars to plot
-            ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
-
-            
-            # --------------------------------------------------
-            # Adjust Formatting
-            
-            # Remove spines
-            for spine in ax.spines.values():
-                spine.set_visible(False)
-
-            # Remove other extra plot elements
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_title("")
-
-            # Make enough room for text on the left so they don't overlap
-            plt.subplots_adjust(left=0.4, right=0.9)
-
-            max_val = max(values)
+        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot
+        fig = Figure(figsize=(9, 9))
+        canvas = FigureCanvasAgg(fig) # noqa: F841
+        ax = fig.add_subplot(111)
 
 
+        # Add bars to plot
+        y_pos = range(len(categories))[::-1]
+        ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
 
-            # --------------------------------------------------
-            # Setup mpl data bars
+        
+        # --------------------------------------------------
+        # Adjust Formatting
+        
+        # Remove spines
+        for spine in ax.spines.values():
+            spine.set_visible(False)
 
-            for y, cat, val in zip(y_pos, categories, values):
-                pct = (val / total_records) * 100
+        # Remove other extra plot elements
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_title("")
 
-                # Truncate long category name
-                display_cat = str(cat)
-                if len(display_cat) > 6:
-                    display_cat = display_cat[:5] + ".."
+        # Make enough room for text on the left so they don't overlap
+        fig.subplots_adjust(left=0.4, right=0.9)
+        max_val = max(values)
 
-                # Add category name and adjust left to prevent overlap
-                ax.text(-0.55, y, display_cat, color="white", va="center", 
-                        ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-                # Add category percentage
-                ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
-                        fontsize=font_size, transform=ax.get_yaxis_transform(), )
 
-                # Add category count to the right of the bars
-                ax.text(val + max_val * 0.02, y, str(val), color="white",
-                        va="center", ha="left", fontsize=font_size, )
+        # --------------------------------------------------
+        # Setup data bars
 
-            return fig
+        for y, cat, val in zip(y_pos, categories, values):
+            pct = (val / total_records) * 100
+
+            # Truncate long category name
+            display_cat = str(cat)
+            if len(display_cat) > 6:
+                display_cat = display_cat[:5] + ".."
+
+            # Add category name and adjust left to prevent overlap
+            ax.text(-0.55, y, display_cat, color="white", va="center", 
+                    ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
+
+            # Add category percentage
+            ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
+                    fontsize=font_size, transform=ax.get_yaxis_transform(), )
+
+            # Add category count to the right of the bars
+            ax.text(val + max_val * 0.02, y, str(val), color="white",
+                    va="center", ha="left", fontsize=font_size, )
+
+        return fig
 
 
 
@@ -739,54 +936,57 @@ class Plotter():
         # --------------------------------------------------
         # Setup plot area, plot
 
-        # Create the plot inside a context manager that creates headless plots
-        with mpl.rc_context({'backend': 'Agg'}):
-            fig, ax = plt.subplots(figsize=(5, 5))
-            ax.set_axis_off()
+        
+        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot 
+        fig = Figure(figsize=(6, 6))
+        canvas = FigureCanvasAgg(fig) # noqa: F841
+        ax = fig.add_subplot(111)
 
-            # Plot a histogram
-            sns.histplot(x=input_series, 
-                        color=self.theme_color, 
-                        stat="density", 
-                        alpha=0.5, 
-                        ax=ax)
+        
+        ax.set_axis_off()
 
-            # Layer the KDE line
-            sns.kdeplot(x=input_series, 
-                        color="silver", 
-                        linewidth=3, 
-                        ax=ax, 
-                        warn_singular=False
-                        )
+        # Plot a histogram
+        sns.histplot(x=input_series,
+                     color=self.theme_color,
+                     stat="density",
+                     alpha=0.5,
+                     ax=ax)
 
-            
-            # --------------------------------------------------
-            # Add additional plot details
-
-            # Add vertical mean line
-            mean_val = input_series.mean()
-            ax.axvline(mean_val, 
+        # Layer the KDE line
+        sns.kdeplot(x=input_series, 
                     color="silver", 
-                    linestyle=":", 
-                    linewidth=2)
+                    linewidth=3, 
+                    ax=ax, 
+                    warn_singular=False)
 
-            # Remove tick labels
-            ax.tick_params(left=False, 
-                        bottom=False, 
-                        labelleft=False, 
-                        labelbottom=False)
+        
+        # --------------------------------------------------
+        # Add additional plot details
 
-            # Add Min and Max text at the bottom corners
-            min_val = input_series.min()
-            max_val = input_series.max()
+        # Add vertical mean line
+        mean_val = input_series.mean()
+        ax.axvline(mean_val,
+                   color="silver",
+                   linestyle=":",
+                   linewidth=2)
 
-            ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
-                    color="silver", ha="left", va="top",) 
-            
-            ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
-                    color="silver", ha="right", va="top", )
+        # Remove tick labels
+        ax.tick_params(left=False,
+                       bottom=False,
+                       labelleft=False,
+                       labelbottom=False)
 
-            return fig
+        # Add Min and Max text at the bottom corners
+        min_val = input_series.min()
+        max_val = input_series.max()
+
+        ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
+                color="silver", ha="left", va="top",) 
+        
+        ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
+                color="silver", ha="right", va="top", )
+
+        return fig
 
 
 
@@ -811,14 +1011,14 @@ class ExportDict(dict):
         """
 
 
-        for key in ['description', 'definitions', 'notes', 'lists', 'field_overview', 'df_overview', 'altered_source_data']:
+        for key in ['description', 'definitions', 'notes', 'lists', 'field_overview', 'df_overview', 'source_data']:
             
             val = eval(f"ds.{key}")
 
             # If the value exists or is a dataframe, add it to the dictionary and class object
             if isinstance(val, pd.DataFrame) or val:
-                setattr(self, key, eval(f"bp.{key}"))
-                self[key] = eval(f"bp.{key}")
+                setattr(self, key, eval(f"ds.{key}"))
+                self[key] = eval(f"ds.{key}")
     
 
 
@@ -831,7 +1031,7 @@ class Config():
 
     def __init__(self,
                  wb: wb,
-                 **kwargs: Any) -> None:
+                 input_vars: dict) -> None:
         
         """
         Primary configuration object for an xleda workbook
@@ -840,99 +1040,74 @@ class Config():
 
         """
         
-        # Set file name
-        self.file_name = self.sanitize_name(input_str=kwargs['name'], name_type='file')
+        # Set initial file name
+        self.file_name = self.sanitize_name(input_str=input_vars.get('file_name', 'xleda'), 
+                                            name_type='file')
         self.env = wb.env
-        self.no_vba = kwargs['no_vba']
-        self.wb_path = kwargs['wb_path']
-        self.overwrite: bool = kwargs['overwrite']
-        self.debug: bool = kwargs['debug']
-        self.open_wb: bool = kwargs['open_wb']
         self.exit_msg = separator
-        self.large_report = kwargs['large_report']
-        self.export = kwargs['export']
 
 
 
-        # Calculate the target file path        
-        self.path: Path = self.calculate_full_path()
+        # Calculate the target file path
+        self.path: Path = self.calculate_full_path(input_vars=input_vars)
 
-        
         # Ensure unique names for all worksheets/tables
         self.ensure_unique(wb=wb)
 
 
-
-
-
-    def calculate_full_path(self) -> Path:
+    def calculate_full_path(self, input_vars: dict) -> Path:
     
         """    
-        Calculates a full file path for an Excel workbook given 
-            a path like string or Path object
-
-        Returns
-        -------
-        Path
-            An absolute pathlib Path object for an Excel workbook
+        Calculates a full file path for an xleda workbook
 
         """
-
-        # Set vars
-        wb_path = Path(self.wb_path)
-        wb_directory = Path.cwd()
-        new_path = None
-
-                
+        
+        input_path = Path(input_vars.get('wb_path', ''))
+                       
+        
+        # Construct file name
+        if self.env.no_vba:
+            wb_file_name = f"{self.file_name}.xlsx"
+        else:
+            wb_file_name = f"{self.file_name}.xlsm"
+        
+        
         # Handle correct extension is passed
-        if wb_path.suffix in ['.xlsx', '.xlsm']:
+        if input_path.suffix in ['.xlsx', '.xlsm']:
 
-            # If full path is provided, use it
-            if wb_path.is_absolute():      
-                new_path = wb_path
+            # if a correct extension with a full path is provided, use it
+            if input_path.is_absolute():      
+                new_path = input_path
                             
-            # if a full path isn't provided, construct it
+            # if a correct extension with a partial path is provided, construct the full path
             else:
-                new_path = Path().cwd() / wb_path
+                new_path = Path().cwd() / input_path
 
             
             return new_path
             
         # Handle other full paths
-        elif wb_path.is_absolute():
+        elif input_path.is_absolute():
             
             # Handle full path with some other extension
-            if wb_path.is_absolute() and bool(wb_path.suffix):
+            if input_path.is_absolute() and bool(input_path.suffix):
                 
-                wb_directory = wb_path.parent
+                new_path = input_path.parent / wb_file_name
             
             # Handle full path without a file name/exension
-            elif wb_path.is_absolute() and not bool(wb_path.suffix):
-                    wb_directory = wb_path
+            elif input_path.is_absolute() and not bool(input_path.suffix):
+                    new_path = input_path / wb_file_name
         
         # Handle partial paths
-        elif not wb_path.is_absolute():
+        elif not input_path.is_absolute():
             
             # with no extension
-            if not bool(wb_path.suffix):
-                wb_directory = Path().cwd() / wb_path
+            if not bool(input_path.suffix):
+                new_path = Path().cwd() / input_path / wb_file_name
 
             # With an incorrect extension
-            if bool(wb_path.suffix) and wb_path.suffix not in ['.xlsx', '.xlsm']:
-                wb_directory = Path().cwd() / wb_path.parent
-            
-
-        
-        # If only a directory has been calculated, add file name to it
-        if not new_path:
-        
-            if self.no_vba:
-                wb_file_name = f"{self.file_name}.xlsx"
-            else:
-                wb_file_name = f"{self.file_name}.xlsm"
-
-            new_path = wb_directory / wb_file_name
-        
+            elif bool(input_path.suffix) and input_path.suffix not in ['.xlsx', '.xlsm']:
+                new_path = Path().cwd() / input_path.parent / wb_file_name
 
         return new_path
 
@@ -970,29 +1145,32 @@ class Config():
         # Ensure unique names for each prepared dataframe
         
                 
-        for dataset in datasets:
+        for i, dataset in enumerate(datasets):
             
             # Set vars
-            title = self.sanitize_name(dataset.name, name_type='title')
-            table_name = self.sanitize_name(dataset.name, name_type='table')
+            name = self.sanitize_name(dataset.name, name_type='name')
+            table_name = f'tbl_{self.sanitize_name(dataset.name, name_type="table")}'
             
             # Update seen counts
-            seen_counts[title] += 1
+            seen_counts[name] += 1
             seen_counts[table_name] += 1
             
             
             # ------------------------------------------------------
-            # Handle title
+            # Handle name
             
             # Append the occurrence number to duplicates
-            if seen_counts[title] > 1:
+            if seen_counts[name] > 1:
                 
                 # Append the occurrence number to the duplicate
-                if len(title) > 31:
-                    past_limit = len(title) - 31
-                    title = f"{title[:past_limit]}_{seen_counts[title]}"
+                if len(name) > 31:
+                    
+                    # Truncate name if necessary to make room for the occurence number
+                    past_limit = len(name) - 31 - len(str(seen_counts[table_name]))
+                    name = f"{name[:past_limit]}_{seen_counts[name]}"
 
-            dataset.update_name(title)
+            # Update the dataset name
+            dataset.update_name(name)
             
 
             # ------------------------------------------------------
@@ -1001,9 +1179,9 @@ class Config():
             # Append the occurrence number to duplicates
             if seen_counts[table_name] > 1:
                 
-                # Append the occurrence number to the duplicate
+                # Truncate name if necessary to make room for the occurence number
                 if len(table_name) > 31:
-                    past_limit = len(table_name) - 31
+                    past_limit = len(table_name) - 31 - len(str(seen_counts[table_name]))
                     table_name = f"{table_name[:past_limit]}_{seen_counts[table_name]}"
 
             dataset.table_name = table_name
@@ -1012,33 +1190,33 @@ class Config():
         # ------------------------------------------------------
         # Handle plots
         
-        if self.plots:
+        if wb.plots:
             
             # Replacement dictionary
             new_plots = {}
 
 
             
-            for plot_name, figure in self.plots.items():
+            for plot_name, figure in wb.plots.items():
                 
                 # Set var, update count
-                plot_name = self.sanitize_name(plot_name, name_type='title')
+                plot_name = self.sanitize_name(plot_name, name_type='name')
                 seen_counts[plot_name] += 1
                                 
                 
                 # Append the occurrence number to duplicates
                 if seen_counts[plot_name] > 1:
                     
-
+                    # Truncate name if necessary to make room for the occurence number
                     if len(plot_name) > 31:
-                        past_limit = len(plot_name) - 31
+                        past_limit = len(plot_name) - 31 - len(str(seen_counts[table_name]))
                         plot_name = f"{plot_name[:past_limit]}_{seen_counts[plot_name]}"
                 
                 # Add amended plot to the replacement dictionary
                 new_plots[plot_name] = figure
                 
             
-            self.plots = new_plots
+            wb.plots = new_plots
                 
 
 
@@ -1052,7 +1230,7 @@ class Config():
 
         # Return an error if there's an existing file and no overwrite flag
 
-        if self.path.is_file() and not self.overwrite:
+        if self.path.is_file() and not self.env.overwrite:
 
             self.env.warn_print(f"Error: There is already a workbook named {self.path}!")
             self.env.warn_print("Use overwrite=True or rename/remove the existing workbook")
@@ -1062,7 +1240,7 @@ class Config():
 
         # Delete the file if there's an overwrite flag, return error if it's open
     
-        elif self.path.is_file() and self.overwrite:
+        elif self.path.is_file() and self.env.overwrite:
             try:
 
                 send2trash.send2trash(self.path)
@@ -1079,13 +1257,13 @@ class Config():
                 self.env.warn_print(f"An unexpected error occurred when deleting {self.path.name}")
                 sys.exit()
 
-        progress_bar.update(2)
+        progress_bar.update(2) # 2
         
 
         # Create parent directories if necessary
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
-        progress_bar.update(1)
+        progress_bar.update(1) # 3
 
 
 
@@ -1105,12 +1283,15 @@ class Config():
         else:
             shutil.copy(xlsm_file, self.path)
         
-        progress_bar.update(1)
+        progress_bar.update(1) # 4
         
 
 
 
-    def expand_range(self, name: str, ws: xw.Sheet, columns: int = 0):
+    def expand_range(self, 
+                     name: str, 
+                     ws: xw.Sheet, 
+                     columns: int = 0):
         
         """
         Expands a named range by +/- extra_columns
@@ -1130,12 +1311,9 @@ class Config():
             
         """
 
-        ws.activate()
-
         ws.range(name).resize(row_size=None, 
                               column_size=columns).name = name
-
-
+        
 
     def sanitize_name(self, 
                       input_str: str,
@@ -1161,6 +1339,9 @@ class Config():
             # Table names also have spaces removed
             if name_type == 'table':
                 sanitized_name = sanitized_name.replace(" ","")
+                
+            if name_type == 'range':
+                sanitized_name = sanitized_name.replace(" ","_")
             
             return sanitized_name
 
@@ -1173,58 +1354,22 @@ class Config():
         
         """
 
-        
         # Ensure the templates exist
         if xlsm_file.is_file() and xlsx_file.is_file():
 
             # Remove the quarantine attribute if it exists
-            try:
-                subprocess.run(["xattr", "-d", "com.apple.quarantine", 
-                                str(xlsm_file)],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            for file in [xlsx_file, xlsm_file]:
             
-                subprocess.run(["xattr", "-d", "com.apple.quarantine", 
-                                str(xlsx_file)],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                try:
+                    subprocess.run(["xattr", "-d", "com.apple.quarantine", 
+                                    str(file)],
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 
-            except subprocess.CalledProcessError:
-                pass
+                except subprocess.CalledProcessError:
+                    pass
 
         else:
-            self.env.warn_print("File does not exist.")
-
-
-
-    def vba_object_model_trusted(self) -> bool:
-        
-        """
-        Determines whether "Trust Access to the VBA Object Model" has been set.
-
-        """
-
-        # Use xlwings to create a temporary app/book and test if the VBA object model is trusted
-        with xw.App(visible=False):
-
-            
-            # Creates a new, temporary, unsaved workbook
-            book = xw.Book()  
-            
-            try:
-                if self.env.win:
-                    _ = book.api.VBProject    
-                elif self.env.mac:
-                    _ = book.api.VBProject.VBComponents.Count
-                    
-                vba_object_model_trust = True
-                
-            except Exception:
-                vba_object_model_trust = False
-        
-            # Close the workbook when finished
-            book.close()
-
-
-        return vba_object_model_trust
+            self.env.warn_print("Templates not found.")
 
 
 
@@ -1270,98 +1415,25 @@ class Config():
         elif self.env.mac:
             input_range.api.text_orientation.set(degrees)
             
-            
-
-    def get_updated_pivot(self,
-                          pt_name: str,
-                          ws: xw.Sheet) -> Any:
-        
-        
-        if self.env.mac:
-            
-            # Update pivot table
-            pt = ws.api.pivot_tables[pt_name]
-            pt.refresh_table()
-        
-        elif self.env.win:
-            
-            # Update pivot table
-            pt = ws.api.PivotTables(pt_name)
-            pt.PivotCache().Refresh()
-            
-        return pt
 
 
+    def group_rows(self,
+                   input_range: xw.Range):
         
-        
-
-    def get_configured_pivot_range(self,
-                                   ws: xw.Sheet,
-                                   pivot_fields: list[str]) -> xw.Range:
         """
-        Configures a pivot table and returns its range.
-
-        """
-
-        pt = self.get_updated_pivot(ws=ws,
-                                    pt_name="pvt_Pivot")
-
-        if self.env.mac:
-            
-            # Add fields
-            pt.add_fields_to_pivot_table(row_fields=pivot_fields)
-            
-            # Collapse fields/remove subtotals
-            script = f'''
-            tell application "Microsoft Excel"
-                tell workbook "{self.wb_path}"
-                    tell sheet "{"Pivot"}"
-                        tell pivot table "{"pvt_Pivot"}"
-                            set all_fields to pivot fields
-                            repeat with pf in all_fields
-                                try
-                                    set subtotals pf subtotal index 1 without value
-                                    set show detail of pf to false
-                                end try
-                            end repeat
-                        end tell
-                    end tell
-                end tell
-            end tell
-            '''
-            subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
-
-            # Get range of pivot table
-            pivot_range = ws.range(pt.table_range1.get_address())
+        Groups a provided range by rows
         
-        elif self.env.win:
+        """
+        
+        
+        if self.env.win:
+            input_range.api.Rows.Group()
             
-
-            # Add fields
-            pt.AddFields(RowFields=pivot_fields)
-
-            # Loop through and configure fields
-            for field in pivot_fields[::-1]:
-                
-                # Collapse pivot fields
-                try:
-                    pt.PivotFields(field).ShowDetail = False
-                except Exception:
-                    pass
-
-                # Hide subtotals
-                try:
-                    if self.env.win:
-                        pt.PivotFields(field).Subtotals = tuple([False] * 12)
-                except Exception:
-                    pass
-                
-                # Get range of pivot table
-                pivot_range = ws.range(pt.TableRange1.Address)
-            
-        return pivot_range
-
-
+        elif self.env.mac:
+            input_range.api.group()
+        
+        
+        
     def hide_rows(self,
                   input_range: xw.Range,
                   hide: bool=True):
@@ -1397,58 +1469,31 @@ class PerformanceLogger():
 
         self.performance_logs: dict[str, list] = defaultdict(list)
         self.section_performance: pd.DataFrame = pd.DataFrame()
-        self.performance_metadata: pd.DataFrame = pd.DataFrame()
         self.config: pd.DataFrame = pd.DataFrame()
         self.env: pd.DataFrame = pd.DataFrame()
         self.errors: pd.DataFrame = pd.DataFrame()
         self.total_production_time: float       
 
-        self.config  = self.add_config_log(wb=wb)
         self.env = self.add_env_log(wb=wb)
         
-
-
-    def add_config_log(self,
-                       wb: wb) -> pd.DataFrame:
+    def add_env_log(self, wb:wb) -> pd.DataFrame:
         
         """
-        Logs an xleda configuration for loggging
-
+        Creates an environment log dataframe
+        
         """
-
-        # ---------------------------------------------------------
-        # Set up config df
-               
-        config = {'file_name': wb.file_name,
-                  'dataframes': ''.join([ds.name for ds in wb.datasets]),
-                  'plots': ', '.join(wb.plots.keys()), 
-                  'theme_color': wb.theme.theme_color, 
-                  'large_report': wb.cfg.large_report, 
-                  'overwrite': wb.cfg.overwrite, 
-                  'wb_path': wb.cfg.wb_path, 
-                  'open_wb': wb.cfg.open_wb, 
-                  'no_vba': wb.cfg.open_wb, 
-                  'export': wb.cfg.export, 
-                  'debug': wb.cfg.debug}
-
-        
-        # Convert to dataframe, transpose, set column names, and store
-        config_df = pd.DataFrame.from_records([config]).T
-        config_df = config_df.reset_index()
-        config_df.columns = ['Input Argument', 'Value']
-        
-        return config_df
-        
-
-    def add_env_log(self,
-                    wb:wb) -> pd.DataFrame:
         
         # ---------------------------------------------------------
         # Set up envirnment df
 
         env_dict = vars(wb.env).copy()
-        del env_dict['win']
-        del env_dict['mac']
+        
+        
+        # Remove extra keys
+        remove_keys = ['data_argument', 'settings_path', 'win', 'mac', 'overwrite', 'debug', 'open_wb', 'large_report', 'export', 'no_vba', 'theme_color', 'version_check_date', 'update_msg']
+
+        for key in remove_keys:
+            del env_dict[key]
         
         # Create a dataframe, transpose it, add column names, and save it
         env_df = pd.DataFrame.from_records([env_dict]).T
@@ -1456,6 +1501,41 @@ class PerformanceLogger():
         env_df.columns = ['Environment Variable', 'Value']
         
         return env_df
+
+
+
+    def add_config_log(self, wb: wb):
+        
+        """
+        Logs xleda configuration
+
+        """
+
+        # ---------------------------------------------------------
+        # Set up config df
+               
+        config = {'file path': wb.cfg.path,
+                  'settings path': wb.env.settings_path,
+                  'data argument': wb.env.data_argument,
+                  'dataframes': ', '.join([ds.name for ds in wb.datasets]),
+                  'plots': ', '.join(wb.plots.keys()), 
+                  'theme_color': wb.env.theme_color, 
+                  'large_report': wb.env.large_report, 
+                  'overwrite': wb.env.overwrite, 
+                  'open_wb': wb.env.open_wb, 
+                  'no_vba': wb.env.open_wb, 
+                  'export': wb.env.export, 
+                  'debug': wb.env.debug}
+
+        
+        # Convert to dataframe, transpose, set column names, and store
+        config_df = pd.DataFrame.from_records([config]).T
+        config_df = config_df.reset_index()
+        config_df.columns = ['Input Argument', 'Value']
+        
+        self.config = config_df
+        
+
 
 
 
@@ -1501,13 +1581,10 @@ class PerformanceLogger():
         self.section_performance = pd.DataFrame.from_records(self.performance_logs['section'])
         
 
-        # Compile performance_metadata df
-        self.performance_metadata = pd.DataFrame.from_records(self.performance_logs['performance_metadata'])
-
         # Compile errors df, adding a blank entry if there are none
         if len(self.performance_logs['error']) == 0:
-            self.performance_logs['error'].append({'Error Type': 'No Errors occurred',
-                                                   'Value': 'N/A'})
+            self.performance_logs['error'].append({'Detail': 'N/A',
+                                                   'Error': 'No errors occurred'})
         self.errors = pd.DataFrame.from_records(self.performance_logs['error'])
         
 
@@ -1533,6 +1610,12 @@ class DataError(Exception):
 
         
 class DataSetParser():
+    
+    """
+    A class that represents a data source parser.
+    
+    """
+    
 
     def __init__(self, 
                  data: Path | dict[str, pd.DataFrame],
@@ -1558,29 +1641,25 @@ class DataSetParser():
     def read_data_file(self):
         
         """
-        Creates a list of PreparedDataFrame objects from from supported data files
+        Creates a list of DataSet objects from from supported data files
 
         """    
         
-        assert isinstance(self.file_path, Path)
-
-        extension = self.file_path.suffix.lower()
-        is_file = self.file_path.is_file()
+        # ----------------------------------------------------
+        # Set vars and handle data file edge cases
         
-        # Handle .rdata files that don't have an extension
-        if is_file and not extension:
-            extension = self.file_path.name.lower()
+        
+        # Extract extension and handle .rdata files that don't have an extension
+        if self.file_path.suffix.lower() == '.rdata':
+            extension = '.rdata'
+        else:
+            extension = self.file_path.suffix.lower()
             
-        # if a file with an unsupported extension is provided, raise an error 
-        if not is_file or extension not in supported_extensions:
-            supported = ", ".join(sorted(supported_extensions))
-            raise DataError(f"Unsupported file type '{extension}'. Supported files: {supported}")
-
 
         # ----------------------------------------------------
         # Create datasets from tabular files
         
-        elif extension == ".csv":
+        if extension == ".csv":
             self.from_csv()
 
         elif extension == ".feather":
@@ -1616,6 +1695,8 @@ class DataSetParser():
         
         db_type = ""
         
+        
+        # Open the file and inspect the header for sqlite/duckdb markers
         try:
             with open(self.file_path, 'rb') as f:
                 header = f.read(16)
@@ -1638,11 +1719,11 @@ class DataSetParser():
     def from_xml_json(self):
 
         """
-        Creates a list of PreparedDataFrame objects from a supported from xml or json files
+        Creates a list of DataSet objects from a supported xml or json files
 
         """
         
-        # Datafile imports
+        # Lazy imports
         import xmltodict
         import json
         
@@ -1683,12 +1764,12 @@ class DataSetParser():
     def from_pickle(self):
         
         """
-        Creates a list of PreparedDataFrame objects from dataframes inside a pickle file
+        Creates a list of DataSet objects from dataframes inside a pickle file
 
         """
         
 
-        # Datafile imports
+        # Lazy import
         import pickle
         
         try: 
@@ -1713,11 +1794,13 @@ class DataSetParser():
         
 
     def from_rdata(self):
-        """
-        Creates a list of PreparedDataFrame objects from an RData file
         
         """
-        # Datafile imports
+        Creates a list of DataSet objects from an RData file
+        
+        """
+        
+        # Lazy import
         import rdata
         
         try:
@@ -1740,21 +1823,11 @@ class DataSetParser():
                 if isinstance(value, pd.DataFrame):
                     df = value
                     
-                # Convert to a dataframe if possible
-                elif isinstance(value, dict) or hasattr(value, '__array__'):
-                    try:
-                        df = pd.DataFrame(value)
-                    
-                    # Continue to the next object if it doesn't convert successfully
-                    except Exception:
-                        continue
-                
-                # Append successfully converted dfs
+                # Append successfully extracted dfs
                 if df is not None and not df.empty:
                     self.datasets.append(DataSet(input_df=df,
-                                                          name=name,
-                                                          large_report=self.large_report))
-                    
+                                                 name=name,
+                                                 large_report=self.large_report))
             except Exception:
                 
                 pass
@@ -1766,11 +1839,11 @@ class DataSetParser():
     def from_db_file(self):
         
         """
-        Creates a list of PreparedDataFrame objects from a supported database file
+        Creates a list of DataSet objects supported database files
 
         """
         
-        # Datafile imports
+        # Lazy imports
         import duckdb
 
         
@@ -1858,7 +1931,7 @@ class DataSetParser():
     def from_excel(self):
         
         """
-        Creates a list of PreparedDataFrame objects from an Excel file
+        Creates a list of DataSet objects from an Excel file
 
         """    
         
@@ -1890,7 +1963,7 @@ class DataSetParser():
     def from_feather(self):
             
             """
-            Creates a list of PreparedDataFrame objects from a feather file
+            Creates a list of DataSet objects from a feather file
 
             """    
             
@@ -1905,7 +1978,7 @@ class DataSetParser():
     def from_csv(self):
             
             """
-            Creates a list of PreparedDataFrame objects from a feather file
+            Creates a list of DataSet objects from a feather file
 
             """    
             
@@ -1920,7 +1993,7 @@ class DataSetParser():
     def from_parquet(self):
             
             """
-            Creates a list of PreparedDataFrame objects from a feather file
+            Creates a list of DataSet objects from a feather file
 
             """
             
@@ -1936,7 +2009,7 @@ class DataSetParser():
     def from_dataframes(self):
             
         """
-        Creates a list of PreparedDataFrame objects from a dictionary of dataframes
+        Creates a list of DataSet objects from a dictionary of dataframes
 
         """    
         
@@ -2005,14 +2078,13 @@ class DataSet():
         self.definitions: dict = {}
         self.notes: dict = {}
         self.lists: dict = {}
-        self.source_data: pd.DataFrame = pd.DataFrame()
     
 
     def update_name(self, 
                     new_name: str):
         
         """
-        Updates the dataframe name across the PreparedDataframe object
+        Updates the dataframe name across the DataSet object
         
         """
         
@@ -2025,9 +2097,14 @@ class DataSet():
     def create_original_df(self,
                            input_df: pd.DataFrame) -> pd.DataFrame:
         
+        """
+        Creates a near original dataframe that is subsampled if needed
+
+        """
+        
         df = input_df.copy()
         rows = len(df)
-        columns = len(df)
+        columns = len(df.columns)
         
 
         above_default = rows > default_row_limit or columns > default_column_limit
@@ -2057,9 +2134,17 @@ class DataSet():
         
         
         
-        # Add index, subsample if needed, record adjusted rows/columns
+        # Subsample if needed
+        if self.warning:
+            df = (df.iloc[:, :columns].sample(n=rows).sort_index())
+        
+        # Capture memory usage before promoting index to a column
+        self.memory_usage = df.memory_usage(deep=True).sum()
+        self.index_mem = df.index.memory_usage()
+        
         df['index'] = df.index
-        df = (df.iloc[:, :columns].sample(n=rows).sort_index())
+        
+        self.column_order = df.columns.to_list()
         
         return df
 
@@ -2074,8 +2159,9 @@ class DataSet():
         
         df = self.original_df.copy()
         df.insert(loc=0, column="Record List", value="False")
-        df['HasBlank'] = self.source_data.isnull().any(axis=1).astype(int)
+        df['HasBlank'] = df.isnull().any(axis=1).astype(int)
         df["Record Hash"] = pd.util.hash_pandas_object(df, index=False)
+        
         
         return df
         
@@ -2093,7 +2179,7 @@ class DataSet():
         # Collect metadata
 
         # Omit added columns
-        df = self.original_df
+        df = self.source_data.drop(columns=['Record Hash', 'HasBlank', 'Record List'])
 
         # Order of output fields
         row_order = ["Data type", "Memory Usage", "Memory Usage %", "Distinct", "Distinct %", "Count", "Count %", "Missing", "Missing %", "Mean", "Median", "Mode", "Standard Deviation", "Variance", "Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]
@@ -2110,6 +2196,7 @@ class DataSet():
         # Calculate variance without failing on unsupported types such as timedelta
         try:
             variance = desc.loc["std"] ** 2
+            
         except TypeError:
             variance = None
         
@@ -2117,8 +2204,8 @@ class DataSet():
         info_df = pd.DataFrame(
             {
                 "Data type": df.dtypes.astype(str),
-                "Memory Usage": df.memory_usage(deep=True),
-                "Memory Usage %": df.memory_usage(deep=True) / df.memory_usage(deep=True).sum(),
+                "Memory Usage": df.memory_usage(deep=True, index=False),
+                "Memory Usage %": df.memory_usage(deep=True, index=False) / self.memory_usage,
                 "Count": rows_count - df.isnull().sum(),
                 "Count %": (rows_count - df.isnull().sum()) / rows_count,
                 "Missing": df.isnull().sum(),
@@ -2129,13 +2216,13 @@ class DataSet():
                 "Range": desc.loc["max"] - desc.loc["min"],
                 "Variance": variance,
                 "Distinct": df.nunique(),
-                "Distinct %": df.nunique() / rows_count,
-                }).T
+                "Distinct %": df.nunique() / rows_count}).T
 
-
+        
+        
         # --------------------------------------------------
-        # Combine/Format Metadata
-
+        # Combine/Format Metadata     
+        
         
         # Combine info and describe dfs
         summary_df = pd.concat([info_df, desc])
@@ -2150,7 +2237,12 @@ class DataSet():
 
         # Rename index fields, reorder, filter rows
         summary_df = summary_df.rename(index=field_map)
-        summary_df = summary_df.loc[row_order]
+        summary_df = summary_df.loc[row_order, self.column_order]
+        
+        # Adjust index to it's original memory footprint before becoming a column
+        summary_df.at['Memory Usage', 'index'] = self.index_mem
+        summary_df.at['Memory Usage %', 'index'] = self.index_mem/self.memory_usage
+        
 
         # convert to string to prevent issues with timedelta/random datatypes
         summary_df = summary_df.astype(str)        
@@ -2191,7 +2283,7 @@ class DataSet():
 
         df_metadata = {'Rows': self.rows,
                        'Columns': self.columns,
-                       'Memory Usage (bytes)': df.memory_usage(deep=True).sum(),
+                       'Memory Usage (bytes)': self.memory_usage,
                        'Distinct Rows %': (len(df.drop_duplicates()) / len(df)),
                        'Missing %': df.isnull().mean().mean(),}
         
@@ -2211,12 +2303,343 @@ class DataSet():
         df_metadata = {'_': '',
                        'Dataframe': self.name,
                        'Dataframe Description': '',
-                       'Memory Usage (bytes)': df.memory_usage(deep=True).sum(),
+                       'Memory Usage (bytes)': self.memory_usage,
                        'Rows': self.rows,
                        'Columns': self.columns,
-                       'Fields Defined %'
-                       'Missing Values %': df.isnull().mean().mean(),
-                       'Subsampled': bool(self.warning_msg)}
+                       'Fields Defined %': '',
+                       'Missing %': df.isnull().mean().mean(),
+                       'Subsampled': self.warning}
         
         return pd.DataFrame.from_records([df_metadata])
+    
+    
+
+class CLI():
+    
+    
+    def __init__(self):
+        
+        self.windows_menu_name = "Create xleda Workbook"
+        self.macos_service_name = "Create xleda Workbook.workflow"
+               
+        
+        self.env = Environment()
+
+
+        
+    def windows_command(self) -> str:
+
+        """
+        Constructs the context menu command for Windows
+        
+        """
+        
+        python = str(Path(sys.executable).resolve())
+        module_command = f"& {shlex.quote(python)} -m xleda wb '%1'"
+        pause_command = "Write-Host ''; Read-Host 'Operation Completed, you can now close this window'"
+        return f'powershell.exe -NoExit -ExecutionPolicy Bypass -Command "{module_command}; {pause_command}"'
+
+
+    def install_windows_context_menu(self) -> bool:
+        
+        """
+        Installs the context menu on Windows
+        
+        Returns
+        -------
+        bool
+            A boolean indicating success
+
+        """
+        
+        import winreg
+        command = self.windows_command()
+        
+        try:
+
+            icon_path = Path(__file__).parent / 'rectangle_icon.ico'
+            
+            for extension in supported_extensions:
+                base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
                 
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key:
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name)
+                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path))
+
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key:
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command)
+                
+            return True
+        
+        except Exception:
+            
+            return False
+        
+
+
+    def uninstall_windows_context_menu(self) -> bool:
+        
+        """
+        Uninstalls the context menu on Windows
+        
+        Returns
+        -------
+        bool
+            A boolean indicating success
+
+        """
+
+        
+        try:
+            import winreg
+
+            for extension in supported_extensions:
+                base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
+                try:
+                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command")
+                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, base_key)
+                except FileNotFoundError:
+                    pass
+        
+            return True
+        
+        except Exception:
+            return False
+
+
+
+    def macos_workflow_shell_script(self) -> str:
+        
+        """
+        Constructs the context menu command for MacOS
+        
+        """
+
+        python = shlex.quote(str(Path(sys.executable).resolve()))
+        
+        cmd = ('for data_file_path in "$@"'
+               'do'
+             """  /usr/bin/osascript - "$filePath" <<'APPLESCRIPT'"""
+               'on run argv'
+               '  set filePath to item 1 of argv'
+              f'  set commandText to "{python} -m xleda wb " & quoted form of filePath & "; echo; read -n 1 -s -r -p " & quoted form of "Press any key to close this window..."'
+               '  tell application "Terminal"'
+               '    activate'
+               '    do script commandText'
+               '  end tell'
+               'end run'
+               'APPLESCRIPT'
+               'done')
+        
+        return cmd
+
+
+    def macos_workflow_document(self) -> dict:
+        
+        """
+        Constructs the context menu workflow for MacOS
+        
+        """
+        
+        return {
+            "AMApplicationBuild": "523",
+            "AMApplicationVersion": "2.10",
+            "AMDocumentVersion": "2",
+            "actions": [
+                {
+                    "action": {
+                        "AMAccepts": {
+                            "Container": "List",
+                            "Optional": False,
+                            "Types": ["com.apple.cocoa.path"],
+                        },
+                        "AMActionVersion": "2.0.3",
+                        "AMApplication": ["Automator"],
+                        "AMParameterProperties": {},
+                        "AMProvides": {
+                            "Container": "List",
+                            "Types": ["com.apple.cocoa.path"],
+                        },
+                        "ActionBundlePath": "/System/Library/Automator/Run Shell Script.action",
+                        "ActionName": "Run Shell Script",
+                        "ActionParameters": {
+                            "COMMAND_STRING": self.macos_workflow_shell_script(),
+                            "CheckedForUserDefaultShell": True,
+                            "inputMethod": 1,
+                            "shell": "/bin/zsh",
+                            "source": "",
+                        },
+                        "BundleIdentifier": "com.apple.RunShellScript",
+                        "CFBundleVersion": "2.0.3",
+                    },
+                    "isViewVisible": True,
+                }
+            ],
+            "connectors": {},
+            "workflowMetaData": {
+                "applicationBundleIDsByPath": {"/System/Library/CoreServices/Finder.app": "com.apple.finder"},
+                "applicationPaths": ["/System/Library/CoreServices/Finder.app"],
+                "inputTypeIdentifier": "com.apple.Automator.fileSystemObject",
+                "outputTypeIdentifier": "com.apple.Automator.nothing",
+                "presentationMode": 15,
+                "processesInput": True,
+                "serviceApplicationBundleID": "com.apple.finder",
+                "serviceApplicationPath": "/System/Library/CoreServices/Finder.app",
+                "serviceInputTypeIdentifier": "com.apple.Automator.fileSystemObject",
+                "serviceOutputTypeIdentifier": "com.apple.Automator.nothing",
+                "serviceProcessesInput": True,
+            },
+        }
+
+
+
+
+    def install_macos_context_menu(self) -> bool:
+
+        """
+        Installs the context menu on MacOS
+        
+        Returns
+        -------
+        bool
+            A boolean indicating success
+
+        """
+        
+        import plistlib
+        
+        service_path = Path.home() / "Library" / "Services" / self.macos_service_name
+        contents_path = service_path / "Contents"
+        
+        
+        try:
+            contents_path.mkdir(parents=True, exist_ok=True)
+
+            info = {
+                "CFBundleIdentifier": "com.infodesigner.xleda.create-workbook",
+                "CFBundleName": "Create xleda Workbook",
+                "CFBundlePackageType": "FMWK",
+                "NSServices": [
+                    {
+                        "NSMenuItem": {"default": "Create xleda Workbook"},
+                        "NSMessage": "runWorkflowAsService",
+                        "NSRequiredContext": {"NSApplicationIdentifier": "com.apple.finder"},
+                        "NSSendFileTypes": [
+                            
+                            # Text Data Formats
+                            "public.comma-separated-values-text",  # .csv
+                            "public.json",                        # .json
+                            "public.xml",                         # .xml
+                            
+                            # Excel Formats
+                            "org.openxmlformats.spreadsheetml.sheet",               # .xlsx
+                            "com.microsoft.excel.xls",                              # .xls
+                            "org.openxmlformats.spreadsheetml.sheet.macroenabled",  # .xlsm
+                            "com.microsoft.excel.sheet.binary.macroenabled",        # .xlsb
+                            
+                            # Databases
+                            "org.sqlite.sqlite3",                 # .sqlite, .sqlite3
+                            "public.database",                    # .db, .db3, .s3db, .sl3
+                            
+                            # Big Data & Custom Catch-all
+                            "public.data"                         # .parquet, .feather, .duckdb, .ddb, .rdata, '.pkl', '.pickle', '.pck'
+                        ],
+                        "NSSendTypes": ["NSFilenamesPboardType"],
+                    }
+                ],
+            }
+            with (contents_path / "Info.plist").open("wb") as f:
+                plistlib.dump(info, f)
+
+            with (contents_path / "document.wflow").open("wb") as f:
+                plistlib.dump(self.macos_workflow_document(), f)
+
+            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+            return True
+        
+        except Exception:
+            return False
+
+
+    def uninstall_macos_context_menu(self) -> bool:
+
+        """
+        Uninstalls the context menu on MacOS
+        
+        Returns
+        -------
+        bool
+            A boolean indicating success
+
+        """
+
+        try:
+            service_path = Path.home() / "Library" / "Services" / self.macos_service_name
+            if service_path.exists():
+                import shutil
+
+                shutil.rmtree(service_path)
+
+            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+            return True
+        
+        except Exception:
+            
+            return False
+
+
+    def install(self) -> None:
+        
+        """
+        Installs the right-click context menu in either MacOS/Windows
+        
+        """
+
+        if self.env.win:
+            success = self.install_windows_context_menu()       
+            
+        elif self.env.mac:
+            success = self.install_macos_context_menu()
+        
+        if success:
+
+            
+            success_message = (f"{separator}\033[1m\n\nInstalled the xleda right-click menu\033[0m\n\n"
+                            "Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML\n\n"
+                            f"Expected extensions:\n{supported_extensions}\n\n"
+                            "For more documentation, visit https://github.com/InfoDesigner/xleda")
+                    
+            print(success_message)
+
+    def uninstall(self) -> None:
+        
+        """
+        Uninstalls the right-click context menu in either MacOS/Windows
+        
+        """
+
+        if self.env.win:
+            success = self.uninstall_windows_context_menu()
+        elif self.env.mac:
+            success = self.uninstall_macos_context_menu()
+        
+        if success:
+            print("Uninstalled the xleda right-click menu.")
+            
+    
+    def version(self):
+        
+        """
+        Checks for an updated version on PyPi
+        
+        """
+        
+        # Validate compatibility/get settings path
+        env = Environment(version=True)
+        
+        
+        # Use theme color setting to return version information
+        theme = Theme(env=env)
+        theme.print(env.update_msg)

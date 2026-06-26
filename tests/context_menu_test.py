@@ -5,14 +5,16 @@ import pytest
 import sys
 
 from xleda import os_interface
+from xleda.utilities import DataSetParser
 
 
+# TODO: Change these 
 def test_read_dataframe_from_csv(tmp_path: Path):
     csv_path = tmp_path / "sample.csv"
     expected = pd.DataFrame({"a": [1, 2], "b": ["x", "y"]})
     expected.to_csv(csv_path, index=False)
 
-    actual = os_interface.read_data_file(csv_path)
+    actual = DataSetParser(csv_path)
 
     pd.testing.assert_frame_equal(actual, expected)
 

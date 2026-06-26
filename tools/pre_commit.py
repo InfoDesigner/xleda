@@ -12,8 +12,9 @@ xlsm_file = Path(__file__).parent.parent / "src/xleda/xleda_template.xlsm"
 xlsx_file = Path(__file__).parent.parent / "src/xleda/xleda_template.xlsx"
 
 
-shape_collection = {'debug': ['Config'],
-                    'Field Analysis': ['Field Analysis', 'Data Description', 'Composition', 'Summary Stats', 'Percentiles', 'Field Lists', 'Compiled Lists']}
+shape_collection = {
+                    'Field Analysis': ['Field Analysis', 'Data Description', 'Composition', 'Summary Stats', 'Percentiles', 'Field Lists', 'Compiled Lists'],
+                    'Overview':['Debug', 'Dataframes', 'Fields']}
 
 
 
@@ -36,8 +37,6 @@ def convert_template_to_xlsx():
             # Loop through all shapes and delete them
             for shp in shape_collection[sheet]:
                 ws.shapes(shp).delete()
-
-            ws.range("A2").select()
 
         
         # ---------------------------------------------------------------
