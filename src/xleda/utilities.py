@@ -2144,7 +2144,7 @@ class Logger():
         # Convert to dataframe, transpose, set column names, and store
         config_df = pd.DataFrame.from_records([config]).T.astype(str)
         config_df = config_df.reset_index()
-        input.columns = ['Input Argument', 'Value']
+        config_df.columns = ['Input Argument', 'Value']
         
         self.config = config_df
 
