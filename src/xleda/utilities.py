@@ -2310,6 +2310,11 @@ class DataSetParser():
                 # If an http path is provided, download a local copy to use
                 if str_path.startswith(("http://", "https://")):
                     path = self.from_http(str_path)
+                    
+                    # If wb_path hasn't been provided for http data sources, use the cwd
+                    if not settings.wb_path:
+                        settings.wb_path = Path.cwd()
+                    
                 
                 # Otherwise get the local path
                 else:

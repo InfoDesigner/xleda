@@ -22,7 +22,7 @@
 
 * See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br><br>
 <p align="center">
-	<img src="assets/images/top_view.webp"  width="600" alt="Example Top View"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="600" alt="Example Top View"> 
 	<br>
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br>
@@ -109,7 +109,7 @@ xleda uninstall && uv tool uninstall xleda
 
 ## **Quick Start**
 
-Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
 
 ### From a Dataframe
 
@@ -123,6 +123,8 @@ df = sns.load_dataset("titanic")
 # Creates xleda.xlsm in the current directory
 wb(df)
 ```
+
+<br><br>
 
 ### From a File
 
@@ -138,17 +140,22 @@ duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/example
 wb(duckdb_file)
 ```
 
+<br><br>
+
 ### From the CLI
 
 ```bash
-# Creates 'my_parquet_file.xlsm' in the current directory
-xleda wb 'my_parquet_file.parquet'
+
+# Creates 'userdata.xlsm' in the current directory
+xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
 ```
+
+<br><br>
 
 ### From Right-Clicking
 
 <p align="left">
-  <img src="assets/images/from_right_click.webp" width="600" alt="From right-click">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/from_right_click.webp?raw=true" width="600" alt="From right-click">
 </p><br><br>
 
 ## **xleda Components**
@@ -170,7 +177,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
             <p align="left">
               <br>
               <img
-                src="assets/images/field_analysis_anatomy.webp"
+                src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true"
                 width="600"
                 alt="Field Analysis Anatomy"
               />
@@ -196,7 +203,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
           <p align="left">
             <br>
             <img
-              src="assets/images/overview_anatomy.webp"
+              src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true"
               width="800"
               alt="Overview Anatomy"
             />
@@ -288,7 +295,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         </ul>
         <p align="center"><br>
           <img
-            src="assets/images/theme_colors.webp"
+            src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme_colors.webp?raw=true"
             width="800"
             alt="Theme Colors"
           /><br>
@@ -523,7 +530,7 @@ Full export sources data from the workbook when possible
 * It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).
 
 <p align="center">
-	<img src="assets/images/completed_field_analysis.webp" width="800" alt="Completed Field Analysis">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
 	<br>
 	<em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
 </p>
@@ -578,7 +585,7 @@ print(export_dicts[0].keys())
             <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
           </ul>
           <p align="center">
-            <img src="assets/images/field_lists.webp" width="800" alt="Field Lists">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
             <br>
             <em>Easily create lists of fields in your data.</em>
           </p>
@@ -704,12 +711,12 @@ print(export_dicts[0].keys())
         <table>
           <tr>
             <td align="center">
-              <img src="assets/images/top_view.webp" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use headings like web pages to navigate with VBA.</em>
             </td>
             <td align="center">
-              <img src="assets/images/row_groupings.webp" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use row groupings to navigate without VBA.</em>
             </td>
