@@ -1,83 +1,90 @@
+from __future__ import annotations
+
+# Base imports
 import pandas as pd
 from pathlib import Path
 import ast
-import sys
 import time
-
+import typer
 from tqdm.auto import tqdm
+
 from matplotlib.figure import Figure
 import xlwings as xw
 
-from .utilities import (Environment, Config, Theme, Plotter,
-                        Blueprint, ExportDict, PerformanceLogger)
 
-
-
-# -------------------------------------------------
-# Set primary vars/config
+from .utilities import (Environment, Template, Theme, Plotter, DataSet, DataSetParser, ExportDict, 
+                        Logger, CLI, Settings, help_message, TemplateError)
 
 
 separator = "\n" + ("-" * 100)
 
 
 
+
+
+# -------------------------------------------------------
+# Primary class
+
+
 class wb():
 
     """
-        A class that represents an xleda workbook.
+    A class that represents an xleda workbook.
 
     """
 
-    def __init__(self, 
-                 input_df: pd.DataFrame, 
-                 name: str = 'xleda', 
-                 theme_color: str = "#262626", 
-                 add_plots: dict[str, Figure] = {},
-                 add_dfs: dict[str, pd.DataFrame] = {},
-                 large_report: bool = False, 
-                 overwrite: bool = False, 
-                 wb_path: Path | str = Path().cwd(),
-                 open_wb: bool = True,
-                 no_vba: bool = False,
+    def __init__(self,
+                 data: pd.DataFrame | str | Path | dict[str, pd.DataFrame] | None = None,       
+                 # Every other argument is keyword only
+                 *,
+                 file_name: str = 'xleda',
+                 theme_color: str = "",
+                 plots: dict[str, Figure] = {},
+                 
                  export: bool = False,
                  debug: bool = False,
-                 ) -> None:
-
+                 large_report: bool = False,
+                 overwrite: bool = False,
+                 wb_path: str | Path = '',
+                 open_wb: bool = True,
+                 no_vba: bool | None = None,
+                 
+                 # TODO: Remove this on 8.18
+                 input_df: pd.DataFrame | None = None) -> None:
         """
         Creates an xleda workbook
 
         Parameters
         ----------
 
-        input_df : pd.DataFrame
-            * A pandas dataframe of any size.  
-            * Will create an xleda workbook that is 25,000 rows/50 columns by default.  
-            * Use large_report=True to expand this to Excel's limits.
+        data : pd.DataFrame | str | Path | dict[str, pd.DataFrame]
+            * Options:
+                * A pandas dataframe
+                * A str or Path to a supported data file
+                * Dictonary of pandas dataframes in '{'df1_name': df1, ...}' format
+                * Defaults to limit each provided dataframe to a sample of 25,000 rows/first 50 columns
 
-        name : str
-            * Name of the workbook to be created.
-
+        file_name : str
+            * File name of the workbook to be created.
+            * Defaults to:
+                * The name of the file provided for 'wb_path' or 'data'
+                * The first key if a dict[str, pd.DataFrame] argument is provided for 'data'
+                * 'xleda' if neither option above is valid
+                
         theme_color : str, optional
             * A hexidecimal color used for charts/accent color.  
-            * Use theme_color='random' for random colors
+            * Use theme_color='random' for random colors.
+            * Changing this setting changes the default color.
             * Defaults to "#262626"
 
-        add_plots : dict[str, Figure], optional
-            * Additional plots to be included 
-            * Uses "{'plot1_name': Plot1Figure, 'plot2_name': Plot2Figure, ...}" format.  
+        plots : dict[str, Figure], optional
+            * Additional plots to be included in "{'plot1_name': Plot1Figure, ...}" format.  
             * Each entry will get it's own worksheet.  
             * No resizing or syling is done for plots added this way
             * Defaults to None
 
-        add_dfs : dict[str, pd.Dataframe], optional
-            * Additional dataframes to be included
-            * Creates Field Analyis/Overview worksheets for each additional df
-            * Uses "{'df1_name': df1, 'df2_name': df2, ...}" format.  
-            * Each df will get it's own entry in export_dicts.
-            * Defaults to None
-
         large_report : bool, optional
-            * Used to override default limits of 25,000 rows/50 columns. 
+            * This flag overrides the default limits of 25,000 rows/50 columns
             * Sets limits to 1,000,000 rows/16,000 columns
             * Defaults to False
 
@@ -86,7 +93,7 @@ class wb():
             * Defaults to False
 
         wb_path : Path | string, optional
-            * String or Pathlib path of a directory or file
+            * String or Pathlib path
             * If a directory is provided, the workbook will be created in that directory.
             * If a file name ending in ".xlsm" or ".xlsx" is provided, 
                 it will either create that file or export from that file, 
@@ -94,1026 +101,329 @@ class wb():
             * Defaults to current working directory
 
         no_vba : bool, optional
-            * Will create the workbook as an xlsx file that has no VBA.
+            * Will create the workbook as a '.xlsx' file that has no VBA.
+            * Providing a 'wb_path' argument with a '.xlsx' extension has the same effect.
+            * Changing this setting changes the default.
             * Defaults to False
             
         open_wb: bool, optional
             * Whether to open the workbook after creating.  
-            * Set to False if creating multiple workbooks.
+            * Useful if creating multiple workbooks.
             * Defaults to True
 
         export: bool, optional
             * Exports data from an xleda workbook instead of creating one.
-            * Exported data is available through wb().export_dict
+            * Exported data is available through wb().export_dicts
             * Defaults to False
             * Export includes the follwing fields for each provided dataframe
-
                 * `description`: Dataframe description if you've added one
                 * `definitions`: Any field definitions you've added.
                 * `notes`: Any field notes you've added
                 * `lists`: Any lists showing in the compiled lists section
                 * 'field_metadata': A basic metadata dataframe, combining information from 
                                     pandas info/describe/quantile.
-                * 'overview_metadata': A transposed copy of the field_metadata.
-                * `source_data`: A copy of your unaltered source data that includes 
-                                `Record Hash`/`Record List`/`HasBlank` columns.
-                * `altered_source_data`: source data from the workbook that includes 
-                                         any manual edits you've made such as removing 
-                                         records, renaming fields, etc. 
-                                         
-                                         ** Note that data types will likely change in the round-trip translation. **
+                * 'df_overview': df metadata exported from the Overview worksheet.
+                * 'field_overview': Field overview metadata exported from the Overview worksheet.
+                * `source_data`: Source data exported from the workbook that includes any manual edits you've 
+                                 made such as removing records, renaming fields, etc. 
+                ** Note that data types will likely change in the round-trip translation. **
 
         debug: bool, optional
-            * Shows the workbook being created                          
+            * Shows the workbook being created
+            
+            
+        input_df: pd.DataFrame, optional
+            * A placeholder to retain backwards compatibility for the new 'data' argument
 
         """
 
         # ------------------------------------------------------------------------------
-        # Configure xleda
+        # Create Base Components
 
 
+        # Initialize logger
+        self.logger = Logger()
+        
+        
         # Initialize/Check Environment
         self.env = Environment()
-
-
-
-        # Initialize logger/log input variables
-        self.logger = PerformanceLogger(input_args=locals().copy(),
-                                        env=self.env)
-
-
-        # Intialize theme
-        self.theme = Theme(theme_color,
-                           env=self.env)
-
-        # Intialize plotter
-        self.plotter = Plotter(theme=self.theme,
-                               env=self.env)
-    
-
-        # Intialize Config
-        self.cfg = Config(wb_path=wb_path,
-                          input_df=input_df,
-                          theme=self.theme,
-                          env=self.env,
-                          debug=debug,
-                          large_report=large_report,
-                          overwrite=overwrite,
-                          no_vba=no_vba,
-                          name=name,
-                          add_plots=add_plots,
-                          add_dfs=add_dfs,
-                          open_wb=open_wb)
         
 
-        # Set placeholder vars
-        self.blueprints: list[Blueprint] = self.cfg.blueprints
-        self.export_dicts: list[ExportDict] = [ExportDict(bp) for bp in self.blueprints]
-    
-       
+        # Create/update settings
+        self.settings = Settings(locals=locals(),
+                                 env=self.env)
+
+        
+        # Intialize theme
+        self.theme = Theme(settings=self.settings)
+        
+        
+        # Intialize plotter
+        self.plotter = Plotter(settings=self.settings)
+
+        
+        # ------------------------------------------------------------------------------
+        # Initial Output, Prepare Datasets/Template
+        
+        
+        # Print initial text/progress bar
+        self.logger.print_initialization_msg(wb=self)
+        pbar = self.theme.create_progress_bar(desc="Initializing wb Components...", total=10)
+        
+        # Prepare datasets
+        self.datasets: list[DataSet] = DataSetParser(settings=self.settings).datasets
+        pbar.update(2) # 2
+        
+
+        # Add initial export dicts
+        self.export_dicts: list[ExportDict] = [ExportDict(ds) for ds in self.datasets]
+        pbar.update(2) # 4
+
+
+        # Create Template
+        self.template = Template(wb=self)
+        pbar.update(2) # 6
+      
+        
 
         # ------------------------------------------------------------------------------
         # Either create a workbook or export
 
         if export:
-            self._export_analysis()
-        else:
-            self._assemble_wb()
+            self._export_analysis(progress_bar=pbar)
+        else:            
+            self._assemble_wb(progress_bar=pbar)
 
 
 
-
-    def _assemble_wb(self):
+    def _assemble_wb(self, progress_bar: tqdm):
         
         """
         Assembles an xleda workbook
 
         """
         
-        # --------------------------------------------------   
-        # Construct/print entry message
+        # -------------------------------------------------
+        # Set vars
         
 
-        entry_message = separator
+        template = self.template
+        datasets = self.datasets
+        plots = self.settings.plots
+        debug = self.settings.debug
+        logger = self.logger
+        theme = self.theme
 
-        if self.cfg.name == 'xleda':
-            entry_message += f"\nPreparing an xleda workbook located at:\n    {self.cfg.path}\n"
-        else:
-            entry_message += f"\nPreparing an xleda workbook with {self.blueprints[0].title}"
-            entry_message += f" data located at:\n    {self.cfg.path}"
-
-        entry_message += (f"\n\nProcess started at {time.strftime('%H:%M:%S')}\n")
-
-        # Print entry message
-        self.theme.print(entry_message)
+        num_datasets = len(datasets)
+        num_columns = sum([ds.columns for ds in datasets])
+        num_plots = len(plots)
         
+        progress_bar.update(2) # 8
 
-        # --------------------------------------------------
-        # Create the template and initial progress bar
-        
-        total_iteratons = 7 + (len(self.blueprints[1:])) + (2*len(self.blueprints))
-        pbar = self.theme.create_progress_bar(desc="Creating Workbook...",
-                                              total=total_iteratons)
-        self.cfg.create_blank_template(progress_bar=pbar)
-        
 
 
         # --------------------------------------------------
-        # Open Excel using a context manager to while creating the workbook
+        # Open/Prepare the Template with a Context Manager
 
-        with xw.App(visible=self.cfg.debug, add_book=False) as app:
+        with xw.App(visible=debug, add_book=False) as app:
 
-            
-            
+
             # Set vars, open workbook
-            book = app.books.open(self.cfg.path, read_only=False)
+            book = app.books.open(template.path, read_only=False)
+            template.add_book(book=book)
             
-            app.display_alerts = self.cfg.debug
-            app.screen_updating = self.cfg.debug
-            self.book = book
-            pbar.update(2)
-
-            
+            # Close progress bar/Add Init Log
+            progress_bar.update(2) # 10
+            progress_bar.close()
+            self.logger.log(section='Initializing wb Components')
             
 
-            # Create placeholder worksheets
-            self._create_worksheets(progress_bar=pbar)
-            self.logger.log(log_type='section',
-                            details={'Production Section': 'Creating Workbook',
-                                     'Production Time in Seconds': time.time() - self.logger.start})
+            app.display_alerts = debug
+            app.screen_updating = debug
             
-            
-            # Configure field analyses worksheets
-            self._configure_field_analyses(progress_bar=pbar)
-            self.logger.log(log_type='section',
-                            details={'Production Section': 'Configure Template',
-                                     'Production Time in Seconds': ''})          
-            pbar.close()
-
-
-
             # --------------------------------------------------
             # Adding Data
+            
+            with theme.create_progress_bar(desc="Adding Data...",
+                                           total=5 + (6 * num_datasets)) as pbar:
+            
 
-            with self.theme.create_progress_bar(desc="Adding Data...", 
-                                                total=8*len(self.blueprints)) as pbar:
-                
-                
-                # Add field metadata
-                self._add_field_metadata(progress_bar=pbar)
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Adding Field Metadata',
-                                         'Production Time in Seconds': ''})
-                
+                # Create placeholder worksheets
+                self.template.add_worksheets(progress_bar=pbar) # length of datasets + 1
 
+
+                # Add field analysis worksheets
+                template.add_field_analyses(progress_bar=pbar) # length of datasets * 5
+                
+                
                 # Add overview
-                self._add_overview(progress_bar=pbar)
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Adding Overview',
-                                         'Production Time in Seconds': ''})
+                template.add_overview(progress_bar=pbar) # 4
                 
-
-                # Add source data
-                self._add_source_data(progress_bar=pbar)
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Adding Source Data',
-                                         'Production Time in Seconds': ''})
+                # Close section log
+                logger.log(section='Adding Data')
 
 
 
             # --------------------------------------------------
             # Adding Plots
             
-            total_iteratons = sum([bp.columns for bp in self.blueprints]) + len(self.cfg.additional_plots)
-            with self.theme.create_progress_bar(desc="Adding Plots...",
-                                                total=total_iteratons) as pbar:
+            # Once for each dataset/plot/column            
+            with theme.create_progress_bar(desc="Adding Plots...",
+                                           total=num_datasets + num_plots + num_columns) as pbar:
             
                 # Adds additional plots
-                if self.cfg.additional_plots:
-                    self._add_additional_plots(progress_bar=pbar)
+                if plots:
+                    template.add_plot_sheets(progress_bar=pbar)
 
-
-                self._add_plots(progress_bar=pbar)
+                # Add plots for all fields
+                template.add_plots(progress_bar=pbar)
                 
                 
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Adding Plots',
-                                         'Production Time in Seconds': ''})
+                logger.log(section ='Adding Plots')
+
 
 
             # --------------------------------------------------
-            # Configuring Workbook
+            # Clean up and close logs
 
-            total_iteratons = 8 + len(self.blueprints)
+            
+            # Close logs
+            logger.close(wb=self)
 
-            with self.theme.create_progress_bar(desc="Configuring Workbook...", 
-                                                total=total_iteratons) as pbar:
+            # Add logging to workbook
+            template.add_debug()
 
-                self._configure_pivot(progress_bar=pbar)
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Configure Pivots',
-                                         'Production Time in Seconds': ''})
-
-                self._initialize_ui(progress_bar=pbar)
-                self.logger.log(log_type='section',
-                                details={'Production Section': 'Configuring Workbook',
-                                         'Production Time in Seconds': ''})
-                
-
-                # Add production time to log
-                self.logger.total_production_time = time.time() - self.logger.start
-                
-                # Add performance_metadata log
-                self.logger.log(log_type='performance_metadata',
-                                details={'Dataframes Included': len(self.blueprints),
-                                         'Plots Included': len(self.cfg.additional_plots) + len(self.logger.performance_logs['plots']),
-                                         'Columns Included': sum([bp.columns for bp in self.blueprints]),
-                                         'Rows Included': sum([bp.rows for bp in self.blueprints]),
-                                         'Production Time': self.logger.total_production_time})
-                
-                pbar.update(1)
-                
-                
-                # Close logs and write to workbook
-                self.logger.close(blueprints=self.blueprints,
-                                  additional_plots=len(self.cfg.additional_plots))
-                
-                self._add_debug()
-
-                pbar.update(1)
-
-
-                # --------------------------------------------------
-                # Restore app configuration, save workbook, close Excel
-
+            # Restore app settings
+            app.display_alerts = True
+            app.screen_updating = True
                         
-                # Set focus to primary field analysis worksheet
-                book.sheets(self.blueprints[0].field_analysis).activate()
-
-                # Restore app settings
-                app.display_alerts = True
-                app.screen_updating = True
-                
-                
-                # Save/exit context manager
-                book.save(self.cfg.path)
-               
-                pbar.update(1)
-
-
+            # Save/exit context manager
+            book.save(template.path)
+            
+            # Wait 2 seconds to ensure it saves to disk fully before exiting context manager
+            time.sleep(2)
+            
+            # Provide an output message
+            theme.print(f"\nProcess completed in {int(self.logger.total_production_time)} seconds")
+            
 
         # --------------------------------------------------
-        # Compile closing messsage
-
-        exit_msg = self.cfg.exit_msg
+        # Reopen the workbook in a new context manager if needed
         
-        exit_msg = f"\n\nxleda workbook created in {int(self.logger.total_production_time)} seconds.\n"
-
         
-        # Create a new Excel instance for usage
-        if self.cfg.open_wb:
-
-
+        if self.settings.open_wb:
+            
             app = xw.App(visible=True, add_book=False) 
-            book = app.books.open(self.cfg.path)
-
+            book = app.books.open(template.path)
 
 
 
         # ----------------------------------------------------------------------------------
-        # Construct output messaging
-
-
-        # Note additional plots
-        if self.cfg.additional_plots:
-            
-            exit_msg += "Additional plots included:"
-            
-            for plot in self.cfg.additional_plots:
-                exit_msg += f"    {plot['title']}\n"
+        # Print closing messsage
         
-   
-        # Note additional DFs
-        if len(self.blueprints) > 1:
-            
-            exit_msg += "\nAdditional dataframes included:\n"
-            
-            for df_title in [bp.title for bp in self.blueprints[1:]]:
-                exit_msg += f"    {df_title}\n"
 
+        exit_msg = self.logger.exit_msg
+        
+
+        # Note dataframes          
+        dataframes = ", ".join([ds.name for ds in datasets])
+        exit_msg += f"\nDataframes included:\n    {dataframes}"
+
+        # Note plots
+        if plots:
+            
+            plots = (", ").join(plots.keys())
+            exit_msg += f"\n\nAdditional plots included:\n    {plots}"
+
+        exit_msg += f"\n\nWorkboook is located at:\n {self.template.path}"
 
         # Print closing message
         self.theme.print(exit_msg + '\n' + separator)
     
 
 
-    def _create_worksheets(self, progress_bar: tqdm):
 
-        """
-        Creates worksheets for any additional dataframes
-
-        """
-
-        book = self.book
-        
-        # -----------------------------------------------------------------
-        # Validate template worksheets are present
-
-        expected_sheets = ['Field Analysis', 'Overview', 'Pivot', 'debug', 'SinglePlot', 'MultiplePlots']
-        actual_sheets = [sht for sht in expected_sheets if sht in book.sheet_names]
-        missing_sheets = [sht for sht in expected_sheets if sht not in book.sheet_names]
-
-        if expected_sheets != actual_sheets:
-            self.theme.warn_print(f"Template has been modifed, the following worksheets are missing\n    {missing_sheets}")
-            sys.exit()
-
-
-        # If there are additonal dataframes, add worksheets for them
-        if len(self.blueprints) > 1:
-
-            for i, bp in enumerate(self.blueprints[1:]):
-                        
-                # Copy the sheet, rename the table
-                book.sheets('Field Analysis').copy(name=bp.field_analysis)
-                book.sheets(bp.field_analysis).tables[0].name = f'tbl_SourceData_{bp.name.replace(" ","")}'
-
-                # Copy the sheet, rename the table
-                book.sheets('Overview').copy(name=bp.overview)
-                book.sheets(bp.overview).tables[0].name = f'tbl_Overview_{bp.name.replace(" ","")}'
-                
-                # Add a color gradient to the tabs to distinguish among them
-                self.theme.greyscale_tabs(bp=bp,
-                                          book=self.book,
-                                          iteration=i,
-                                          config=self.cfg)
-        
-                progress_bar.update(1)
-
-        
-        # Care for the default worksheets
-        bp = self.blueprints[0]
-
-
-        book.sheets("Field Analysis").name = bp.field_analysis
-        book.sheets("Overview").name = bp.overview
-        book.sheets("Pivot") .name = bp.pivot
-
-        progress_bar.update(1)
-
-
-    def _configure_field_analyses(self, progress_bar: tqdm):
-
-        """
-        Configures all Field Analysis worksheets
-
-        """
-
-        
-        for bp in self.blueprints:
-
-            # --------------------------------------------------
-            # Set variables
-
-            book = self.book
-            ws = book.sheets(bp.field_analysis)
-            ws.activate()
-
-
-            # --------------------------------------------------
-            # Format metadata placeholders
-
-            # Set worksheet theme/name
-            self.cfg.expand_range(name="Theme", ws=ws, columns=bp.columns + 2)
-            self.theme.set_theme(ws.range("Theme"))
-            ws.range("Name").value = bp.title
-
-
-
-            columns_to_format = bp.columns -3
-            if columns_to_format > 0:
-                format_from = ws.range("FormatRange")
-                format_to = (ws.range("FormatRange").offset(0, 1).resize(None, columns_to_format))
-                format_from.copy()
-                format_to.paste()
-
-            # Clear clipboard and move selection back to upper left
-            book.app.cut_copy_mode = False
-            
-            # Add all header values except Record List
-            headers = bp.source_data.columns.to_list()[1:]
-            ws.range("Headers_Start").value = headers
-            
-            
-            progress_bar.update(1)
-
-
-
-            # --------------------------------------------------
-            # Adjust Named Ranges to fit dataframe size
-            
-
-            # Expand named ranges to fit number of columns and set input prompt for notes/definitions
-            expand_ranges = (["FieldList" + str(i) for i in range(1, 9)] + ["FieldRange", "Notes", "Definitions", "Headers"])
-
-            for name_range in expand_ranges:
-                
-                self.cfg.expand_range(name=name_range, 
-                                      ws=ws, 
-                                      columns=bp.columns)
-
-                # Add placeholder values if necessary.
-                if name_range in ["Notes", "Definitions"]:    
-                    ws.range(name_range).value = name_range[:-1]
-
-                elif name_range.startswith("FieldList"):
-                    ws.range(name_range).value = "FALSE"
-
-
-            # Set FieldLists range so that it also includes the names on the left
-            # Used to recreate completed examples
-            self.cfg.expand_range(name="FieldLists", 
-                                  ws=ws, 
-                                  columns=bp.columns + 1)
-
-
-            # Show/Hide Data Size Warning
-            if bp.warning:
-                
-                ws.range("Warning").value = bp.warning_msg
-                self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
-
-            progress_bar.update(1)
-
-
-
-    def _add_field_metadata(self, progress_bar: tqdm):
-
-        """
-        Adds field metadata to all Field Analysis worksheets
-
-        Parameters
-        ----------
-
-        progress_bar
-            A tqdm progress bar object
-        
-        """
-
-
-
-        for bp in self.blueprints:
-
-            # --------------------------------------------------
-            # Set variables
-
-            df = bp.field_metadata
-            book = self.book
-            ws = book.sheets(bp.field_analysis)
-            ws.activate()
-
-
-
-            # --------------------------------------------------
-            # Add basic metadata
-
-            # Add Data Description metadata
-            ws.range("Dimensions").options(transpose=True).value = list(bp.df_metadata.values())
-            
-            progress_bar.update(1)
-
-
-
-
-            # --------------------------------------------------
-            # Split base analysis into Field Analysis sections
-
-            composition_df = df.loc[["Data type", "Distinct %", "Missing %", "Memory Usage %", "Memory Usage", "Distinct", "Count", "Missing"]]
-            summary_stats_df = df.loc[["Mean", "Median", "Mode", "Standard Deviation", "Variance"]]
-            percentiles_df = df.loc[["Min", "5%", "25%", "50%", "75%", "95%", "Max", "Range", "IQR"]]
-
-            progress_bar.update(1)
-
-
-
-            # --------------------------------------------------
-            # Add Field Analysis sections to workbook
-
-            ws.range("Composition")[0, 0].offset(0,1).value = composition_df.values
-            ws.range("Summary_Stats")[0, 0].offset(0,1).value = summary_stats_df.values
-            ws.range("Percentiles")[0, 0].offset(0,1).value = percentiles_df.values
-
-            progress_bar.update(1)
-
-
-
-
-
-
-
-    def _add_overview(self, progress_bar: tqdm):
-
-        """
-        Adds overview_metadata to all Overview worksheets
-        
-        Parameters
-        ----------
-
-        progress_bar
-            A tqdm progress bar object
-        
-        """
-
-
-        for bp in self.blueprints:
-
-
-            # --------------------------------------------------
-            # Set variables and theme
-
-            book = self.book
-            df = bp.overview_metadata
-            ws = book.sheets(bp.overview)
-            overview_table = ws.tables[0]
-
-            col_order = ['Field', 'Definition', 'Field Notes', 'Data type', 'Distinct %', 'Missing %', 'Memory Usage %', 'Memory Usage', 'Distinct', 'Count', 'Count %', 'Missing', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance', 'Min', '5%', '25%', '50%', '75%', '95%', 'Max', 'Range', 'IQR']
-
-
-            # Set name/theme/warning if necessary
-            ws.range("Name").value = bp.title
-            self.theme.set_theme(overview_table.range[0,:])
-
-            # Show/Hide Data Size Warning
-            if bp.warning:
-                ws.range("Warning").value = bp.warning_msg
-                self.cfg.hide_rows(ws.range("Warning"), hide= not bp.warning)
-
-
-
-            # --------------------------------------------------
-            # Configure overview df, reorder columns
-
-            df['Field Notes'], df['Definition'], df['Field'] = None, None, df.index
-            df = df[col_order]
-
-
-            progress_bar.update(1)
-
-
-
-            # --------------------------------------------------
-            # Add metadata/overview table, configure the Field Notes/Definitions columns
-
-            ws.range("Metadata").options(transpose=True).value = list(bp.df_metadata.values())
-            overview_table.update(df, index=False)
-            
-            # -------------------------------------------------------------------------
-            # Add Formulas to pull field definitions, notes into overview table
-            
-            source_ws_name = bp.field_analysis
-            definitions_formula = f'''=IF(INDEX('{source_ws_name}'!Definitions,1,MATCH([@Field],'{source_ws_name}'!Headers,0))="Definition","",INDEX('{source_ws_name}'!Definitions,1,MATCH([@Field],'{source_ws_name}'!Headers,0)))'''
-            notes_formula = f'''=IF(INDEX('{source_ws_name}'!Notes,1,MATCH([@Field],'{source_ws_name}'!Headers,0))="Note","",INDEX('{source_ws_name}'!Notes,1,MATCH([@Field],'{source_ws_name}'!Headers,0)))'''
-
-            overview_table.range[1:, 1][0].formula = definitions_formula
-            overview_table.range[1:, 2][0].formula = notes_formula
-            
-
-
-            progress_bar.update(1)
-
-
-
-
-    def _add_source_data(self, progress_bar: tqdm):
-
-        """
-        Adds source_data to all Field Analysis worksheets
-
-        
-        Parameters
-        ----------
-
-        progress_bar
-            A tqdm progress bar object
-
-        """
-
-
-        for bp in self.blueprints:
-
-            # --------------------------------------------------
-            # Set variables, dtype conversion if necessary
-
-            book = self.book
-            ws = book.sheets(bp.field_analysis)
-            df = bp.source_data
-
-
-            # Convert fields with datatypes that Excel doesn't support to string
-            supported_dtype_columns = df.select_dtypes(include=['number', 'bool', 'datetime64', 'str'], exclude='timedelta').columns
-            unsupported_dtype_columns = [col for col in df.columns if col not in supported_dtype_columns]
-            df[unsupported_dtype_columns] = df[unsupported_dtype_columns].astype(str)
-            
-            progress_bar.update(1)
-            
-
-
-            # --------------------------------------------------
-            # Add source data, format cells in Record List/Record Hash/HasBlank columns
-
-            
-            source_table = ws.tables[0]
-
-
-            # If any unsupported columns prevent writing to Excel, convert to string before writing
-            try:
-                source_table.update(df, index=False)
-            except Exception:
-                self.logger.log(log_type="error", 
-                                details={'Error Type': 'Error writing source data that required string conversion',
-                                         'Detail': bp.name})
-                source_table.update(df.astype(str), index=False)
-
-            progress_bar.update(1)
-
-
-
-            
-            # --------------------------------------------------
-            # Set formatting for tbl_SourceData and added columns
-
-            
-            self.cfg.set_cell_alignment(input_range=source_table.range,
-                                        horizontal='center')
-            record_list = source_table.range[:, :1 ]
-            other_added_columns = source_table.range[:, -3: ]
-
-            # Reduce contrast to subdue added fields
-            for dimmed_range in [record_list, other_added_columns]:
-                self.theme.greyscale_range(dimmed_range)
-
-
-            progress_bar.update(1)
-
-    
-
-    def _add_plots(self, progress_bar: tqdm):
-        
-        """
-        Adds plots to all Field Analysis worksheets
-        
-        Parameters
-        ----------
-
-        progress_bar
-            A tqdm progress bar object
-
-        """
-
-        
-
-      
-        for bp in self.blueprints:
-        
-            # --------------------------------------------------
-            # Set vars, start performance logging
-
-            book = self.book
-            ws = book.sheets(bp.field_analysis)
-            df = bp.source_data.iloc[:, 1:-3]
-                
-
-            # Set initial ranges for added plots and ensure they aren't hidden
-            histogram_range = ws.range("Histogram")
-            composition_range = ws.range("CompositionTable")
-            
-
-            self.cfg.hide_rows(histogram_range, hide=False)
-            self.cfg.hide_rows(composition_range, hide=False)
-
-
-            # --------------------------------------------------
-            # Add plots for all except added columns
-
-            for col in df.columns:
-
-
-                # --------------------------------------------------
-                # Add Composition Table Plot
-
-                composition_table = self.plotter.create_composition_plot(df[col])
-
-                self.plotter.add_small_plot(target_range=composition_range,
-                                            fig=composition_table,
-                                            name=f'composition_{col}')
-
-                if pd.api.types.is_numeric_dtype(df[col]):
-
-
-
-                    # --------------------------------------------------
-                    # Add Histogram Multiple
-
-                    histogram = self.plotter.create_histogram_plot(df[col])
-
-                    self.plotter.add_small_plot(target_range=histogram_range,
-                                                fig=histogram,
-                                                name=f'histogram_{col}')
-
-
-                # --------------------------------------------------
-                # Increment Target Ranges/progress bar
-
-                histogram_range = histogram_range.offset(0, 1)
-                composition_range = composition_range.offset(0, 1)
-                progress_bar.update(1)
-
-
-
-
-
-    def _add_additional_plots(self, progress_bar: tqdm):
-            
-        """
-        Adds additional plot worksheets
-
-        """
-
-        
-        # Set vars
-        book = self.book
-
-
-        # --------------------------------------------------
-        # Add additional plots
-
-
-
-        for plot in self.cfg.additional_plots:
-           
-            
-            # Plots will be added after last primary dataframe sheet
-            after_sheet = self.book.sheets(self.blueprints[0].pivot)
-            
-            # Create a copy of the SinglePlot template, make it visible, set theme
-            ws = book.sheets("SinglePlot").copy(after=after_sheet, name=plot['name'])
-            ws.visible = True
-            self.theme.set_theme(ws.range("Theme"))
-
-            # Set target range, title, and autofit title range
-            plot_range = ws.range("SinglePlot")
-            ws.range("SinglePlotTitle").value = plot['title']
-            ws.range("SinglePlotTitle").columns.autofit()
-            
-            ws.pictures.add(plot['fig'], 
-                            name=plot['name'], 
-                            update=True,
-                            left=plot_range.left, 
-                            top=plot_range.top)
-            
-            
-            progress_bar.update(1)
-
-
-
-
-
-
-    def _configure_pivot(self, progress_bar: tqdm):
-            
-        """
-        Configures the pivot table
-        
-        Parameters
-        ----------
-
-        progress_bar
-            A tqdm progress bar object
-
-        """
-
-
-        # --------------------------------------------------
-        # Set vars/intialize logging
-
-        bp = self.blueprints[0]
-        df = bp.input_df.copy()
-        book = self.book
-
-        # Fields to be added to the pivot tables
-        pivot_fields = df.columns.to_list()[:min(10, bp.columns)]
-        
-
-        if bp.pivot is not None:
-            ws = book.sheets(bp.pivot)
-            ws.activate()
-        
-        progress_bar.update(1)
-
-
-
-        # --------------------------------------------------
-        # Set theme/show warning if necessary
-
-
-        self.theme.set_theme(ws.range("Theme"))
-
-        if bp.warning:
-            ws.range("Warning").value = bp.warning_msg
-            self.cfg.hide_rows(ws.range("Warning"), hide=not bp.warning)
-
-        
-        # Show field limit warning for datasets with >10 columns
-        if len(df.columns) <= 10:
-            ws.range("DefaultWarn").value = ''
-        else:
-            ws.range("DefaultWarn").value = 'Pivots only show first 10 fields by default'
-
-        progress_bar.update(1)
-
-
-
-        # --------------------------------------------------
-        # configure pivot tables and get ranges together
-        
-        # Range of pivot table
-        pivot_range = self.cfg.get_configured_pivot_range(ws=ws,
-                                                          pivot_fields=pivot_fields)
-        # Top row/first column
-        pivot_headers = pivot_range[0,:]            
-        header_column = pivot_range[: , 0]
-        
-        progress_bar.update(1)
-
-            
-            
-        # --------------------------------------------------
-        # Format headers, first column, and column width
-
-        pivot_headers.wrap_text = True
-
-        self.cfg.set_cell_alignment(input_range=pivot_headers,
-                                    horizontal='center',
-                                    vertical='center')
-        
-        self.cfg.set_cell_alignment(input_range=header_column,
-                                    horizontal='left')
-        
-        pivot_range.columns.autofit()
-
-        progress_bar.update(1)
-
-            
-
-        # --------------------------------------------------
-        # Set last three pivot columns width to 13 and center
-
-
-        pivot_range[:, -3:].column_width = 13
-        self.theme.greyscale_range(pivot_range[:, -3:])
-
-        self.cfg.set_cell_alignment(input_range=ws.range(pivot_range[:, -2:].address),
-                                    horizontal='center')
-        
-        progress_bar.update(1)
-            
-
-    def _initialize_ui(self, progress_bar: tqdm):
-                
-        """
-        Prepares all field analyis worksheet UIs
-
-        """
-
-        book = self.book
-
-
-        # Loop through all blueprints and configure Field Analysis worksheets
-
-        for bp in self.blueprints:
-            ws = book.sheets(bp.field_analysis)
-            ws.activate()
-            ws.range('Headers_Start').select()
-
-            # Orient toggles, and collapse subsections
-
-            self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
-            self.cfg.set_text_orientation(input_range=ws.range("TopToggle"), degrees=-90)
-
-            for excel_range in ["Data_Description", "Composition", "Summary_Stats", 
-                                "Percentiles", "Field_Lists", "Compiled_Lists"]:
-                            
-                self.cfg.hide_rows(ws.range(excel_range), hide=True)
-
-            progress_bar.update(1)
-
-            ws.range("A2").select()
-
-
-
-    def _add_debug(self):
-
-        """
-        Configures the debug worksheet
-        
-        """
-        
-        book = self.book
-        ws = book.sheets('debug')
-        ws.activate()
-       
-        
-        # Write debug range
-        ws.range("debug_metadata").options(transpose=True).value = self.logger.performance_metadata.values
-
-
-        # Write debug tables
-        ws.tables("tbl_debug_environment").update(self.logger.env, index=False)
-        ws.tables("tbl_debug_config").update(self.logger.config, index=False)
-        ws.tables("tbl_debug_errors").update(self.logger.errors, index=False)
-        ws.tables("tbl_debug_section").update(self.logger.section_performance, index=False)
-
-
-        # Hide config section and set toggle orientation
-        self.cfg.set_text_orientation(input_range=ws.range("Toggles"))
-        self.cfg.hide_rows(ws.range("Config"), hide=True)
-        
-        
-        # Move sheet to end
-        self.cfg.move_sheet_to_end(sheet=ws, book=self.book)
-
-
-
-
-    def _export_analysis(self):
+    def _export_analysis(self, progress_bar: tqdm):
 
         """
         Exports data from an xleda workbook into self.export_dicts
 
         """
-       
+        
+        # -------------------------------------------------
+        # Set vars
+        
+        template = self.template
+        settings = self.settings
+        theme = self.theme
+        datasets = self.datasets
+        env = self.env
+        logger = self.logger
 
         missing_dfs = []
 
+
+
         # --------------------------------------------------
         # If the file is not found return messaging
-
-        if not self.cfg.path.is_file():
-
-            self.theme.print(f"File not found at {self.cfg.path}\n")
-            self.theme.print("wb().export_dicts will be limited" + separator)
-
-            sys.exit()
-
-
-
-        # --------------------------------------------------
-        # Print starting output
-
-        self.theme.print(separator + f"\nExport started at {time.strftime('%H:%M:%S')}\n")
         
+        
+        # if an http file is passed to wb_path, download a temp copy
+        if str(settings.wb_path).startswith(("http://", "https://")):
+            path = DataSetParser(settings=settings, just_path=True).from_http(str(settings.wb_path))
+        else:
+            path = template.path
+
+        if not path.is_file():
+
+            msg = f"File not found at {template.path}\n"
+            msg +=  "wb().export_dicts will be limited" + separator
+            
+            raise TemplateError(msg)
+        
+        progress_bar.update(2) # 8
 
 
         # --------------------------------------------------
         # Open Excel/export data using a context manager
 
 
-        with xw.App(visible=self.cfg.debug, add_book=False) as app:
+        with xw.App(visible=settings.debug, add_book=False) as app:
             
-            app.display_alerts = self.cfg.debug
-            app.screen_updating = self.cfg.debug
-           
+            app.display_alerts = False
+            app.screen_updating = settings.debug
+                        
+            
+            # Close the initial progress bar
+            progress_bar.update(2) # 10
+            progress_bar.close()
+            
 
-            with self.theme.create_progress_bar(desc="Reading workbook...",
-                                                total=4 + (2 * len(self.blueprints))) as pbar:
+
+            with theme.create_progress_bar(desc="Reading workbook...",
+                                           total=4 + (2 * len(datasets))) as pbar:
                               
                 pbar.update(2)
-
-                try:
-                    wb = app.books.open(self.cfg.path)
-                    pbar.update(2)
-
-                except FileNotFoundError:
-                    self.theme.print(f"File not found at {self.cfg.path}")
-                    sys.exit()
+                book = app.books.open(path, read_only=True)
+                pbar.update(2)
 
                 
-                for bp in self.blueprints:
+                for ds in datasets:
 
                     definitions = {}
                     notes = {}
                     lists = {}
 
-
-
-                    
-                    if bp.field_analysis in wb.sheet_names:
-                        ws = wb.sheets(bp.field_analysis)
+                    if ds.name in book.sheet_names:
+                        ws = book.sheets(ds.name)
                     else:
 
-                        missing_dfs.append(bp.name)
+                        missing_dfs.append(ds.name)
+                        pbar.update(2)
                         
                         continue
                    
+
 
                     # --------------------------------------------------
                     # Export lists/notes/definitions from workbook
@@ -1168,115 +478,112 @@ class wb():
 
 
                     # --------------------------------------------------
-                    # Extract altered_source_data
+                    # Extract source_data, df_overview, field_overview
                     
-                    bp.altered_source_data = ws.tables(1).range.options(pd.DataFrame, index=False).value
+                    ds.source_data = ws.tables[ds.table_name].range.options(pd.DataFrame, index=False).value     
+                    ds.df_overview = book.sheets("Overview").tables["tbl_DfOverview"].range.options(pd.DataFrame, index=False).value
+                    ds.field_overview = book.sheets("Overview").tables["tbl_FieldOverview"].range.options(pd.DataFrame, index=False).value
+                    
 
-                    
 
                     # --------------------------------------------------
                     # Prepare exports
 
                     # Add export properties
-                    bp.description = description
-                    bp.definitions = definitions
-                    bp.notes = notes
-                    bp.lists = lists
+                    ds.description = description
+                    ds.definitions = definitions
+                    ds.notes = notes
+                    ds.lists = lists
         
                     pbar.update(1)
             
+            
+
+            # Restore app settings before exiting the context manager
             app.display_alerts = True
             app.screen_updating = True
 
 
-        # Add an ExportDict object for each dataframe into self.export_dicts
-        self.export_dicts = [ExportDict(bp) for bp in self.blueprints]
 
-        
+        # Add an ExportDict object for each dataset into self.export_dicts
+        self.export_dicts = [ExportDict(ds) for ds in datasets]
+
+
 
         # --------------------------------------------------
         # Print closing output
         
         
+        # Note any datframes that weren't exported
         if missing_dfs:
             
-            self.theme.warn_print("\nExports for the following dataframes were not found:\n")
+            env.warn_print("\nThe following worksheets were not found and are using default metadata:\n")
             for sht in missing_dfs:
-                self.theme.warn_print(f"    {sht}")
+                env.warn_print(f"    {sht}")
                         
 
-        duration = time.time() - self.logger.start
-        self.theme.print(f"\nExport completed after {int(duration)} seconds" + separator)
+        duration = time.time() - logger.start
+        theme.print(f"\nExport completed after {int(duration)} seconds" + separator)
 
 
-
-
-
-
-
-
-
-    
-    
-
-
-
-
-class FieldAnalysis(wb):
-
-    """
-    Class representing a FieldAnalysis object
-    
-    """
-    def __init__(self, input_df: pd.DataFrame, export: bool = False, **kwargs) -> None:
-
-        """ 
-        A placeholder for legacy FieldAnalysis support.
-
-        Creating a separate Field Analysis configuration is no longer required.
         
-        Use xleda.wb to both configure and create a workbook
-             
-        """
-        self.theme.warn_print(separator + 
-              "\nCreating a separate Field Analysis configuration is no longer required.\n"
-              "Use xleda.wb to both configure and create a workbook\n" + separator)
-
-        super().__init__(input_df=input_df,
-                         **kwargs)
-
-
-    def create_workbook(self):
-
-        """
-        FieldAnalysis() has been replaced by wb()
         
-        Use xleda.wb() to both configure and create a workbook
-
-        """ 
-
-        self.theme.print(separator + "FieldAnalysis() has been replaced by wb()")
-        self.theme.print("\nUse xleda.wb() to both configure and create a workbook")
+# -------------------------------------------------
+# CLI
 
 
-    
-    def export_analysis(self) -> list[ExportDict]:
+# Construct typer app and layout primary commands
+cli = typer.Typer(epilog=help_message, rich_markup_mode="markdown")
+
+
+
+@cli.command()
+def install():
+    """Installs the right-click context menu."""
+    app = CLI() 
+    app.install()
+
+
+
+@cli.command()
+def uninstall():
+    """Uninstalls the right-click context menu."""
+    app = CLI() 
+    app.uninstall()
+
+
+
+@cli.command()
+def version():
+    """Checks for an updated version on PyPI."""
+    app = CLI() 
+    app.version()
+
+
+
+@cli.command(name="wb", epilog=help_message)
+def cli_wb(data: str = typer.Argument(..., help="Path to a supported data file"),
+           file_name: str = typer.Option(None, "--file_name", show_default=False, help="Name of the created workbook. Defaults to the same name as the data file"),
+           theme_color: str = typer.Option(None, "--theme_color", help="Hex color used for theme in workbook. Using this setting will change the default.  Defaults to a neutral color"),
+           export: bool = typer.Option(False, help="Export from an xleda workbook"),
+           large_report: bool = typer.Option(False, "--large_report", help="Only subsample when required to fit within Excel's worksheet limits"),
+           overwrite: bool = typer.Option(False, help="Overwrite existing workbook"),
+           wb_path: str = typer.Option('', "--wb_path", show_default=False, help="Workbook directory with/without filename"),
+           open_wb: bool | None = typer.Option(True, "--open_wb/--no_open_wb", help="Don't automatically open the workbook on finish"),
+           no_vba: bool | None = typer.Option(None, "--vba/--no_vba", help="Create a VBA-free xlsx file.  Using this setting will change the default.  Defaults to False"),
+           debug: bool = typer.Option(False, "--debug", help="View the workbook while it's being created")):
 
         """
-        Runs export from the created wb object
-
-        Returns
-        -------
-        list[ExportDict]
-            A list of ExportDict objects
+        Creates an xleda workbook from a supported data file
 
         """
+        
+        # Create a dictionary of input arguments
+        cli_args = locals()
+        
+        # if file name isn't provided, extract it from the data argument 
+        if not wb_path:
+            cli_args['file_name'] = file_name
+        
 
-        self.theme.print(separator + "FieldAnalysis() has been replaced by wb()")
-        self.theme.print("\nUse xleda.wb(export=True) to export from an xleda workbook")
-
-        self._export_analysis()
-
-        return self.export_dicts
-
-
+        return wb(**cli_args)

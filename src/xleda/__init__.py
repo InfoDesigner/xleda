@@ -1,4 +1,4 @@
-from .main import wb, FieldAnalysis
+from .main import wb
 
 
-__all__ = ['wb', 'FieldAnalysis']
+__all__ = ['wb']
