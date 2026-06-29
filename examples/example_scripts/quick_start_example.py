@@ -7,5 +7,5 @@ import seaborn as sns
 df = sns.load_dataset("titanic")
 
 
-# Creates an xleda workbook
-wb(df, theme_color='random', overwrite=True)
+# Creates an xleda workbook with a random theme
+wb(df, theme_color='random')

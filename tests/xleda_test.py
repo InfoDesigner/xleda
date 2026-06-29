@@ -41,10 +41,10 @@ update_pickle = False
 # -----------------------------------------------------------------
 # Path lists
 
-examples_path = Path().cwd() / 'examples'
+examples_path = Path.cwd() / 'examples'
 other_examples_path = examples_path / 'other_examples'
 data_dir = examples_path / 'data'
-tmp_path = str((Path().cwd() / 'examples' / 'tmp').resolve())
+tmp_path = str((Path.cwd() / 'examples' / 'tmp').resolve())
 feather_data_path = data_dir / 'feathers'
 
 
@@ -59,7 +59,7 @@ air_bnb = pd.read_feather(data_dir / 'air_bnb.feather')
 og_penguins = pd.read_csv(data_dir / "penguins_raw.csv")
 
 # File Paths
-duck_db = str((data_dir / 'duckdb_file.duckdb').resolve())
+duck_db = str((data_dir / 'duckdb.duckdb').resolve())
 sqlite = str((data_dir / 'chinook.db').resolve())
 air_bnb = str((data_dir / 'air_bnb.feather').resolve())
 csv = str((data_dir / 'titanic.csv').resolve())

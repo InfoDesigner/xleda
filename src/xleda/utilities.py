@@ -1071,7 +1071,7 @@ class Template():
                             
             # if a correct extension with a partial path is provided, construct the full path
             else:
-                new_path = Path().cwd() / input_path
+                new_path = Path.cwd() / input_path
 
             
             return new_path
@@ -1093,11 +1093,11 @@ class Template():
             
             # with no extension
             if not bool(input_path.suffix):
-                new_path = Path().cwd() / input_path / wb_file_name
+                new_path = Path.cwd() / input_path / wb_file_name
 
             # With an incorrect extension
             elif bool(input_path.suffix) and input_path.suffix not in ['.xlsx', '.xlsm']:
-                new_path = Path().cwd() / input_path.parent / wb_file_name
+                new_path = Path.cwd() / input_path.parent / wb_file_name
 
         return new_path
 
