@@ -1,5 +1,6 @@
 # Python-generated files
 __pycache__/
+.pytest_cache/
 *.pyc
 *.pyo
 build/
@@ -10,17 +11,17 @@ wheels/
 # Virtual environments
 .venv
 
-
 # Ignore IDE settings, test script
 .vscode/settings.json
 .vscode/launch.json
 xleda.code-workspace
 .obsidian/*
 *.ipynb
-uv publish steps.md
 
 # Ignore temporary excel files, other temp files
 ~$*
-tests/all_sizes
 wip/*
+
+# Top level excel files, likely from testing
 /*.xlsm
+/*.xlsx

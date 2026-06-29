@@ -1,6 +1,5 @@
 from xleda import wb
 import seaborn as sns
-from pathlib import Path
 
 # -----------------------------------------
 # Full export
@@ -10,7 +9,7 @@ df = sns.load_dataset("titanic")
   
 
 # < your completed workbook goes here >
-edited_workbook_path = Path(__file__).parent.parent / "Titanic Completed.xlsm"
+edited_workbook_path = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm"
 
 
 # Performs a full export from "Titanic Completed.xlsm"

@@ -14,7 +14,7 @@
 
 <br>
 
-* A Microsoft Excel/Python powered EDA tool that creates workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets. <br><br>
+* Create Excel workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets.<br><br>
 
 * Works on both MacOS/Windows as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br>
 
@@ -131,9 +131,9 @@ from xleda import wb
 from pathlib import Path
 
 # < your data file goes here >
-duckdb_file = Path("my_fancy_db.duckdb")
+duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
 
-# Creates my_fancy_db.xlsm in the current directory
+# Creates duckdb.xlsm in the current directory
 # Includes data from all tables in the db file
 wb(duckdb_file)
 ```
@@ -236,9 +236,9 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
             <strong>Expect problems with</strong>:<br><br>
             <ul>
               <li>Deeply nested JSON/XML</li>
-              <li>A <code>.CSV</code> file with tabs instead of commas<br>
-              <li><code>.db</code> files that are neither SQLite nor DuckDB files<br>
-              <li>DuckDB files with a <code>.txt</code> extension<br>
+              <li>A <code>.CSV</code> file with tabs instead of commas</li><br>
+              <li><code>.db</code> files that are neither SQLite nor DuckDB files</li><br>
+              <li>DuckDB files with a <code>.txt</code> extension</li><br>
             </ul><br>
           <strong>Don't expect to see</strong>:<br><br>
             <ul>
@@ -247,7 +247,6 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
               <li>Anything sourced from an Excel file that isn't a proper Excel Table</li>
             </ul>
           </details><br>
-        </ul>
       </td>
     </tr>
     <!-- file name -->
@@ -470,18 +469,19 @@ wb(data=df,
 <details>
 <summary>Example: Creating a workbook from a database</summary><br>
 
-### From Python
+<strong>From Python</strong>
 ```python
 from xleda import wb
 
-sqlite_db = "D:\Python\.xleda\examples\data\chinook.db"
+# <your database goes here>
+sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
 
 # Creates "Chinook.xlsm" in the current directory with 11 dataframes
 wb(data=sqlite_db,
    file_name="Chinook")
 ```
 
-### From the CLI
+<strong>From the CLI</strong>
 ```bash
 # Creates "Chinook.xlsm" in the current directory with 11 dataframes
 xleda wb chinook.db --name "Chinook"
@@ -533,13 +533,12 @@ Full export sources data from the workbook when possible
 ```python
 from xleda import wb
 import seaborn as sns
-from pathlib import Path
 
 # < your dataframe goes here >
 df = sns.load_dataset("titanic")
 
 # < your completed workbook goes here >
-edited_workbook_path = Path(__file__).parent.parent / "Titanic Completed.xlsm"
+edited_workbook_path = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm"
 
 # Performs a full export from "Titanic Completed.xlsm"
 export_dicts = wb(data={"Titanic": df},
@@ -570,12 +569,13 @@ print(export_dicts[0].keys())
           <li>The Record List works similarly though it tags individual records instead of lists</li><br>
         </ul>
         <details>
-          <summary><strong>Field/Record List Details</strong></summary><br>
+          <summary><strong>List Details</strong></summary><br>
           <ul>
             <li>Anything not marked as False will be included in each list</li><br>
             <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
             <li>The <code>Record List</code> field added to your source data works the same way except it creates a list of all tagged records instead of a list of fields</li><br>
             <li>The <code>Compiled Lists</code> section formats your lists as python lists</li><br>
+            <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
           </ul>
           <p align="center">
             <img src="assets/images/field_lists.webp" width="800" alt="Field Lists">
@@ -720,6 +720,7 @@ print(export_dicts[0].keys())
         <ul>
           <li>Every time a macro is used, it clears your undo history</li><br>
           <li>The <strong>PythonList</strong> UDF is immune to this but expanding/collapsing headings is not</li>
+        </ul>
       </details><br>
       </td>
     </tr>
@@ -940,33 +941,28 @@ app = xw.App()
       <td valign="top"><br><strong>Version 0.9.001</strong></td>
       <td valign="top"><br>
       <details>
-        <summary><strong>Add multiple dataframes, module refactoring into classes, added logging</strong></summary><br>
+        <summary><strong>Expanded Input Options, Expanded Interfaces, Significantly improved experience with multiple dataframes</strong></summary><br>
         <strong>Expanded Input Options</strong><br>
         <ul>
-          <li>Added a way to use dataframe dictionaries and data files as sources.</li>
-          <li>A file that represents a tabular object, such as parquet/csv files, will create a dataframe and then create a workbook from that dataframe.</li>
-          <li>Complex files, such as duckdb, RData, or sqlite files, will create dataframes from all tabular objects within each file and create a workbook with those dataframes.</li>
+          <li>Changed the 'input_df' argument to 'data' and opened it up to accept dataframes, dictionaries of dataframes, and data files that are either local or http/https</li>
+          <li>Enabled support for csv, feather, parquet, excel, duckdb, sqlite, rdata, xml, json, and pickle files</li>
+          <li>A file that represents a tabular object, such as parquet/csv files, will create a dataframe and then create a workbook from that dataframe</li>
+          <li>Complex files, such as duckdb, RData, or sqlite files, will create dataframes from all tabular objects within each file and create a workbook with those dataframes</li>
+          <li>Created an input_df placeholder API for backwards compatibility.</li>
         </ul>
         <strong>Expanded Interfaces</strong><br>
         <ul>
-          <li>Added a CLI interface which replicates most of the Python API.</li>
-          <li>Includes structured help and is consistent with the Python API in almost every way.</li>
-          <li>CLI also includes install/uninstall commands which install right-click on supported files functionality on MacOS/Windows.</li>
-        </ul>
-        <strong>Simplified API</strong><br>
-        <ul>
-          <li>Changed the input_df argument to data and opened it up to accept dataframes, dictionaries of dataframes, and data files.</li>
-          <li>Enabled support for csv, feather, parquet, excel, duckdb, sqlite, rdata, xml, json, and pickle files.</li>
-          <li>Created an input_df placeholder API for backwards compatibility.</li>
-          <li>Changed the add_plots argument to plots.</li>
+          <li>Added a CLI interface which replicates most of the Python API</li>
+          <li>Includes structured help and is consistent with the Python API in almost every way</li>
+          <li>CLI also includes install/uninstall commands which install right-click on supported files functionality on MacOS/Windows</li>
         </ul>
         <strong>Significantly overhauled the experience when using multiple dataframes</strong><br>
         <ul>
           <li>Converted the Overview worksheet to a landing page which:
             <ul>
-              <li>Includes a dataframe-level table that tracks how many of each dataframe's fields have definitions.</li>
-              <li>Includes a field-level table that collates metadata, notes, and definitions from all fields across all dataframes in one table.</li>
-              <li>Has links to each dataframe's worksheet and to each field within each worksheet.</li>
+              <li>Includes a dataframe-level table that tracks how many of each dataframe's fields have definitions</li>
+              <li>Includes a field-level table that collates metadata, notes, and definitions from all fields across all dataframes in one table</li>
+              <li>Has links to each dataframe's worksheet and to each field within each worksheet</li>
               <li>Each worksheet includes links back to the Overview.</li>
             </ul>
           </li>
@@ -979,6 +975,7 @@ app = xw.App()
         </ul>
         <strong>Other Updates</strong><br>
         <ul>
+          <li>Changed the add_plots argument to plots.</li>
           <li>Simplified/updated documentation where possible/necessary.</li>
           <li>Removed the pivot worksheet/functionality.</li>
           <li>Corrected the matplotlib headless backend again.</li>

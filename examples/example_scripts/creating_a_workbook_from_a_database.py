@@ -1,7 +1,8 @@
 from xleda import wb
-from pathlib import Path
 
-sqlite_db = Path(__file__).parent.parent / 'data' / r"chinook.db"
+# <your database goes here>
+sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
+
 
 # Creates "Chinook.xlsm" in the current directory with 11 dataframes
 wb(data=sqlite_db,

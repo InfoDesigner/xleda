@@ -22,7 +22,6 @@ separator = "\n" + ("-" * 100)
 
 
 
-
 # -------------------------------------------------------
 # Primary class
 
@@ -238,7 +237,6 @@ class wb():
             progress_bar.close()
             self.logger.log(section='Initializing wb Components')
             
-            
 
             app.display_alerts = debug
             app.screen_updating = debug
@@ -368,8 +366,15 @@ class wb():
 
         # --------------------------------------------------
         # If the file is not found return messaging
+        
+        
+        # if an http file is passed to wb_path, download a temp copy
+        if str(settings.wb_path).startswith(("http://", "https://")):
+            path = DataSetParser(settings=settings, just_path=True).from_http(str(settings.wb_path))
+        else:
+            path = template.path
 
-        if not template.path.is_file():
+        if not path.is_file():
 
             msg = f"File not found at {template.path}\n"
             msg +=  "wb().export_dicts will be limited" + separator
@@ -388,7 +393,6 @@ class wb():
             app.display_alerts = False
             app.screen_updating = settings.debug
                         
-            book = app.books.open(template.path, read_only=False)
             
             # Close the initial progress bar
             progress_bar.update(2) # 10
@@ -400,7 +404,7 @@ class wb():
                                            total=4 + (2 * len(datasets))) as pbar:
                               
                 pbar.update(2)
-                wb = app.books.open(template.path)
+                book = app.books.open(path, read_only=True)
                 pbar.update(2)
 
                 
@@ -410,11 +414,12 @@ class wb():
                     notes = {}
                     lists = {}
 
-                    if ds.name in wb.sheet_names:
-                        ws = wb.sheets(ds.name)
+                    if ds.name in book.sheet_names:
+                        ws = book.sheets(ds.name)
                     else:
 
                         missing_dfs.append(ds.name)
+                        pbar.update(2)
                         
                         continue
                    

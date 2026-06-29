@@ -74,6 +74,8 @@ db_file_extensions = ['.sqlite', '.sqlite3', '.db', '.db3', '.s3db', '.sl3', '.d
 excel_extension = ['.xlsx', '.xls', '.xlsm', '.xlsb']
 standalone_extensions = ['.csv', '.feather', '.parquet', '.xml', '.json', '.rdata', '.pkl', '.pickle', '.pck'] 
 supported_extensions = standalone_extensions + db_file_extensions + excel_extension
+supported = ", ".join(sorted(supported_extensions))
+
 
 # Dataset variables
 default_row_limit = 25_000
@@ -95,7 +97,7 @@ template_objects ={"SinglePlot": [],
 help_message = (f"{separator}\n\n"
                 r"Use 'xleda wb \<data file path\>' to create a workbook" + "\n\n"
                 "### Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML" + "<br><br>\n\n"
-                f"### Expected extensions:{str(supported_extensions)[1:-1]}\n\n"
+                f"### Expected extensions:{supported}\n\n"
                 "For more documentation, visit https://github.com/InfoDesigner/xleda")
 
 
@@ -2212,20 +2214,25 @@ class DataSetParser():
     
 
     def __init__(self, 
-                 settings: Settings):
+                 settings: Settings,
+                 just_path: bool=False):
         
 
         # Save vars to class instance
         self.large_report = settings.large_report
         self.env = settings.env
+
         
         
         # Create a datasets placeholder
         self.datasets: list[DataSet] = []
         
         
-        # Parse data inputs
-        self._parse_data_inputs(settings=settings)
+        # If just_path is called, don't parse the data argument
+        if not just_path:
+           
+            # Parse data inputs
+            self._parse_data_inputs(settings=settings)
         
         
  
@@ -2241,7 +2248,7 @@ class DataSetParser():
         # Set vars
         data = settings.data
         input_df = settings.input_df
-        supported = ", ".join(sorted(supported_extensions))
+
 
 
         
@@ -2266,16 +2273,22 @@ class DataSetParser():
         # Only the data argument has been provided, validate that it is supported
         else:
             
-            # if data is a dictionary of dataframes, use it
-            if isinstance(data, dict) and all(
-                isinstance(k, str) and isinstance(v, pd.DataFrame) for k, v in data.items()):
+            # if data is a dictionary
+            if isinstance(data, dict):
                 
-                settings.data_argument = 'Dataframe dictionary'
-                self.from_dataframes(data=data)
+                # if the dictionary values aren't dataframes, return a meaningful exception
+                if not all(isinstance(k, str) and isinstance(v, pd.DataFrame) for k, v in data.items()):
+                    raise DataError("\n\nDictionaries used for 'data' must have strings as keys and dataframes as values")
                 
-                # if no file_name has been provided, use the first key as the file name
-                if settings.file_name == 'xleda':
-                    settings.file_name = list(data.keys())[0]
+                else:
+                    settings.data_argument = 'Dataframe dictionary'
+                    self.from_dataframes(data=data)
+                
+                    # if no file_name has been provided, use the first key as the file name
+                    if settings.file_name == 'xleda':
+                        settings.file_name = list(data.keys())[0]
+                    
+            
             
             # if data is a dataframe, convert it to a dataframe dictionary and use it
             elif isinstance(data, pd.DataFrame):
@@ -2287,10 +2300,21 @@ class DataSetParser():
             # if data is neither a dataframe or a dataframe dict, ensure it's a supported file
             elif isinstance(data, (str, Path)):
                 
-                # Get the path
-                path = Path(data).expanduser().resolve()
-                settings.data_argument = str(path)
-
+                
+                # --------------------------------------------------------------
+                # Get pathlib Path
+                
+                str_path = str(data)
+                settings.data_argument = str_path
+                
+                # If an http path is provided, download a local copy to use
+                if str_path.startswith(("http://", "https://")):
+                    path = self.from_http(str_path)
+                
+                # Otherwise get the local path
+                else:
+                    path = Path(data).expanduser().resolve()
+                    
                 
                 # Ensure it's a file
                 if not path.is_file():
@@ -2323,7 +2347,45 @@ class DataSetParser():
             else:
                 raise DataError(f"\n\nData file not found.\n\nProvided data argument:\n\n    {str(data)}")
  
+    def from_http(self, url: str) -> Path:
+        
+        """
+        Downloads a remote file into a temporary directory, 
+        returning a Path object
+        
+        """
+        import requests
+        import tempfile
+        
+        path = Path(url)
+        file_name = path.name
+        suffix = path.suffix.lower()
+        
+        
+        # Ensure it's a supported file type
+        if suffix not in supported_extensions:
+            raise DataError(f"\n\nUnsupported file type: {suffix}\n\nSupported file types:\n\n    {supported}")
+        
+        
+        # Try downloading a temporary copy
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            
+            
+            # Get a temporary file path
+            temp_file_path = Path(tempfile.gettempdir()) / file_name
+            
+            # Save the remote file to the temp path
+            with open(temp_file_path, "wb") as f:
+                f.write(response.content)
+                
+            return temp_file_path.expanduser().resolve()
+        
+        except Exception:
+            raise DataError("\n\nHTTP/HTTPS file not successfully parsed") 
 
+        
 
     def from_file(self, 
                   data: Path):
@@ -3328,7 +3390,7 @@ class CLI():
             
             success_message = (f"{separator}\033[1m\n\nInstalled the xleda right-click menu\033[0m\n\n"
                                "Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML\n\n"
-                               f"Expected extensions:\n{supported_extensions}\n\n"
+                               f"Expected extensions:\n{supported}\n\n"
                                "For more documentation, visit https://github.com/InfoDesigner/xleda")
                     
             print(success_message)

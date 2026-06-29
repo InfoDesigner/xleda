@@ -1,33 +1,23 @@
-import pandas as pd
+from xleda import wb
 import matplotlib.pyplot as plt
 import seaborn as sns
 import missingno as msno
 
-from xleda import wb
+# < your dataframe goes here >
+df = penguins = sns.load_dataset("penguins")
 
-# Import example data 
-og_penguins = pd.read_csv("https://raw.githubusercontent.com/allisonhorst/palmerpenguins/refs/heads/main/inst/extdata/penguins_raw.csv")
-penguins = sns.load_dataset('penguins')
-seaice = sns.load_dataset('seaice')
-
-# Style the additional plots (optional)
+# Style the additional plots | optional
 plt.style.use("dark_background")
 
-
 # Create additional plots
-pair_plots = sns.pairplot(penguins, hue="species").figure
-null_matrix = msno.matrix(penguins).get_figure()
+pair_plots = sns.pairplot(df, hue="species").figure
+null_matrix = msno.matrix(df).get_figure()
 
+# Resize the null matrix  | optional
+null_matrix.set_size_inches(9.35, 4.5)
 
-# Resize the null matrix for good measure
-null_matrix.set_size_inches(9.35, 4.5) # type: ignore
-
-
-# Creates "Penguins.xlsm" in the current directory with 3 dataframes and two additional plot worksheets:
-
-wb(data={'Penguins': penguins,
-         'Sea Ice': seaice,
-         'OG Penguins': og_penguins},
+# Creates Penguins.xlsm with two extra plot sheets
+wb(data={"Penguins": df},
    theme_color="#4335A0",
    plots={'Pair Plots': pair_plots,
-          'Null Matrix': null_matrix}) # type: ignore
+          'Null Matrix': null_matrix})
