@@ -14,11 +14,12 @@
 
 <br>
 
-* Create Excel workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets.<br><br>
+xleda creates Excel workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets.<br><br>
 
-* Works on both MacOS/Windows as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br>
+* Works on Windows or MacOS as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br>
 
 * There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
+
 
 * See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br><br>
 <p align="center">
@@ -26,137 +27,6 @@
 	<br>
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br>
-
-## **Requirements/Compatibility**
-<br>
-<table>
-  <tbody>
-    <tr>
-      <td width="30%" valign="top"><br><strong>Desktop Excel</strong></td>
-      <td valign="top"><br>
-      Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks<br><br>
-        <ul>
-          <li>See MacOS Support section below for details on MacOS usage.</li><br>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><br><strong>Supported Data</strong></td>
-      <td valign="top"><br>
-      Supports pandas dataframes, CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML<br><br>
-      </td>
-    </tr>
-  </tbody>
-</table><br>
-
-## **Installation**
-
-<br>
-<table>
-  <tbody>
-    <tr>
-      <td width="30%" valign="top"><br><strong>Package/CLI</strong></td>
-      <td valign="top">
-        <br>
-        <code>uv add xleda</code> or <code>pip install xleda</code><br><br>
-      </td>
-    </tr>
-    <tr>
-      <td valign="top"><br><strong>Right-Click Menu</strong></td>
-      <td valign="top"><br>
-        xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.
-        <ul><br>
-          <li>Works on both Windows and MacOS</li><br>
-          <li>After installing as a package, use <code>xleda install</code> or <code>xleda uninstall</code> to add/remove right-click menus.</li><br>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table><br>
-
-
-
-<details markdown="1">
-  <summary><strong>Tips:</strong> Managing the Install</summary>
-  
-- `xleda install` adds right-click functionality to your OS but it does not modify your path to make the CLI globally available.
-  
-- If the Python environment that xleda was installed into is deleted after running `xleda install`, the right-click functionality will need to be either repaired or uninstalled by running `xleda install/xleda uninstall` again from a new Python environment.
-  
-- If you have UV installed, you can install/uninstall the package, CLI, and right-click menus systemwide without having to maintain a venv with these one-liners.
-
-**Windows PowerShell**
-
-```bash
-# Installs the package and right-click menus
-uv tool install xleda; if ($?) { xleda install }
-
-# Uninstalls the package and right-click menus
-xleda uninstall; if ($?) { uv tool uninstall xleda }
-```
-
-**MacOS**
-
-```bash
-# Installs the package and right-click menus
-uv tool install xleda && xleda install
-
-# Uninstalls the package and right-click menus
-xleda uninstall && uv tool uninstall xleda
-```
-
-</details><br>
-
-## **Quick Start**
-
-Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
-
-### From a Dataframe
-
-```python
-from xleda import wb
-import seaborn as sns
-
-# < your dataframe goes here >
-df = sns.load_dataset("titanic")
-
-# Creates xleda.xlsm in the current directory
-wb(df)
-```
-
-<br><br>
-
-### From a File
-
-```python
-from xleda import wb
-from pathlib import Path
-
-# < your data file goes here >
-duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
-
-# Creates duckdb.xlsm in the current directory
-# Includes data from all tables in the db file
-wb(duckdb_file)
-```
-
-<br><br>
-
-### From the CLI
-
-```bash
-
-# Creates 'userdata.xlsm' in the current directory
-xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
-```
-
-<br><br>
-
-### From Right-Clicking
-
-<p align="left">
-  <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/from_right_click.webp?raw=true" width="600" alt="From right-click">
-</p><br><br>
 
 ## **xleda Components**
 
@@ -218,6 +88,266 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
   </tbody>
 </table><br>
 
+
+
+## **Requirements/Compatibility**
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td width="30%" valign="top"><br><strong>Desktop Excel</strong></td>
+      <td valign="top"><br>
+      Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks<br><br>
+        <ul>
+          <li>See MacOS Support section below for details on MacOS usage.</li><br>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><br><strong>Supported Data</strong></td>
+      <td valign="top"><br>
+      Supports pandas dataframes, CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML<br><br>
+      </td>
+    </tr>
+  </tbody>
+</table><br>
+
+
+## **Non-Developer Quick Start Guide**
+
+<br>If you're working with data professionally as a Analyst, Project Manager, Data Scientist, Developer, Business Process Specialist, etc....one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.<br><br>
+
+
+You can use xleda to help you perform this task easily, quickly, and without having to write a single line of Python code.<br><br>
+
+
+<details>
+<summary>Non-Developer Quick Start Guide</summary><br><br>
+
+If you follow the steps below, you will only have to copy/paste 3 lines into your terminal.<br><br>
+
+In return for your effort you will have:<br><br>
+* A comprehensive document for defining your systems of record with worksheets for each related data source and placeholders for each field definition and notes that you can share with your project team members<br><br>
+* The ability to create the same workbooks in the future by right-clicking on your source data files and choosing ***Create xleda Workbook***<br><br>
+
+
+<table>
+  <tbody>
+    <tr>
+      <th width="30%" valign="top"><h3>1. Prepare Your Source Data</h3></th><br><br>
+        <td>
+        <ul>
+		      <li>If you're only working with one data source and you already have it in a single file such as a CSV/DuckDB/Parquet/SQLite/JSON/XML file, you can skip this step.</li><br>
+          <li>The first step in any xleda project is to collect your source data</li><br>
+		      <li>Using an Excel workbook as a data souce, will let you create an xleda workbook that includes data from multiple sources</li><br>
+          <li>Get an export or dump from each data source.  You can include as many records for each source as you want though xleda will use a sample of 25,000 rows from each by default.</li><br>
+		      <li>Create an Excel workbook that has a <a href="https://www.google.com/search?q=creating+named+excel+tables&oq=creating+named+excel+tables">proper Excel Table for each data source</a>.</li><br>
+		      <li>Be sure to name each table clearly.  Worksheet names in this workbook will be ignored by xleda but the table names will be used as worksheet names in your xleda workbook.</li><br>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th valign="top"><h3>2. Install UV</h3></th><br><br>
+        <td><br>
+          <ul>
+            <li>UV can be installed safely and easily without affecting other software on your system.</li><br>
+		        <li>They have <a href="https://docs.astral.sh/uv/getting-started/installation/">one-line installs for all operating systems</a> that work as well as you could possibly wish them to.</li><br>
+		        <li>See their site for a variety of install options or use one of the TLDR versions below in your operating system's terminal.</li><br><br>
+          </ul>
+        </td>
+		  <details>
+			<summary><strong>Windows PowerShell</strong></summary>
+			<code>powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"</code>
+		  </details><br>
+		  <details>
+			<summary><strong>MacOS</strong></summary>
+			<code>curl -LsSf https://astral.sh/uv/install.sh | sh</code>
+		  </details><br>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <th valign="top"><h3>3. Install xleda</h3></th><br><br>
+        <td><br>
+          <ul>
+            <li>If step 2 was the first time you've installed UV, you'll need to open a new terminal window to use the newly installed <code>uv</code> command in this step.  See <a href="https://www.google.com/search?q=how+to+get+the+uv+command+to+show+after+install%3F">this</a> if you run into issues</li><br>
+            <li>Now that UV is installed and the <code>uv</code> command is available, you can install xleda with these one-liners.</li><br><br>
+          </ul>
+          <details>
+            <summary><strong>Windows PowerShell</strong></summary>
+            <code>uv tool install xleda; if ($?) { xleda install }</code>
+          </details><br>
+          <details>
+            <summary><strong>MacOS</strong></summary>
+            <code>uv tool install xleda && xleda install</code>
+		      </details><br>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th valign="top"><h3>4. Create an xleda workbook</h3></th><br><br>
+        <td><br>
+          <ul>
+            <li>If step 3 was the first time you've installed xleda, you'll need to open a new terminal window to use the newly installed <code>xleda</code> command in this step.  See <a href="https://www.google.com/search?q=how+to+ensure+uv+tool+is+installed+to+path%3F&oq=how+to+ensure+uv+tool+is+installed+to+path%3F">this</a> if you run into issues</li><br>
+            <li>Now that xleda is installed and the <code>xleda</code> command is available, you can create your workboook on both operating sytems with the same command.</li><br>
+            <li>Be sure to Replace <code>YourSourceData</code> and <code>305CDE</code> with your source data and favorite/company color<br><br>
+            <code>xleda wb YourSourceData.xlsx --theme '#305CDE'</code><br><br>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table><br>
+
+
+
+
+**What's the Catch?**
+There's not one really.  Almost all of the effort required for this guide is ***Preparing Your Source Data***.  If you've done that part already, you'll likely only need 3-5 minutes to complete the other steps.<br><br>
+
+The only thing that's close to a catch is that using this method doesn't include automatic updates and, at least for the near future, xleda is being actively developed.   If you've followed these steps, be sure to periodically update it using `uv tool upgrade xleda`.<br><br>
+
+
+</details><br><br>
+
+
+## **Developer Quick Start Guide**
+
+
+### **Installation**
+
+<br>
+<table>
+  <tbody>
+    <tr>
+      <td width="30%" valign="top"><br><strong>Package/CLI</strong></td>
+      <td valign="top">
+        <br>
+        <code>uv add xleda</code> or <code>pip install xleda</code><br><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><br><strong>Right-Click Menu</strong></td>
+      <td valign="top"><br>
+        xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.
+        <ul><br>
+          <li>Works on both Windows and MacOS</li><br>
+          <li>After installing as a package, use <code>xleda install</code> or <code>xleda uninstall</code> to add/remove right-click menus.</li><br>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table><br>
+
+
+
+<details markdown="1">
+  <summary><strong>Tips:</strong> Managing the Install</summary>
+  
+- `xleda install` adds right-click functionality to your OS but it does not modify your path to make the CLI globally available.
+  
+- If the Python environment that xleda was installed into is deleted after running `xleda install`, the right-click functionality will need to be either repaired or uninstalled by running `xleda install/xleda uninstall` again from a new Python environment.
+  
+- If you have UV installed, you can install/uninstall the package, CLI, and right-click menus systemwide without having to maintain a venv with these one-liners.
+
+**Windows PowerShell**
+
+```bash
+# Installs the package and right-click menus
+uv tool install xleda; if ($?) { xleda install }
+
+# Uninstalls the package and right-click menus
+xleda uninstall; if ($?) { uv tool uninstall xleda }
+```
+
+**MacOS**
+
+```bash
+# Installs the package and right-click menus
+uv tool install xleda && xleda install
+
+# Uninstalls the package and right-click menus
+xleda uninstall && uv tool uninstall xleda
+```
+
+</details><br>
+
+### **Basic Usage**
+
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
+
+#### From a Dataframe
+
+```python
+from xleda import wb
+import seaborn as sns
+
+# < your dataframe goes here >
+df = sns.load_dataset("titanic")
+
+# Creates xleda.xlsm in the current directory
+wb(df)
+```
+
+<br><br>
+
+#### From a File
+
+```python
+from xleda import wb
+from pathlib import Path
+
+# < your data file goes here >
+duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
+
+# Creates duckdb.xlsm in the current directory
+# Includes data from all tables in the db file
+wb(duckdb_file)
+```
+
+<br><br>
+
+#### From the CLI
+
+```bash
+# Creates 'userdata.xlsm' in the current directory
+xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
+
+# Shows the help command
+xleda --help
+
+# Shows the wb help command
+xleda wb --help
+```
+
+<br><br>
+
+#### From Right-Clicking
+
+
+<table>
+  <tbody>
+    <tr>
+      <td width="30%" valign="top"><br><strong>Windows</strong></td>
+      <td valign="top"><br>
+        <li>After running <code>xleda install</code>...</li>
+        <p align="left">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_win.webp?raw=true" width="600" alt="From right-click Win">
+        </p><br><br>
+      </td>
+    </tr>
+    <tr>
+      <td width="30%" valign="top"><br><strong>MacOS</strong></td>
+      <td valign="top"><br>
+        <li>After running <code>xleda install</code>...</li>
+        <p align="left">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_mac.webp?raw=true" width="600" alt="From right-click MacOS">
+        </p><br><br>
+      </td>
+    </tr>
+  </tbody>
+</table><br><br>
 
 
 ## **xleda.wb() Configuration**
@@ -282,9 +412,9 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         </ul>
       </td>
     </tr>
-    <!-- theme color -->
+    <!-- theme -->
     <tr>
-      <td width="30%" valign="top"><br><strong><code>theme_color</code></strong>
+      <td width="30%" valign="top"><br><strong><code>theme</code></strong>
       </td>
       <td valign="top"><br>
         <strong>str | Optional</strong><br><br>
@@ -295,11 +425,11 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         </ul>
         <p align="center"><br>
           <img
-            src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme_colors.webp?raw=true"
+            src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme.webp?raw=true"
             width="800"
-            alt="Theme Colors"
+            alt="Theme"
           /><br>
-          <em>theme_color affects the workbooks and default charts.</em><br>
+          <em>theme affects the workbooks and default charts.</em><br>
         </p><br>
       </td>
     </tr>
@@ -446,7 +576,7 @@ null_matrix.set_size_inches(9.35, 4.5)
 
 # Creates Penguins.xlsm with two extra plot sheets
 wb(data={"Penguins": df},
-   theme_color="#4C4C4C",
+   theme="#4C4C4C",
    plots={'Pair Plots': pair_plots,
           'Null Matrix': null_matrix})
 ```
@@ -620,17 +750,17 @@ print(export_dicts[0].keys())
       <td valign="top"><br>
         Accessing your notes/lists/defintions from Python is easy<br><br>
         <ul>
-          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li>
+          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li><br>
           <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li>
         </ul><br>
         <details>
         <summary><strong>Default Metadata</strong></summary><br>
-          The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br>
+          The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
-            <li><code>df_overview</code>: Dataframe level metadata</li>
-            <li><code>field_overview</code>: Field-level metadata</li>
-            <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li>
-            <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li>
+            <li><code>df_overview</code>: Dataframe level metadata</li><br>
+            <li><code>field_overview</code>: Field-level metadata</li><br>
+            <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
+            <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
           </ul>
         </details><br>
         <details>
@@ -654,7 +784,7 @@ print(export_dicts[0].keys())
       <td valign="top"><br>
        xleda will create the same workbooks in MacOS<br><br>
         <ul>
-          <li>Creating them is significantly slower and you may get two different types of prompts that require your attention</li>
+          <li>Creating them is significantly slower and you may get two different types of prompts that require your attention</li><br>
           <li>Look for the bouncing Excel icon</li>
         </ul><br>
       <details>
@@ -676,7 +806,7 @@ print(export_dicts[0].keys())
             <tr>
               <td><strong>Details</strong></td>
               <td>Prompts to Allow Excel to access the file it's creating.<br><br>If you get these prompts, you'll potentially get one for each unique file you create.</td>
-              <td>Prompts to "Enable Macros".  <br><br>If you get these prompts, you'll get two when creating a workbook:<br><br>1. When opening the blank template<br>2. When opening your created workbook.</td>
+              <td>Prompts to "Enable Macros".  <br><br>If you get these prompts, you'll get two when creating a workbook:<br><br>1. When opening the blank template<br><br>2. When opening your created workbook.<br><br></td>
             </tr>
             <tr>
               <td><strong>Example</strong></td>
@@ -685,7 +815,7 @@ print(export_dicts[0].keys())
             </tr>
             <tr>
               <td><strong>Remedy</strong></td>
-              <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
+              <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
               <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
             </tr>
           </tbody>
@@ -699,7 +829,7 @@ print(export_dicts[0].keys())
       <td valign="top"><br>
         The included VBA code is short and easy to understand<br><br>
         <ul>
-          <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li>
+          <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li><br>
           <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li>
         </ul><br>
       <details>
@@ -737,57 +867,63 @@ print(export_dicts[0].keys())
 
 ## Troubleshooting
 
-<details markdown="1"> 
-<summary>xleda is slow
-</summary><br>
 
-* Try reducing the amount of data you're sending to it, and let it finish.
-* After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.
-* Note that on MacOS, `xleda` is much slower by default and the timings in the debug section may be inflated from missed permission prompts during production.
+<table>
+  <!-- Field and Record Lists -->
+  <tbody>
+    <tr>
+      <td valign="top"><br><strong>xleda is slow</strong><br><br>
+        <details> 
+          <summary>Details:</summary><br>
+          <ul>
+            <li>Try reducing the amount of data you're sending to it, and let it finish.</li><br>
+            <li>After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.</li><br>
+            <li>Note that on MacOS, `xleda` is much slower by default and the timings in the debug section may be inflated from missed permission prompts during production.</li><br>
+        </details><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><br><strong>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks</strong><br><br>
+        <details> 
+        <summary>Details:</summary><br>
+          <ul>
+            <li>You may have a hidden Excel instance that needs to be closed.</li><br>
+            <li>Guidance on closing hidden Excel windows for <a href="https://www.google.com/search?q=hidden+excel+instance+in+macos">MacOS</a> and <a href="https://www.google.com/search?q=hidden+excel+instance+in+windows">Windows</a></li><br>
+          </ul>
+        </details><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><br>
+      <strong>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:<br><br></strong>
+      <details> 
+        <summary>Details:</summary><br>
+        <ul>
+          <li>The Excel app may have crashed or is otherwise disconnected from Python.</li><br>
+          <li>Close all Excel windows and try running the command again.</li><br>
+        </ul>
+      </details><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><br><strong>xleda won't run at all and are using Windows/MacOS with a full Office Installation</strong><br><br>
+      <details markdown="1">
+        <summary>Details:</summary><br>
+          <ul>
+            <li>If you can get the script below to run successfully using xlwings (not xlwings-lite), xleda has a good chance of working reliably.</li><br>
+            <li>All it does is open Excel and create a new workbook.</li><br>
+            <li>You should be able to `pip install xlwings` and run the script successfully.</li><br>
+            <li>If that doesn't work, see their <a href="https://docs.xlwings.org/en/latest/installation.html">installation instructions</a> for details on how to get it set up.</li><br>
+            <li>Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.</li><br>
+            <li>If you can't get it to work and you're on Windows, <a href="https://www.google.com/search?q=win32+com+corruption+xlwings">this may help</a>.</li>
+          </ul><br><br><pre><code class="python">import xlwings as xw
+app = xw.App()</code></pre>
+        </details><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-</details><br>
-
-<details markdown="1"> 
-<summary>If you receive the "Error: The workbook cannot be overwritten while open!" and don't see any open workbooks:
-</summary><br>
-
-* You may have a hidden Excel instance that needs to be closed. 
-* Guidance on closing hidden Excel windows for [MacOS](https://www.google.com/search?q=hidden+excel+instance+in+macos)/[Windows](https://www.google.com/search?q=hidden+excel+instance+in+windows)
-
-</details><br>
-
-<details markdown="1"> 
-<summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:
-</summary><br>
-
-* The Excel app may have crashed or is otherwise disconnected from Python.
-* Close all Excel windows and try running the command again.
-
-</details><br>
-
-
-<details markdown="1"> 
-<summary>If you can't get xleda to run at all and are using Windows/MacOS with a full Office Installation:
-</summary><br>
-
-* Try getting the following script to run using xlwings (not xlwings-lite).
-* All it does is open Excel and create a new workbook.
-* You should be able to `pip install xlwings` and run the script successfully. 
-* If that doesn't work, see their [installation instructions](https://docs.xlwings.org/en/latest/installation.html) for details on how to get it set up.
-* Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.
-* If you can get the script below to run successfully, xleda has a good chance of working reliably.
-* If you can't get it to work and you're on Windows, [this may help](https://www.google.com/search?q=win32+com+corruption+xlwings).
-
- <br><br>
-
-```python
-import xlwings as xw
-
-app = xw.App()
-
-```
-
-</details><br>
 
 
 ## Changelog
@@ -948,7 +1084,14 @@ app = xw.App()
       <td valign="top"><br><strong>Version 0.9.001</strong></td>
       <td valign="top"><br>
       <details>
-        <summary><strong>Expanded Input Options, Expanded Interfaces, Significantly improved experience with multiple dataframes</strong></summary><br>
+        <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong></summary><br>
+        <strong>Simplified API</strong><br>
+        <ul>
+          <li>'input_df' was changed to 'data'</li>
+          <li>'add_plots' was changed to 'plots'</li>
+          <li>'name' was changed to 'file_name'</li>
+          <li>'theme_color' was changed to 'theme'</li>
+        </ul>
         <strong>Expanded Input Options</strong><br>
         <ul>
           <li>Changed the 'input_df' argument to 'data' and opened it up to accept dataframes, dictionaries of dataframes, and data files that are either local or http/https</li>
@@ -976,7 +1119,7 @@ app = xw.App()
         </ul>
         <strong>Persistent Settings</strong><br>
         <ul>
-          <li>Most xleda settings depend on the provided data except for two: no_vba and theme_color.</li>
+          <li>Most xleda settings depend on the provided data except for two: no_vba and theme.</li>
           <li>Changing these settings will change the default so that you can set them and forget about it.</li>
           <li>Set favorite/company color or decide whether to use vba or not once and for all.</li>
         </ul>

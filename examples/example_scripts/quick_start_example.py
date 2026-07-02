@@ -8,4 +8,4 @@ df = sns.load_dataset("titanic")
 
 
 # Creates an xleda workbook with a random theme
-wb(df, theme_color='random')
+wb(df, theme='random')

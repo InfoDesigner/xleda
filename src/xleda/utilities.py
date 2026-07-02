@@ -17,14 +17,7 @@ import pandas as pd
 from typing import Any
 import send2trash
 from collections import defaultdict
-import shlex
-
-# Persistent settings imports
 import json
-from importlib.metadata import version
-from packaging.version import parse
-import urllib.request
-
 
 
 # TQDM Imports
@@ -94,27 +87,22 @@ template_objects ={"SinglePlot": [],
                    "Overview": ["tbl_FieldOverview", "tbl_debug_environment", "tbl_debug_config", "tbl_DfOverview",  "tbl_debug_section"]}
 
 
-help_message = (f"{separator}\n\n"
-                r"Use 'xleda wb \<data file path\>' to create a workbook" + "\n\n"
-                "### Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML" + "<br><br>\n\n"
-                f"### Expected extensions:{supported}\n\n"
-                "For more documentation, visit https://github.com/InfoDesigner/xleda")
 
 
 class Settings():
     
-    def __init__(self, 
-                 env: Environment,
-                 locals: dict = {},
-                 version: bool = False) -> None:
+    def __init__(self,
+                 logger: Logger,
+                 locals: dict = {}) -> None:
         
         """
         Evaluates inputs and incorporate/updates persistent settings
         
         """
         
-        # Save env, Get/create persisent settings path
-        self.env = env
+        
+        # Initialize/Check Environment, get settings path
+        self.env = Environment()
         self.settings_path = self.get_settings_path()
         
 
@@ -135,37 +123,51 @@ class Settings():
 
         # Persistent setting defaults
         self.no_vba: bool = False
-        self.theme_color: str = "#262626"
-        self.version_check_date: str = datetime.now().isoformat()
-        self.update_msg = ''
+        self.color: str = "#262626"
+
 
         # Override defaults with persistent settings from disk if they exist
         self.load_settings()
-        
-        # If version is passed, run the update check
-        if version:
-            self.version_check()
-            
-        elif locals:
-        
-            # Otherwise, parse inputs 
-            self.parse_inputs(input_args=locals)
-            
-            # Write persistent settings to disk
-            self.save_settings()
-            
-            # TODO: Figure out when/if to incorporate this
-            # # Check for updates if enough time has passed
-            # if (datetime.now() - datetime.fromisoformat(self.version_check_date)).days > 3:
-            #     self.version_check()
-            
-            
 
-            
+        # Otherwise, parse inputs 
+        self.parse_inputs(input_args=locals)
+        
+        # Write persistent settings to disk
+        self.save_settings()
+        
+        # Now that we have the final color, create a theme object
+        self.theme = Theme(settings=self)
+               
+        
+        # Now that settings are complete, add them to the logger
+        logger.add_settings(settings=self)
         
 
-
+        # No that we have a themed logger, download the http files if needed
+        self.parse_downloads()
         
+        
+        
+    def parse_downloads(self):
+        
+        """
+        Download data files or wb_path templates to export from as needed
+        
+        """
+        
+        # if an http file is provided for data, download it
+        if isinstance(self.data, str) and 'http' in (self.data):
+            self.data = self.download(self.data)
+            self.data_argument = str(self.data)
+            
+            # If wb_path hasn't been provided for http data sources, use the cwd
+            if not self.wb_path:
+                self.wb_path = Path.cwd()
+        
+        # if an http file is provided for wb_path download it
+        if isinstance(self.wb_path, str) and 'http' in (self.wb_path):
+            self.wb_path = self.download(self.wb_path)
+            
         
         
 
@@ -207,56 +209,88 @@ class Settings():
         """
 
         no_vba = input_args.get('no_vba', None)
-        theme_color = input_args.get('theme_color', '')
+        color = input_args.get('theme', '')
 
         
         # if provided arguments are explicit, change class properties
         if no_vba is not None:        
             self.no_vba = no_vba
             
-        # if provided arguments are explicit, change class properties
-        if theme_color:
-            self.theme_color = theme_color
+            
+        # if provided theme is explicit, change class properties
+        if color:
+            
+        
+            # Allocate random colors
+            if color == 'random':
+                color  = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+                
+            else:
+            
+                # Protect against too long hex colors
+                color = color[:7]
+            
+            # Save updated color
+            self.color = color
 
     
-    def version_check(self):
+    
+    def download(self, url: str) -> Path:
+        
+        """
+        Downloads a remote file into a temporary directory, 
+        returning a Path object
+        
+        """
+        import requests
+        import tempfile
+        
+        path = Path(url)
+        file_name = path.name
+        suffix = path.suffix.lower()
         
         
-        # Get versions to compare
-        installed_version = version('xleda')
-
+        # Ensure it's a supported file type
+        if suffix not in supported_extensions:
+            raise DataError(f"\n\nUnsupported file type: {suffix}\n\nSupported file types:\n\n    {supported}")
         
-        # Pull the latest version from pypi
-        pypi_url = "https://pypi.org/pypi/xleda/json"
+            
+        # Try downloading a temporary copy
         try:
-            with urllib.request.urlopen(pypi_url) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                latest_ver = data['info']['version']
+            
+            # Using stream=True to download in chunks
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            # Get total file size from headers (if available) for the progress bar
+            total_size = int(response.headers.get('content-length', 0))
+            chunk_size = 1024
+            
+            # Get a temporary file path
+            temp_file_path = Path(tempfile.gettempdir()) / file_name
+            
+            # Add a temporary progress bar
+            with open(temp_file_path, "wb") as f, tqdm(
+                total=total_size,
+                unit='B',
+                unit_scale=True,
+                desc=f"Downloading {file_name}",
+                colour=self.theme.print_color,
+                position=1,
+                leave=False) as pbar_temporary:
                 
+                
+                # Download and update
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        pbar_temporary.update(len(chunk))
+
+            return temp_file_path.expanduser().resolve()
+
         except Exception:
-            pass
-
-        # Provide an update suggestion if a newer version is available
-        if parse(latest_ver) > parse(installed_version):
-
-            # Store the update version message
-            
-            # TODO: Figure out when/if to incorporate this into runtime
-            self.update_msg += separator + "\n\n✨ A newer version of xleda is available\n\n"
-            self.update_msg += f"   Installed version: {installed_version}\n"
-            self.update_msg += f"   Latest PyPI version: {latest_ver}\n" + separator
-            
-            
-        else:
-
-            # Store the update version message
-            self.update_msg += separator + "\n\n✨ You are running the latest version of xleda\n\n"
-            self.update_msg += f"   Installed version: {installed_version}\n"
-            self.update_msg += f"   Latest PyPI version: {latest_ver}\n" + separator
-        
-        # Reset the counter
-        self.version_check_date = datetime.now().isoformat()
-
+            raise DataError("\n\nHTTP/HTTPS file not successfully parsed")
+ 
 
     def load_settings(self):
         
@@ -265,6 +299,7 @@ class Settings():
         
         """
         path = Path(self.settings_path)
+
         
         if path.is_file():
 
@@ -273,16 +308,35 @@ class Settings():
                     
                     json_data = json.load(f)
                     
-                    # Save persistent settings to self
-                    self.no_vba = json_data.get('no_vba', False)
-                    self.theme_color = json_data.get('theme_color', "#262626") 
-                    self.version_check_date = json_data.get('version_check_date', datetime.now())
-                            
+                    
+                    # Get persistent settings
+                    no_vba = json_data.get('no_vba', False)
+                    theme = json_data.get('theme', "#262626") 
+                    
+                    
+                    # Validate/Save persistent settings
+                    
+                    if self.validate_color(theme):
+                        self.color = theme
+                    
+                    if isinstance(no_vba, bool):
+                        self.no_vba = no_vba
+                                                    
                 
             except (json.JSONDecodeError, OSError):
                 
                 pass
-
+                
+    def validate_color(self, input_str) -> bool:
+        
+        """
+        Validates that a string represents a hex color
+        
+        """      
+        
+        pattern = r"^#(?:[0-9a-fA-F]{3}){1,2}$"
+        return bool(re.match(pattern, input_str))
+    
 
     def save_settings(self) -> None:
         
@@ -297,16 +351,15 @@ class Settings():
         tmp_path = path.with_suffix(".tmp")
         
         persistent_settings = {'no_vba': self.no_vba,
-                               'theme_color': self.theme_color,
-                               'version_check_date': self.version_check_date,
-                               'update_msg': self.version_check_date}
+                               'theme': self.color}
         
 
         try:
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(persistent_settings, f, indent=4)
             tmp_path.replace(path)
-            
+        
+        # If there is an issue reading the settings file, delete it
         except OSError:
             if tmp_path.exists():
                 tmp_path.unlink() 
@@ -330,7 +383,7 @@ class Environment():
         self.win = win
         self.mac = mac
         self.env_type = self.get_env_type()
-        self.excel_version = self.get_excel_version()        
+        self.excel_version = self.get_excel_version()
 
         
         
@@ -471,14 +524,7 @@ class Environment():
 
 
 
-    def warn_print(self, text: str):
-        
-        """
-        Prints text in red bold for warning messages
 
-        """
-        
-        print(f"\033[1;31m{text}\033[0m")
 
 
 
@@ -503,92 +549,42 @@ class Theme():
     
         # ------------------------------------------------------------------------------
         # Configure Theme
+               
+
+
+        self.color = settings.color
+        self.black_text: bool = self.use_black_text(self.color)
+        self.print_color: str = self.ensure_readable(self.color[:7])
+        self.ansi_color: str = self.hex_to_ansi(self.color)
+        self.rgb: tuple = self.hex_to_rgb(self.color)
+        self.tab = self.get_tab_color(settings)
         
+
+    def get_tab_color(self, settings: Settings) -> tuple[int, ...] | int:
         
-        if settings.theme_color == 'random':
-            color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
-        else:
+        """
+        Gets an Excel color for MacOS/Windows for use as worksheet tabs
+
+        """
+        
+
+        # Get OS appropriate colors
+        if settings.env.win:
             
-            # Protect against too long hex colors
-            color = settings.theme_color[:7]
+            hex = self.color[1:]
+            # Extract Red, Green, and Blue integer values
+            r = int(hex[0:2], 16)
+            g = int(hex[2:4], 16)
+            b = int(hex[4:6], 16)
+
+            # Construct color number
+            color = r + (g * 256) + (b * 65536)
+
         
-        # Save updated theme color
-        settings.theme_color = color
-        self.theme_color = color
+        elif settings.env.mac:
+            color = self.rgb
         
-        self.black_text: bool = self.use_black_text(self.theme_color)
-        self.print_theme: str = self.ensure_readable(self.theme_color[:7])
-        self.env = settings.env
-
-
-    def create_progress_bar(self, desc: str, total: float) -> tqdm:
-        
-        """
-        Creates a tqdm progress bar
-
-        Returns
-        -------
-        tqdm
-            A tqdm object
-        """
-        
-
-        fmt = "{desc} | {percentage:3.0f}% | {bar} | {elapsed}"
-
-
-        # Pad the raw desc for alignment
-        padded_desc = f"{desc:<30}"
-
-        # Create a tqdm instance
-        pbar = tqdm(
-            total=total,
-            desc=padded_desc,
-            bar_format=fmt,
-            colour=self.print_theme,
-            # ncols=100,
-            # dynamic_ncols=True
-        )
-        
-        # Creates a thread to refresh the progres bar
-        self.start_auto_refresh(pbar=pbar)
-
-        return pbar
-
-
-    def start_auto_refresh(self, pbar: tqdm):
-
-        """
-        Refreshing tqdm progress bars until they are complete.
-
-        """
-
-        interval=0.1
-
-        def _refresh_loop():
-            while not pbar.disable:
-                pbar.refresh()
-                time.sleep(interval)
-                
-        thread = threading.Thread(target=_refresh_loop, daemon=True)
-        thread.start()
-        return thread
-
-
-
-
-    def print(self, text: str):
-        
-        """
-        Prints to the console using theme_color text. 
-
-        Parameters
-        ----------
-        text : str
-            Text to be printed
-
-        """
-        
-        print(self.color_formatter(text=text, theme=self.print_theme))
+        return color
 
 
     def hex_to_ansi(self, hex_color):
@@ -605,25 +601,6 @@ class Theme():
         ansi_color = f"\033[38;2;{r};{g};{b}m"
         return ansi_color
 
-
-
-    def color_formatter(self, text: str, theme: str):
-        
-        """
-        Wraps text in ansi colored code start/stop statements
-
-        Returns
-        -------
-        str
-            
-            A terminated ansi colored text string
-
-        """
-
-        color = self.hex_to_ansi(theme)
-        reset = "\033[0m"  # Crucial: Resets terminal to default style
-        
-        return (f"{color}{text}{reset}")
 
 
     def hex_to_rgb(self, hex_str):
@@ -729,240 +706,6 @@ class Theme():
 
 
 
-class Plotter():
-    
-    """
-    Class that represents a xleda plotting object
-
-    """
-
-    def __init__(self, 
-                 settings: Settings) -> None:
-        
-        """
-        Creates theme appropriate plots and optinally writes them to a range
-
-        """
-        
-
-        self.theme_color = settings.theme_color
-        self.env = settings.env
-
-    def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
-
-        """
-        Adds a small chart to an Excel cell that is centered 
-            at 90% of the size of the cell
-
-        Args:
-            fig (Figure): A matplotlib Figure object
-            target_range (Range): An Excel cell
-
-        """
-        
-        # --------------------------------------------------
-        # Calculate size/position
-
-
-        # Calculate 90% of cell dimensions
-        target_width = target_range.width * 0.9
-        target_height = target_range.height * 0.9
-
-        # Calculate position to center the picture
-        target_left = target_range.left + (target_range.width / 2) - (target_width / 2)
-        target_top = target_range.top + (target_range.height / 2) - (target_height / 2)
-
-
-        # --------------------------------------------------
-        # Add the picture to the sheet
-
-
-        if self.env.win:
-
-            pic = target_range.sheet.pictures.add(fig,
-                                                  name=name,
-                                                  left=target_left,
-                                                  top=target_top,
-                                                  width=target_width,
-                                                  height=target_height)
-
-            # Set placement to xlMoveAndSize
-            try:
-                pic.api.Placement = 1
-            except AttributeError:
-                pass
-        
-        elif self.env.mac:
-            
-            # Uses anchor instead
-            pic = target_range.sheet.pictures.add(fig,
-                                                  name=name,
-                                                  left=target_left,
-                                                  top=target_top,
-                                                  width=target_width,
-                                                  height=target_height)
-            
-            pic.api.placement.set(k.placement_move_and_size)
-
-
-    def create_composition_plot(self, input_series: pd.Series) -> Figure:
-        
-        """
-        Creates a composition table from a dataframe
-
-        Args:
-            input_series (pd.Series): A pandas Series
-
-        Returns:
-            Figure: A matplotlib Figure object
-        """
-
-        # --------------------------------------------------
-        # Setup values
-
-
-        # Font size
-        font_size = 24
-
-        # Prepare plot values
-        category_counts = input_series.value_counts()
-        top_5_categories = category_counts.head(5)
-        total_records = len(input_series)
-        other_counts = total_records - top_5_categories.sum()
-
-        # Assemble plot values
-        categories = list(top_5_categories.index) + ["Other"]
-        values = list(top_5_categories.values) + [other_counts]
-
-        
-        
-        # --------------------------------------------------
-        # Setup plot
-        
-        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot
-        fig = Figure(figsize=(9, 9))
-        canvas = FigureCanvasAgg(fig) # noqa: F841
-        ax = fig.add_subplot(111)
-
-
-        # Add bars to plot
-        y_pos = range(len(categories))[::-1]
-        ax.barh(y_pos, values,color=self.theme_color, height=0.5, edgecolor='silver')
-
-        
-        # --------------------------------------------------
-        # Adjust Formatting
-        
-        # Remove spines
-        for spine in ax.spines.values():
-            spine.set_visible(False)
-
-        # Remove other extra plot elements
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_title("")
-
-        # Make enough room for text on the left so they don't overlap
-        fig.subplots_adjust(left=0.4, right=0.9)
-        max_val = max(values)
-
-
-
-        # --------------------------------------------------
-        # Setup data bars
-
-        for y, cat, val in zip(y_pos, categories, values):
-            pct = (val / total_records) * 100
-
-            # Truncate long category name
-            display_cat = str(cat)
-            if len(display_cat) > 6:
-                display_cat = display_cat[:5] + ".."
-
-            # Add category name and adjust left to prevent overlap
-            ax.text(-0.55, y, display_cat, color="white", va="center", 
-                    ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
-
-            # Add category percentage
-            ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
-                    fontsize=font_size, transform=ax.get_yaxis_transform(), )
-
-            # Add category count to the right of the bars
-            ax.text(val + max_val * 0.02, y, str(val), color="white",
-                    va="center", ha="left", fontsize=font_size, )
-
-        return fig
-
-
-
-    def create_histogram_plot(self, input_series: pd.Series) -> Figure:
-
-        """
-        Creates a histogram from a dataframe
-
-        Args:
-            input_series (pd.Series): A pandas Series
-
-        Returns:
-            Figure: A matplotlib Figure object
-        """
-
-
-        # --------------------------------------------------
-        # Setup plot area, plot
-
-        
-        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot 
-        fig = Figure(figsize=(6, 6))
-        canvas = FigureCanvasAgg(fig) # noqa: F841
-        ax = fig.add_subplot(111)
-
-        
-        ax.set_axis_off()
-
-        # Plot a histogram
-        sns.histplot(x=input_series,
-                     color=self.theme_color,
-                     stat="density",
-                     alpha=0.5,
-                     ax=ax)
-
-        # Layer the KDE line
-        sns.kdeplot(x=input_series, 
-                    color="silver", 
-                    linewidth=3, 
-                    ax=ax, 
-                    warn_singular=False)
-
-        
-        # --------------------------------------------------
-        # Add additional plot details
-
-        # Add vertical mean line
-        mean_val = input_series.mean()
-        ax.axvline(mean_val,
-                   color="silver",
-                   linestyle=":",
-                   linewidth=2)
-
-        # Remove tick labels
-        ax.tick_params(left=False,
-                       bottom=False,
-                       labelleft=False,
-                       labelbottom=False)
-
-        # Add Min and Max text at the bottom corners
-        min_val = input_series.min()
-        max_val = input_series.max()
-
-        ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
-                color="silver", ha="left", va="top",) 
-        
-        ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
-                color="silver", ha="right", va="top", )
-
-        return fig
-
 
 
 class ExportDict(dict):
@@ -1015,17 +758,10 @@ class Template():
         # Set initial file name
         self.file_name = self.sanitize_name(input_str=wb.settings.file_name, 
                                             name_type='file')
-        self.env = wb.env
-        self.no_vba = wb.settings.no_vba
-        self.overwrite = wb.settings.overwrite
         self.logger = wb.logger
-        self.theme_color = wb.theme.theme_color
-        self.black_text = wb.theme.black_text
         self.wb = wb
         self.datasets = wb.datasets
         self.settings = wb.settings
-        self.plots = wb.settings.plots
-
 
         # Calculate the target file path
         self.path: Path = self.calculate_full_path()
@@ -1046,11 +782,13 @@ class Template():
 
         """
         
+        # Set vars
         input_path = Path(self.settings.wb_path)
+        no_vba = self.settings.no_vba
                        
         
         # Construct file name
-        if self.no_vba:
+        if no_vba:
             wb_file_name = f"{self.file_name}.xlsx"
         else:
             wb_file_name = f"{self.file_name}.xlsm"
@@ -1069,8 +807,6 @@ class Template():
                     self.wb.datasets[0].update_name(new_path.stem)
                     
                 
-                
-                            
             # if a correct extension with a partial path is provided, construct the full path
             else:
                 new_path = Path.cwd() / input_path
@@ -1185,14 +921,14 @@ class Template():
         # ------------------------------------------------------
         # Handle plots
         
-        if self.plots:
+        if self.settings.plots:
             
             # Replacement dictionary
             new_plots = {}
 
 
             
-            for plot_name, figure in self.plots.items():
+            for plot_name, figure in self.settings.plots.items():
                 
                 # Set var, update count
                 plot_name = self.sanitize_name(plot_name, name_type='name')
@@ -1211,7 +947,7 @@ class Template():
                 new_plots[plot_name] = figure
                 
             
-            self.plots = new_plots
+            self.settings.plots = new_plots
                 
 
 
@@ -1222,10 +958,14 @@ class Template():
 
         """
 
+        # Set vars
+        overwrite = self.settings.overwrite
+        junk_drawer = self.settings.env.junk_drawer
+        mac = self.settings.env.mac
 
         # Return an error if there's an existing file and no overwrite flag
 
-        if self.path.is_file() and not self.overwrite:
+        if self.path.is_file() and not overwrite:
             
             msg = f"Error: There is already a workbook named {self.path}!"
             msg += "Use overwrite=True or rename/remove the existing workbook"
@@ -1235,12 +975,12 @@ class Template():
 
         # Delete the file if there's an overwrite flag, return error if it's open
     
-        elif self.path.is_file() and self.overwrite:
+        elif self.path.is_file() and overwrite:
             try:
 
                 send2trash.send2trash(self.path)
                 
-                self.logger.exit_msg += f"\nThe previously existing file was sent to your {self.env.junk_drawer}\n"
+                self.logger.exit_msg += f"\nThe previously existing file was sent to your {junk_drawer}\n"
                 
             except OSError:
                 
@@ -1266,7 +1006,7 @@ class Template():
         # Create a copy of the template
 
         # Remove MOTW from the templates before using if on MacOS
-        if self.env.mac:
+        if mac:
             self.white_list_templates()
         
 
@@ -1378,7 +1118,7 @@ class Template():
                 ws.tables[0].name = dataset.table_name
 
                 # Add a color gradient to the worksheet tab to distinguish among them
-                self.greyscale_tab(ws=ws, iteration=i)
+                self.color_tab(ws=ws, iteration=i)
         
             progress_bar.update(1)
 
@@ -1589,6 +1329,9 @@ class Template():
         self.set_theme(df_overview_table.range[0,:])
         self.set_theme(field_overview_table.range[0,:])
         
+        # Change worksheet tab color to theme
+        self.color_tab(ws=ws, iteration=0, color=True)
+        
         # Update the primary tables
         df_overview_table.update(df_overview_df, index=False)
         field_overview_table.update(field_overview_df, index=False)
@@ -1645,7 +1388,6 @@ class Template():
         # Set primary vars
         
         datasets = self.datasets
-        plotter = self.wb.plotter
         book = self.book
         
         
@@ -1678,11 +1420,11 @@ class Template():
                 # --------------------------------------------------
                 # Add Composition Table
 
-                composition_table = plotter.create_composition_plot(df[col])
+                composition_table = self.create_composition_plot(df[col])
 
-                plotter.add_small_plot(target_range=composition_range,
-                                       fig=composition_table,
-                                       name=f'composition_{col}')
+                self.add_small_plot(target_range=composition_range,
+                                    fig=composition_table,
+                                    name=f'composition_{col}')
 
                 if pd.api.types.is_numeric_dtype(df[col]):
 
@@ -1691,11 +1433,11 @@ class Template():
                     # --------------------------------------------------
                     # Add Histogram
 
-                    histogram = plotter.create_histogram_plot(df[col])
+                    histogram = self.create_histogram_plot(df[col])
 
-                    plotter.add_small_plot(target_range=histogram_range,
-                                           fig=histogram,
-                                           name=f'histogram_{col}')
+                    self.add_small_plot(target_range=histogram_range,
+                                        fig=histogram,
+                                        name=f'histogram_{col}')
 
 
                 # --------------------------------------------------
@@ -1747,7 +1489,7 @@ class Template():
 
 
 
-        for plot_name, figure in self.plots.items():
+        for plot_name, figure in self.settings.plots.items():
            
             
             # Plots will be added before all other sheets
@@ -1894,7 +1636,7 @@ class Template():
                     pass
 
         else:
-            self.env.warn_print("Templates not found.")
+            self.wb.logger.warn_print("Templates not found")
 
 
 
@@ -1908,16 +1650,20 @@ class Template():
 
         """
         
+        
+        # Set vars
         center = Constants.xlCenter  # noqa: F841
         left = Constants.xlLeft # noqa: F841
+        env = self.settings.env
         
-        if self.env.win:
+        
+        if env.win:
             if horizontal:
                 input_range.api.HorizontalAlignment = eval(horizontal)
             if vertical:
                 input_range.api.VerticalAlignment = eval(vertical)
 
-        elif self.env.mac:
+        elif env.mac:
             if horizontal:
                 input_range.api.horizontal_alignment.set(eval(horizontal))
             if vertical:
@@ -1934,10 +1680,11 @@ class Template():
 
         """
         
-        if self.env.win:
+        
+        if self.settings.env.win:
             input_range.api.Orientation = degrees
         
-        elif self.env.mac:
+        elif self.settings.env.mac:
             input_range.api.text_orientation.set(degrees)
             
 
@@ -1951,10 +1698,10 @@ class Template():
         """
         
         
-        if self.env.win:
+        if self.settings.env.win:
             input_range.api.Rows.Group()
             
-        elif self.env.mac:
+        elif self.settings.env.mac:
             input_range.api.group()
         
         
@@ -1968,10 +1715,10 @@ class Template():
         
         """
         
-        if self.env.win:
+        if self.settings.env.win:
             input_range.api.EntireRow.Hidden = hide
             
-        elif self.env.mac:
+        elif self.settings.env.mac:
             input_range.api.entire_row.hidden.set(hide)
 
 
@@ -1983,9 +1730,9 @@ class Template():
 
         """
 
-        input_range.color = self.theme_color
+        input_range.color = self.settings.theme.color
 
-        if self.black_text:
+        if self.settings.theme.black_text:
             input_range.font.color = '#000000'
        
 
@@ -2000,28 +1747,269 @@ class Template():
         input_range.color = '#262626'
         input_range.font.color = '#898989'
 
-
-
-    def greyscale_tab(self, ws: xw.Sheet, iteration:int):
+    
+    def color_tab(self, ws: xw.Sheet, iteration:int, color: bool=False):
 
         """
         Colors worksheet tabs to a shade of grey for contrast with adjacent worksheets
             
         """
         
+        # Set vars
+        mac = self.settings.env.mac
+        win = self.settings.env.win
+        tab = self.settings.theme.tab
+              
+        
         # 26*10 > 255 limit for RGB so limit to 9
         iteration = (iteration + 1) % 19
         multiplier = 13 * iteration
 
 
-        # Set color for field analysis worksheet
-        if self.env.win:
-            color = (multiplier) + (multiplier*256)  + (multiplier*256*256)
-            ws.api.Tab.Color = color
+        # Set tab color
+        if win:
+            
+            # Use color if needed
+            if color:
+                shade = tab
+                
+            # Otherwise use greyscale
+            else:
+                shade = (multiplier) + (multiplier*256)  + (multiplier*256*256)
+                
+            ws.api.Tab.Color = shade
         
-        elif self.env.mac:
-            color = ((multiplier), (multiplier), (multiplier))
-            ws.api.sheet_tab.color.set((color))
+        elif mac:
+            
+            
+            # Use color if needed
+            if color:
+                shade = tab
+                
+            # Otherwise use greyscale
+            else:
+                shade = ((multiplier), (multiplier), (multiplier))
+            
+            ws.api.sheet_tab.color.set((shade))
+
+
+    def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
+
+        """
+        Adds a small chart to an Excel cell that is centered 
+            at 90% of the size of the cell
+
+        Args:
+            fig (Figure): A matplotlib Figure object
+            target_range (Range): An Excel cell
+
+        """
+        
+        # --------------------------------------------------
+        # Calculate size/position
+
+
+        # Calculate 90% of cell dimensions
+        target_width = target_range.width * 0.9
+        target_height = target_range.height * 0.9
+
+        # Calculate position to center the picture
+        target_left = target_range.left + (target_range.width / 2) - (target_width / 2)
+        target_top = target_range.top + (target_range.height / 2) - (target_height / 2)
+
+
+        # --------------------------------------------------
+        # Add the picture to the sheet
+
+
+        if self.settings.env.win:
+
+            pic = target_range.sheet.pictures.add(fig,
+                                                  name=name,
+                                                  left=target_left,
+                                                  top=target_top,
+                                                  width=target_width,
+                                                  height=target_height)
+
+            # Set placement to xlMoveAndSize
+            try:
+                pic.api.Placement = 1
+            except AttributeError:
+                pass
+        
+        elif self.settings.env.mac:
+            
+            # Uses anchor instead
+            pic = target_range.sheet.pictures.add(fig,
+                                                  name=name,
+                                                  left=target_left,
+                                                  top=target_top,
+                                                  width=target_width,
+                                                  height=target_height)
+            
+            pic.api.placement.set(k.placement_move_and_size)
+
+
+    def create_composition_plot(self, input_series: pd.Series) -> Figure:
+        
+        """
+        Creates a composition table from a dataframe
+
+        Args:
+            input_series (pd.Series): A pandas Series
+
+        Returns:
+            Figure: A matplotlib Figure object
+        """
+
+        # --------------------------------------------------
+        # Setup values
+
+
+        # Font size
+        font_size = 24
+
+        # Prepare plot values
+        category_counts = input_series.value_counts()
+        top_5_categories = category_counts.head(5)
+        total_records = len(input_series)
+        other_counts = total_records - top_5_categories.sum()
+
+        # Assemble plot values
+        categories = list(top_5_categories.index) + ["Other"]
+        values = list(top_5_categories.values) + [other_counts]
+
+        
+        
+        # --------------------------------------------------
+        # Setup plot
+        
+        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot
+        fig = Figure(figsize=(9, 9))
+        canvas = FigureCanvasAgg(fig) # noqa: F841
+        ax = fig.add_subplot(111)
+
+
+        # Add bars to plot
+        y_pos = range(len(categories))[::-1]
+        ax.barh(y_pos, values,color=self.settings.theme.color, height=0.5, edgecolor='silver')
+
+        
+        # --------------------------------------------------
+        # Adjust Formatting
+        
+        # Remove spines
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+        # Remove other extra plot elements
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_title("")
+
+        # Make enough room for text on the left so they don't overlap
+        fig.subplots_adjust(left=0.4, right=0.9)
+        max_val = max(values)
+
+
+
+        # --------------------------------------------------
+        # Setup data bars
+
+        for y, cat, val in zip(y_pos, categories, values):
+            pct = (val / total_records) * 100
+
+            # Truncate long category name
+            display_cat = str(cat)
+            if len(display_cat) > 6:
+                display_cat = display_cat[:5] + ".."
+
+            # Add category name and adjust left to prevent overlap
+            ax.text(-0.55, y, display_cat, color="white", va="center", 
+                    ha="left", fontsize=font_size, transform=ax.get_yaxis_transform(), )
+
+            # Add category percentage
+            ax.text(-0.05, y, f"{pct:.0f}%", color="white", va="center", ha="right", 
+                    fontsize=font_size, transform=ax.get_yaxis_transform(), )
+
+            # Add category count to the right of the bars
+            ax.text(val + max_val * 0.02, y, str(val), color="white",
+                    va="center", ha="left", fontsize=font_size, )
+
+        return fig
+
+
+
+    def create_histogram_plot(self, input_series: pd.Series) -> Figure:
+
+        """
+        Creates a histogram from a dataframe
+
+        Args:
+            input_series (pd.Series): A pandas Series
+
+        Returns:
+            Figure: A matplotlib Figure object
+        """
+
+
+        # --------------------------------------------------
+        # Setup plot area, plot
+
+        
+        # Initialize a Figure object, attach it to a canvas, and add a 1 column/row subplot 
+        fig = Figure(figsize=(6, 6))
+        canvas = FigureCanvasAgg(fig) # noqa: F841
+        ax = fig.add_subplot(111)
+
+        
+        ax.set_axis_off()
+
+        # Plot a histogram
+        sns.histplot(x=input_series,
+                     color=self.settings.theme.color,
+                     stat="density",
+                     alpha=0.5,
+                     ax=ax)
+
+        # Layer the KDE line
+        sns.kdeplot(x=input_series, 
+                    color="silver", 
+                    linewidth=3, 
+                    ax=ax, 
+                    warn_singular=False)
+
+        
+        # --------------------------------------------------
+        # Add additional plot details
+
+        # Add vertical mean line
+        mean_val = input_series.mean()
+        ax.axvline(mean_val,
+                   color="silver",
+                   linestyle=":",
+                   linewidth=2)
+
+        # Remove tick labels
+        ax.tick_params(left=False,
+                       bottom=False,
+                       labelleft=False,
+                       labelbottom=False)
+
+        # Add Min and Max text at the bottom corners
+        min_val = input_series.min()
+        max_val = input_series.max()
+
+        ax.text(0, -0.05, f"Min {min_val:g}", transform=ax.transAxes, fontsize=16, 
+                color="silver", ha="left", va="top",) 
+        
+        ax.text( 1, -0.05, f"Max {max_val:g}", transform=ax.transAxes, fontsize=16, 
+                color="silver", ha="right", va="top", )
+
+        return fig
+
+
+
 
 
 
@@ -2048,11 +2036,22 @@ class Logger():
         self.section_performance: pd.DataFrame = pd.DataFrame()
         self.config: pd.DataFrame = pd.DataFrame()
         self.env: pd.DataFrame = pd.DataFrame()
-        self.total_production_time: float       
-
-
-    def print_initialization_msg(self, wb: wb):
+        self.total_production_time: float
         
+        
+        
+        
+
+
+    def start_output(self, wb: wb):
+        
+        """
+        Prints an initialization message
+        
+        """
+        
+        
+        # Get output variables
         data = wb.settings.data
         file_name = wb.settings.file_name
         export = wb.settings.export
@@ -2083,11 +2082,145 @@ class Logger():
         elif export:
             msg = separator + f"\nStarted preparing an xleda export {data_name} at {time.strftime('%H:%M:%S')}\n\n"
         
-        wb.theme.print(msg)
+        self.print(msg)
+        
+        
+        # Return the initial progress bar
+        return self.create_progress_bar(desc="Initializing wb Components...", total=10)
+        
+        
         
 
+    def add_settings(self, settings: Settings):
+        
+        """
+        Configures the logger object to be theme appropriate
+        
+        """
+        
+                
+        
+        # Add settings/theme
+        self.settings = settings
 
-    def add_variable_logs(self, wb: wb):
+        
+    
+    def warn_print(self, text: str):
+        
+        """
+        Prints text in red bold for warning messages
+
+        """
+        
+        print(f"\033[1;31m{text}\033[0m")
+    
+    
+    
+    def create_progress_bar(self, desc: str, total: float, download: bool=False) -> tqdm:
+        
+        """
+        Creates a tqdm progress bar
+
+        Returns
+        -------
+        tqdm
+            A tqdm object
+        """
+        
+        color = self.settings.theme.color
+        
+        # Create a temporary progress bar
+        if download:
+            
+            
+            fmt = "{desc} | {percentage:3.0f}% | {bar} | {elapsed}"
+
+
+            # Pad the raw desc for alignment
+            padded_desc = f"{desc:<30}"
+
+            # Create a tqdm instance
+            pbar = tqdm(
+                total=total,
+                desc=padded_desc,
+                bar_format=fmt,
+                colour=color,
+                # ncols=100,
+                # dynamic_ncols=True
+            )
+
+        
+        # Create a permanent progress bar
+        else:
+                        
+            fmt = "{desc} | {percentage:3.0f}% | {bar} | {elapsed}"
+
+
+            # Pad the raw desc for alignment
+            padded_desc = f"{desc:<30}"
+
+            # Create a tqdm instance
+            pbar = tqdm(
+                total=total,
+                desc=padded_desc,
+                bar_format=fmt,
+                colour=color,
+                # ncols=100,
+                # dynamic_ncols=True
+            )
+            
+            # Creates a thread to refresh the progres bar
+            self.start_auto_refresh(pbar=pbar)
+
+
+        return pbar
+
+
+    def start_auto_refresh(self, pbar: tqdm):
+
+        """
+        Refreshing tqdm progress bars until they are complete.
+
+        """
+
+        interval=0.1
+
+        def _refresh_loop():
+            while not pbar.disable:
+                pbar.refresh()
+                time.sleep(interval)
+                
+        thread = threading.Thread(target=_refresh_loop, daemon=True)
+        thread.start()
+        return thread
+
+
+
+
+    def print(self, text: str):
+        
+        """
+        Prints to the console using theme color text. 
+
+        Parameters
+        ----------
+        text : str
+            Text to be printed
+
+        """
+
+        # Get the themed ansi color
+        color = self.settings.theme.ansi_color
+        
+        # Resets terminal to default style
+        reset = "\033[0m"  
+        
+        print(f"{color}{text}{reset}")
+        
+    
+
+
+    def add_variables(self, wb: wb):
         
         """
         Logs xleda environment and configuration
@@ -2098,8 +2231,8 @@ class Logger():
         # ---------------------------------------------------------
         # Set vars
         
-        settings = wb.settings
         template = wb.template
+        settings = wb.settings
         
         
         
@@ -2112,7 +2245,7 @@ class Logger():
                     'python_version', 'python_implementation', 'console_columns', 'console_lines']
         
         # Remove irrelevant keys
-        env_dict = {k:v for k, v in vars(wb.env).copy().items() if k in env_keys}
+        env_dict = {k:v for k, v in vars(settings.env).copy().items() if k in env_keys}
 
         
         # Create a dataframe, transpose it, add column names, and save it
@@ -2121,8 +2254,7 @@ class Logger():
         env_df.columns = ['Environment Variable', 'Value']
         
         self.env =  env_df
-        
-        
+
 
         # ---------------------------------------------------------
         # Set up config df
@@ -2134,7 +2266,7 @@ class Logger():
                   'data argument': settings.data_argument,
                   'dataframes': ', '.join([ds.name for ds in wb.datasets]),
                   'plots': ', '.join(settings.plots.keys()),
-                  'theme_color': settings.theme_color,
+                  'theme': settings.color,
                   'large_report': settings.large_report,
                   'overwrite': settings.overwrite,
                   'open_wb': settings.open_wb,
@@ -2183,21 +2315,53 @@ class Logger():
 
         """
 
+
+        # ----------------------------------------------------------------------------------
         # Add variable logs
-        self.add_variable_logs(wb=wb)
+
+        # Add variable logs
+        self.add_variables(wb=wb)
         
         
         # Close the production timer
         self.total_production_time = self.last - self.start
 
 
-        # Create section performance df
-        self.section_performance = pd.DataFrame.from_records(self.performance_logs['section'])
-        
-        
-        # Add % of Production Time columns
-        df = self.section_performance
+        # Create section performance df, add % of Production Time, store it
+        df = pd.DataFrame.from_records(self.performance_logs['section'])
         df['% of Production Time'] = df['Production Time in Seconds']/self.total_production_time
+        self.section_performance = df
+
+
+
+        # ----------------------------------------------------------------------------------
+        # Print closing messsage
+        
+        plots = wb.settings.plots
+        exit_msg = self.exit_msg
+        datasets = wb.datasets
+        
+        # Provide a completion message
+        self.print(f"\nProcess completed in {int(self.total_production_time)} seconds")
+                
+
+        # Note dataframes          
+        dataframes = ", ".join([ds.name for ds in datasets])
+        exit_msg += f"\nDataframes included:\n    {dataframes}"
+
+        # Note plots
+        if plots:
+            
+            plots = (", ").join(plots.keys())
+            exit_msg += f"\n\nAdditional plots included:\n    {plots}"
+
+        exit_msg += f"\n\nWorkboook is located at:\n {wb.template.path}"
+
+        # Print closing message
+        self.print(exit_msg + '\n' + separator)
+    
+
+
 
 
 
@@ -2213,26 +2377,23 @@ class DataSetParser():
     """
     
 
-    def __init__(self, 
+    def __init__(self,
                  settings: Settings,
-                 just_path: bool=False):
+                 logger: Logger):
         
 
-        # Save vars to class instance
+
         self.large_report = settings.large_report
         self.env = settings.env
+        self.logger = logger
 
         
-        
-        # Create a datasets placeholder
+        # Create a datasets placeholder and parse the data argument
         self.datasets: list[DataSet] = []
+        self._parse_data_inputs(settings=settings)
         
-        
-        # If just_path is called, don't parse the data argument
-        if not just_path:
-           
-            # Parse data inputs
-            self._parse_data_inputs(settings=settings)
+
+            
         
         
  
@@ -2248,6 +2409,7 @@ class DataSetParser():
         # Set vars
         data = settings.data
         input_df = settings.input_df
+        logger = self.logger
 
 
 
@@ -2262,13 +2424,13 @@ class DataSetParser():
         # Handle 'input_df' argument provided without 'data'
         elif (isinstance(input_df, pd.DataFrame) and data is None):
             
-            settings.env.warn_print("The 'input_df' argument has been replaced by 'data'")
+            logger.warn_print("The 'input_df' argument has been replaced by 'data'")
             self.from_dataframes({settings.file_name: input_df})
             
         # If both are 'input_df' and  'data' are provided, ignore input_df
         elif (input_df is not None and data is not None):
             
-            settings.env.warn_print("The 'input_df' argument has been replaced by 'data', ignoring 'input_df'.")
+            logger.warn_print("The 'input_df' argument has been replaced by 'data', ignoring 'input_df'.")
             
         # Only the data argument has been provided, validate that it is supported
         else:
@@ -2303,22 +2465,10 @@ class DataSetParser():
                 
                 # --------------------------------------------------------------
                 # Get pathlib Path
-                
-                str_path = str(data)
-                settings.data_argument = str_path
-                
-                # If an http path is provided, download a local copy to use
-                if str_path.startswith(("http://", "https://")):
-                    path = self.from_http(str_path)
-                    
-                    # If wb_path hasn't been provided for http data sources, use the cwd
-                    if not settings.wb_path:
-                        settings.wb_path = Path.cwd()
-                    
-                
+                               
+
                 # Otherwise get the local path
-                else:
-                    path = Path(data).expanduser().resolve()
+                path = Path(data).expanduser().resolve()
                     
                 
                 # Ensure it's a file
@@ -2352,43 +2502,7 @@ class DataSetParser():
             else:
                 raise DataError(f"\n\nData file not found.\n\nProvided data argument:\n\n    {str(data)}")
  
-    def from_http(self, url: str) -> Path:
-        
-        """
-        Downloads a remote file into a temporary directory, 
-        returning a Path object
-        
-        """
-        import requests
-        import tempfile
-        
-        path = Path(url)
-        file_name = path.name
-        suffix = path.suffix.lower()
-        
-        
-        # Ensure it's a supported file type
-        if suffix not in supported_extensions:
-            raise DataError(f"\n\nUnsupported file type: {suffix}\n\nSupported file types:\n\n    {supported}")
-        
-        
-        # Try downloading a temporary copy
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            
-            
-            # Get a temporary file path
-            temp_file_path = Path(tempfile.gettempdir()) / file_name
-            
-            # Save the remote file to the temp path
-            with open(temp_file_path, "wb") as f:
-                f.write(response.content)
-                
-            return temp_file_path.expanduser().resolve()
-        
-        except Exception:
-            raise DataError("\n\nHTTP/HTTPS file not successfully parsed") 
+    
 
         
 
@@ -3099,337 +3213,6 @@ class DataSet():
         
         return pd.DataFrame.from_records([df_metadata])
     
-
-
-class CLI():
-    
-    
-    def __init__(self):
-        
-        self.windows_menu_name = "Create xleda Workbook"
-        self.macos_service_name = "Create xleda Workbook.workflow"
-               
-        
-        self.env = Environment()
-
-
-        
-    def windows_command(self) -> str:
-
-        """
-        Constructs the context menu command for Windows
-        
-        """
-        
-        python = str(Path(sys.executable).resolve())
-        module_command = f"& {shlex.quote(python)} -m xleda wb '%1'"
-        pause_command = "Write-Host ''; Read-Host 'Operation Completed, you can now close this window'"
-        return f'powershell.exe -NoExit -ExecutionPolicy Bypass -Command "{module_command}; {pause_command}"'
-
-
-    def install_windows_context_menu(self) -> bool:
-        
-        """
-        Installs the context menu on Windows
-        
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
-        """
-        
-        import winreg
-        command = self.windows_command()
-        
-        try:
-
-            icon_path = Path(__file__).parent / 'rectangle_icon.ico'
-            
-            for extension in supported_extensions:
-                base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
-                
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key:
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name)
-                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path))
-
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key:
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command)
-                
-            return True
-        
-        except Exception:
-            
-            return False
-        
-
-
-    def uninstall_windows_context_menu(self) -> bool:
-        
-        """
-        Uninstalls the context menu on Windows
-        
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
-        """
-
-        
-        try:
-            import winreg
-
-            for extension in supported_extensions:
-                base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
-                try:
-                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command")
-                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, base_key)
-                except FileNotFoundError:
-                    pass
-        
-            return True
-        
-        except Exception:
-            return False
-
-
-
-    def macos_workflow_shell_script(self) -> str:
-        
-        """
-        Constructs the context menu command for MacOS
-        
-        """
-
-        python = shlex.quote(str(Path(sys.executable).resolve()))
-        
-        cmd = ('for data_file_path in "$@"'
-               'do'
-             """  /usr/bin/osascript - "$filePath" <<'APPLESCRIPT'"""
-               'on run argv'
-               '  set filePath to item 1 of argv'
-              f'  set commandText to "{python} -m xleda wb " & quoted form of filePath & "; echo; read -n 1 -s -r -p " & quoted form of "Press any key to close this window..."'
-               '  tell application "Terminal"'
-               '    activate'
-               '    do script commandText'
-               '  end tell'
-               'end run'
-               'APPLESCRIPT'
-               'done')
-        
-        return cmd
-
-
-    def macos_workflow_document(self) -> dict:
-        
-        """
-        Constructs the context menu workflow for MacOS
-        
-        """
-        
-        return {
-            "AMApplicationBuild": "523",
-            "AMApplicationVersion": "2.10",
-            "AMDocumentVersion": "2",
-            "actions": [
-                {
-                    "action": {
-                        "AMAccepts": {
-                            "Container": "List",
-                            "Optional": False,
-                            "Types": ["com.apple.cocoa.path"],
-                        },
-                        "AMActionVersion": "2.0.3",
-                        "AMApplication": ["Automator"],
-                        "AMParameterProperties": {},
-                        "AMProvides": {
-                            "Container": "List",
-                            "Types": ["com.apple.cocoa.path"],
-                        },
-                        "ActionBundlePath": "/System/Library/Automator/Run Shell Script.action",
-                        "ActionName": "Run Shell Script",
-                        "ActionParameters": {
-                            "COMMAND_STRING": self.macos_workflow_shell_script(),
-                            "CheckedForUserDefaultShell": True,
-                            "inputMethod": 1,
-                            "shell": "/bin/zsh",
-                            "source": "",
-                        },
-                        "BundleIdentifier": "com.apple.RunShellScript",
-                        "CFBundleVersion": "2.0.3",
-                    },
-                    "isViewVisible": True,
-                }
-            ],
-            "connectors": {},
-            "workflowMetaData": {
-                "applicationBundleIDsByPath": {"/System/Library/CoreServices/Finder.app": "com.apple.finder"},
-                "applicationPaths": ["/System/Library/CoreServices/Finder.app"],
-                "inputTypeIdentifier": "com.apple.Automator.fileSystemObject",
-                "outputTypeIdentifier": "com.apple.Automator.nothing",
-                "presentationMode": 15,
-                "processesInput": True,
-                "serviceApplicationBundleID": "com.apple.finder",
-                "serviceApplicationPath": "/System/Library/CoreServices/Finder.app",
-                "serviceInputTypeIdentifier": "com.apple.Automator.fileSystemObject",
-                "serviceOutputTypeIdentifier": "com.apple.Automator.nothing",
-                "serviceProcessesInput": True,
-            },
-        }
-
-
-
-
-    def install_macos_context_menu(self) -> bool:
-
-        """
-        Installs the context menu on MacOS
-        
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
-        """
-        
-        import plistlib
-        
-        service_path = Path.home() / "Library" / "Services" / self.macos_service_name
-        contents_path = service_path / "Contents"
-        
-        
-        try:
-            contents_path.mkdir(parents=True, exist_ok=True)
-
-            info = {
-                "CFBundleIdentifier": "com.infodesigner.xleda.create-workbook",
-                "CFBundleName": "Create xleda Workbook",
-                "CFBundlePackageType": "FMWK",
-                "NSServices": [
-                    {
-                        "NSMenuItem": {"default": "Create xleda Workbook"},
-                        "NSMessage": "runWorkflowAsService",
-                        "NSRequiredContext": {"NSApplicationIdentifier": "com.apple.finder"},
-                        "NSSendFileTypes": [
-                            
-                            # Text Data Formats
-                            "public.comma-separated-values-text",  # .csv
-                            "public.json",                        # .json
-                            "public.xml",                         # .xml
-                            
-                            # Excel Formats
-                            "org.openxmlformats.spreadsheetml.sheet",               # .xlsx
-                            "com.microsoft.excel.xls",                              # .xls
-                            "org.openxmlformats.spreadsheetml.sheet.macroenabled",  # .xlsm
-                            "com.microsoft.excel.sheet.binary.macroenabled",        # .xlsb
-                            
-                            # Databases
-                            "org.sqlite.sqlite3",                 # .sqlite, .sqlite3
-                            "public.database",                    # .db, .db3, .s3db, .sl3
-                            
-                            # Big Data & Custom Catch-all
-                            "public.data"                         # .parquet, .feather, .duckdb, .ddb, .rdata, '.pkl', '.pickle', '.pck'
-                        ],
-                        "NSSendTypes": ["NSFilenamesPboardType"],
-                    }
-                ],
-            }
-            with (contents_path / "Info.plist").open("wb") as f:
-                plistlib.dump(info, f)
-
-            with (contents_path / "document.wflow").open("wb") as f:
-                plistlib.dump(self.macos_workflow_document(), f)
-
-            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
-            return True
-        
-        except Exception:
-            return False
-
-
-    def uninstall_macos_context_menu(self) -> bool:
-
-        """
-        Uninstalls the context menu on MacOS
-        
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
-        """
-
-        try:
-            service_path = Path.home() / "Library" / "Services" / self.macos_service_name
-            if service_path.exists():
-                import shutil
-
-                shutil.rmtree(service_path)
-
-            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
-            return True
-        
-        except Exception:
-            
-            return False
-
-
-    def install(self) -> None:
-        
-        """
-        Installs the right-click context menu in either MacOS/Windows
-        
-        """
-
-        if self.env.win:
-            success = self.install_windows_context_menu()       
-            
-        elif self.env.mac:
-            success = self.install_macos_context_menu()
-        
-        if success:
-
-            
-            success_message = (f"{separator}\033[1m\n\nInstalled the xleda right-click menu\033[0m\n\n"
-                               "Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML\n\n"
-                               f"Expected extensions:\n{supported}\n\n"
-                               "For more documentation, visit https://github.com/InfoDesigner/xleda")
-                    
-            print(success_message)
-
-    def uninstall(self) -> None:
-        
-        """
-        Uninstalls the right-click context menu in either MacOS/Windows
-        
-        """
-
-        if self.env.win:
-            success = self.uninstall_windows_context_menu()
-        elif self.env.mac:
-            success = self.uninstall_macos_context_menu()
-        
-        if success:
-            print("Uninstalled the xleda right-click menu.")
-            
-    
-    def version(self):
-        
-        """
-        Checks for an updated version on PyPi
-        
-        """
-        
-        # Validate compatibility, get persistent settings
-        env = Environment()
-        settings = Settings(env=env, version=True)
-        
-        # Use theme color setting to return version information
-        theme = Theme(settings=settings)
-        theme.print(settings.update_msg)
 
 
 

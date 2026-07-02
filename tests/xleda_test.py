@@ -16,7 +16,7 @@ import matplotlib as mpl
 import missingno as msno
 
 # Package imports
-from xleda.utilities import DataSetParser, Settings, Environment, DataError
+from xleda.utilities import DataSetParser, Settings, DataError, Logger
 from xleda.main import cli
 from xleda import wb
 
@@ -131,7 +131,7 @@ valids = {
         'african_soil': {'data': {"African Soil": african_soil},
                          'wb_path':examples_path,
                          'large_report': True,
-                         'theme_color': '#31AC83',
+                         'theme': '#31AC83',
                          'expected_path': examples_path / "African Soil.xlsm"},
                          
         'nyc_xlsx': {'data': {"NYC Taxi": nyc_taxi},
@@ -140,7 +140,7 @@ valids = {
                      
         'diamonds': {'data': {df_name: sns.load_dataset(df_name.lower()) for df_name in ['Diamonds', 'dots', 'dowjones']},
                      'wb_path': examples_path,
-                     'theme_color': 'random',
+                     'theme': 'random',
                      'expected_path': examples_path / "Diamonds.xlsm"}}
 
 
@@ -162,8 +162,8 @@ cli_args = {
                 
                 
     # These are kept
-    'sqlite': ['wb', sqlite, '--theme_color', "#7124BA", '--wb_path', str(examples_path)], 
-    'feather': ['wb', air_bnb, '--file_name', 'Airbnb', '--theme_color', '#B30934', '--wb_path', str(examples_path)], }
+    'sqlite': ['wb', sqlite, '--theme', "#7124BA", '--wb_path', str(examples_path)], 
+    'feather': ['wb', air_bnb, '--file_name', 'Airbnb', '--theme', '#B30934', '--wb_path', str(examples_path)], }
 
 
 
@@ -224,7 +224,7 @@ def create_completed_example():
        wb_path=titanic_incompleted,
        open_wb=False,
        no_vba=False,
-       theme_color='random',
+       theme='random',
        overwrite=True)
 
 
@@ -446,7 +446,8 @@ def test_valids(args: dict):
     
     
     # Calculate the Datasets externally
-    external_datasets = DataSetParser(Settings(locals=args, env=Environment())).datasets
+    external_datasets = DataSetParser(settings=Settings(locals=args), 
+                                      logger=Logger()).datasets
     
     # Use the internal datasets to capture worksheet/table names
     datasets = wb_object.datasets
@@ -542,7 +543,7 @@ def test_valids(args: dict):
         # ---------------------------------------------
         # Checks the additional plots
         
-        plots = wb_object.template.plots
+        plots = wb_object.settings.plots
 
         if plots:
 

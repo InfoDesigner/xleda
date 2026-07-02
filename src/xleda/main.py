@@ -5,18 +5,13 @@ import pandas as pd
 from pathlib import Path
 import ast
 import time
-import typer
 from tqdm.auto import tqdm
-
 from matplotlib.figure import Figure
 import xlwings as xw
 
 
-from .utilities import (Environment, Template, Theme, Plotter, DataSet, DataSetParser, ExportDict, 
-                        Logger, CLI, Settings, help_message, TemplateError)
-
-
-separator = "\n" + ("-" * 100)
+from .utilities import (Template, DataSet, DataSetParser, ExportDict, 
+                        Logger, Settings, separator, TemplateError)
 
 
 
@@ -38,7 +33,7 @@ class wb():
                  # Every other argument is keyword only
                  *,
                  file_name: str = 'xleda',
-                 theme_color: str = "",
+                 theme: str = "",
                  plots: dict[str, Figure] = {},
                  
                  export: bool = False,
@@ -71,9 +66,9 @@ class wb():
                 * The first key if a dict[str, pd.DataFrame] argument is provided for 'data'
                 * 'xleda' if neither option above is valid
                 
-        theme_color : str, optional
+        theme : str, optional
             * A hexidecimal color used for charts/accent color.  
-            * Use theme_color='random' for random colors.
+            * Use theme='random' for random colors.
             * Changing this setting changes the default color.
             * Defaults to "#262626"
 
@@ -144,34 +139,24 @@ class wb():
         # Initialize logger
         self.logger = Logger()
         
-        
-        # Initialize/Check Environment
-        self.env = Environment()
-        
-
+    
         # Create/update settings
-        self.settings = Settings(locals=locals(),
-                                 env=self.env)
+        self.settings = Settings(locals=locals(), 
+                                 logger=self.logger)
+        
+        
 
-        
-        # Intialize theme
-        self.theme = Theme(settings=self.settings)
-        
-        
-        # Intialize plotter
-        self.plotter = Plotter(settings=self.settings)
-
-        
         # ------------------------------------------------------------------------------
         # Initial Output, Prepare Datasets/Template
         
         
         # Print initial text/progress bar
-        self.logger.print_initialization_msg(wb=self)
-        pbar = self.theme.create_progress_bar(desc="Initializing wb Components...", total=10)
+        pbar = self.logger.start_output(wb=self)
+        
         
         # Prepare datasets
-        self.datasets: list[DataSet] = DataSetParser(settings=self.settings).datasets
+        self.datasets: list[DataSet] = DataSetParser(settings=self.settings, 
+                                                     logger=self.logger).datasets
         pbar.update(2) # 2
         
 
@@ -212,7 +197,7 @@ class wb():
         plots = self.settings.plots
         debug = self.settings.debug
         logger = self.logger
-        theme = self.theme
+
 
         num_datasets = len(datasets)
         num_columns = sum([ds.columns for ds in datasets])
@@ -235,7 +220,7 @@ class wb():
             # Close progress bar/Add Init Log
             progress_bar.update(2) # 10
             progress_bar.close()
-            self.logger.log(section='Initializing wb Components')
+            logger.log(section='Initializing wb Components')
             
 
             app.display_alerts = debug
@@ -244,8 +229,8 @@ class wb():
             # --------------------------------------------------
             # Adding Data
             
-            with theme.create_progress_bar(desc="Adding Data...",
-                                           total=5 + (6 * num_datasets)) as pbar:
+            with logger.create_progress_bar(desc="Adding Data...",
+                                            total=5 + (6 * num_datasets)) as pbar:
             
 
                 # Create placeholder worksheets
@@ -268,8 +253,8 @@ class wb():
             # Adding Plots
             
             # Once for each dataset/plot/column            
-            with theme.create_progress_bar(desc="Adding Plots...",
-                                           total=num_datasets + num_plots + num_columns) as pbar:
+            with logger.create_progress_bar(desc="Adding Plots...",
+                                            total=num_datasets + num_plots + num_columns) as pbar:
             
                 # Adds additional plots
                 if plots:
@@ -303,8 +288,7 @@ class wb():
             # Wait 2 seconds to ensure it saves to disk fully before exiting context manager
             time.sleep(2)
             
-            # Provide an output message
-            theme.print(f"\nProcess completed in {int(self.logger.total_production_time)} seconds")
+
             
 
         # --------------------------------------------------
@@ -316,30 +300,6 @@ class wb():
             app = xw.App(visible=True, add_book=False) 
             book = app.books.open(template.path)
 
-
-
-        # ----------------------------------------------------------------------------------
-        # Print closing messsage
-        
-
-        exit_msg = self.logger.exit_msg
-        
-
-        # Note dataframes          
-        dataframes = ", ".join([ds.name for ds in datasets])
-        exit_msg += f"\nDataframes included:\n    {dataframes}"
-
-        # Note plots
-        if plots:
-            
-            plots = (", ").join(plots.keys())
-            exit_msg += f"\n\nAdditional plots included:\n    {plots}"
-
-        exit_msg += f"\n\nWorkboook is located at:\n {self.template.path}"
-
-        # Print closing message
-        self.theme.print(exit_msg + '\n' + separator)
-    
 
 
 
@@ -355,9 +315,7 @@ class wb():
         
         template = self.template
         settings = self.settings
-        theme = self.theme
         datasets = self.datasets
-        env = self.env
         logger = self.logger
 
         missing_dfs = []
@@ -367,12 +325,7 @@ class wb():
         # --------------------------------------------------
         # If the file is not found return messaging
         
-        
-        # if an http file is passed to wb_path, download a temp copy
-        if str(settings.wb_path).startswith(("http://", "https://")):
-            path = DataSetParser(settings=settings, just_path=True).from_http(str(settings.wb_path))
-        else:
-            path = template.path
+        path = template.path
 
         if not path.is_file():
 
@@ -400,7 +353,7 @@ class wb():
             
 
 
-            with theme.create_progress_bar(desc="Reading workbook...",
+            with logger.create_progress_bar(desc="Reading workbook...",
                                            total=4 + (2 * len(datasets))) as pbar:
                               
                 pbar.update(2)
@@ -517,73 +470,13 @@ class wb():
         # Note any datframes that weren't exported
         if missing_dfs:
             
-            env.warn_print("\nThe following worksheets were not found and are using default metadata:\n")
+            logger.warn_print("\nThe following worksheets were not found and are using default metadata:\n")
             for sht in missing_dfs:
-                env.warn_print(f"    {sht}")
-                        
+                logger.warn_print(f"    {sht}")
+
 
         duration = time.time() - logger.start
-        theme.print(f"\nExport completed after {int(duration)} seconds" + separator)
+        logger.print(f"\nExport completed after {int(duration)} seconds" + separator)
 
 
         
-        
-# -------------------------------------------------
-# CLI
-
-
-# Construct typer app and layout primary commands
-cli = typer.Typer(epilog=help_message, rich_markup_mode="markdown")
-
-
-
-@cli.command()
-def install():
-    """Installs the right-click context menu."""
-    app = CLI() 
-    app.install()
-
-
-
-@cli.command()
-def uninstall():
-    """Uninstalls the right-click context menu."""
-    app = CLI() 
-    app.uninstall()
-
-
-
-@cli.command()
-def version():
-    """Checks for an updated version on PyPI."""
-    app = CLI() 
-    app.version()
-
-
-
-@cli.command(name="wb", epilog=help_message)
-def cli_wb(data: str = typer.Argument(..., help="Path to a supported data file"),
-           file_name: str = typer.Option(None, "--file_name", show_default=False, help="Name of the created workbook. Defaults to the same name as the data file"),
-           theme_color: str = typer.Option(None, "--theme_color", help="Hex color used for theme in workbook. Using this setting will change the default.  Defaults to a neutral color"),
-           export: bool = typer.Option(False, help="Export from an xleda workbook"),
-           large_report: bool = typer.Option(False, "--large_report", help="Only subsample when required to fit within Excel's worksheet limits"),
-           overwrite: bool = typer.Option(False, help="Overwrite existing workbook"),
-           wb_path: str = typer.Option('', "--wb_path", show_default=False, help="Workbook directory with/without filename"),
-           open_wb: bool | None = typer.Option(True, "--open_wb/--no_open_wb", help="Don't automatically open the workbook on finish"),
-           no_vba: bool | None = typer.Option(None, "--vba/--no_vba", help="Create a VBA-free xlsx file.  Using this setting will change the default.  Defaults to False"),
-           debug: bool = typer.Option(False, "--debug", help="View the workbook while it's being created")):
-
-        """
-        Creates an xleda workbook from a supported data file
-
-        """
-        
-        # Create a dictionary of input arguments
-        cli_args = locals()
-        
-        # if file name isn't provided, extract it from the data argument 
-        if not wb_path:
-            cli_args['file_name'] = file_name
-        
-
-        return wb(**cli_args)
