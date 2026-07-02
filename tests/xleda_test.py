@@ -17,7 +17,7 @@ import missingno as msno
 
 # Package imports
 from xleda.utilities import DataSetParser, Settings, DataError, Logger
-from xleda.main import cli
+from xleda.cli import cli
 from xleda import wb
 
 
@@ -446,8 +446,8 @@ def test_valids(args: dict):
     
     
     # Calculate the Datasets externally
-    external_datasets = DataSetParser(settings=Settings(locals=args), 
-                                      logger=Logger()).datasets
+    logger = Logger()
+    external_datasets = DataSetParser(settings=Settings(logger=logger), logger=logger).datasets
     
     # Use the internal datasets to capture worksheet/table names
     datasets = wb_object.datasets
