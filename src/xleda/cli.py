@@ -7,6 +7,8 @@ import sys
 import urllib.request
 from importlib.metadata import version as package_version
 from pathlib import Path
+import shutil
+
 
 from packaging.version import parse
 
@@ -137,12 +139,12 @@ class CLI():
             for extension in supported_extensions:
                 base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
                 
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key:
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name)
-                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path))
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key: # type: ignore
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name) # type: ignore
+                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path)) # type: ignore
 
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key:
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command)
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key: # type: ignore
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command) # type: ignore
                 
             return True
         
@@ -171,8 +173,8 @@ class CLI():
             for extension in supported_extensions:
                 base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
                 try:
-                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command")
-                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, base_key)
+                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") # type: ignore
+                    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, base_key) # type: ignore
                 except FileNotFoundError:
                     pass
         
@@ -181,190 +183,52 @@ class CLI():
         except Exception:
             return False
 
-
-
-    def macos_workflow_shell_script(self) -> str:
-        
-        """
-        Constructs the context menu command for MacOS
-        
-        """
-
-        python = shlex.quote(str(Path(sys.executable).resolve()))
-        
-        cmd = ('for data_file_path in "$@"'
-               'do'
-             """  /usr/bin/osascript - "$filePath" <<'APPLESCRIPT'"""
-               'on run argv'
-               '  set filePath to item 1 of argv'
-              f'  set commandText to "{python} -m xleda wb " & quoted form of filePath & "; echo; read -n 1 -s -r -p " & quoted form of "Press any key to close this window..."'
-               '  tell application "Terminal"'
-               '    activate'
-               '    do script commandText'
-               '  end tell'
-               'end run'
-               'APPLESCRIPT'
-               'done')
-        
-        return cmd
-
-
-
-
-    def macos_workflow_document(self) -> dict:
-        
-        """
-        Constructs the context menu workflow for MacOS
-        
-        """
-        
-        return {
-            "AMApplicationBuild": "523",
-            "AMApplicationVersion": "2.10",
-            "AMDocumentVersion": "2",
-            "actions": [
-                {
-                    "action": {
-                        "AMAccepts": {
-                            "Container": "List",
-                            "Optional": False,
-                            "Types": ["com.apple.cocoa.path"],
-                        },
-                        "AMActionVersion": "2.0.3",
-                        "AMApplication": ["Automator"],
-                        "AMParameterProperties": {},
-                        "AMProvides": {
-                            "Container": "List",
-                            "Types": ["com.apple.cocoa.path"],
-                        },
-                        "ActionBundlePath": "/System/Library/Automator/Run Shell Script.action",
-                        "ActionName": "Run Shell Script",
-                        "ActionParameters": {
-                            "COMMAND_STRING": self.macos_workflow_shell_script(),
-                            "CheckedForUserDefaultShell": True,
-                            "inputMethod": 1,
-                            "shell": "/bin/zsh",
-                            "source": "",
-                        },
-                        "BundleIdentifier": "com.apple.RunShellScript",
-                        "CFBundleVersion": "2.0.3",
-                    },
-                    "isViewVisible": True,
-                }
-            ],
-            "connectors": {},
-            "workflowMetaData": {
-                "applicationBundleIDsByPath": {"/System/Library/CoreServices/Finder.app": "com.apple.finder"},
-                "applicationPaths": ["/System/Library/CoreServices/Finder.app"],
-                "inputTypeIdentifier": "com.apple.Automator.fileSystemObject",
-                "outputTypeIdentifier": "com.apple.Automator.nothing",
-                "presentationMode": 15,
-                "processesInput": True,
-                "serviceApplicationBundleID": "com.apple.finder",
-                "serviceApplicationPath": "/System/Library/CoreServices/Finder.app",
-                "serviceInputTypeIdentifier": "com.apple.Automator.fileSystemObject",
-                "serviceOutputTypeIdentifier": "com.apple.Automator.nothing",
-                "serviceProcessesInput": True,
-            },
-        }
-
-
-
-
     def install_macos_context_menu(self) -> bool:
-
         """
-        Installs the context menu on MacOS
+        Installs a context menu Quick Service into MacOS
         
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
         """
-        
-        import plistlib
-        
-        service_path = Path.home() / "Library" / "Services" / self.macos_service_name
-        contents_path = service_path / "Contents"
-        
-        
         try:
-            contents_path.mkdir(parents=True, exist_ok=True)
-
-            info = {
-                "CFBundleIdentifier": "com.infodesigner.xleda.create-workbook",
-                "CFBundleName": "Create xleda Workbook",
-                "CFBundlePackageType": "FMWK",
-                "NSServices": [
-                    {
-                        "NSMenuItem": {"default": "Create xleda Workbook"},
-                        "NSMessage": "runWorkflowAsService",
-                        "NSRequiredContext": {"NSApplicationIdentifier": "com.apple.finder"},
-                        "NSSendFileTypes": [
-                            
-                            # Text Data Formats
-                            "public.comma-separated-values-text",  # .csv
-                            "public.json",                        # .json
-                            "public.xml",                         # .xml
-                            
-                            # Excel Formats
-                            "org.openxmlformats.spreadsheetml.sheet",               # .xlsx
-                            "com.microsoft.excel.xls",                              # .xls
-                            "org.openxmlformats.spreadsheetml.sheet.macroenabled",  # .xlsm
-                            "com.microsoft.excel.sheet.binary.macroenabled",        # .xlsb
-                            
-                            # Databases
-                            "org.sqlite.sqlite3",                 # .sqlite, .sqlite3
-                            "public.database",                    # .db, .db3, .s3db, .sl3
-                            
-                            # Big Data & Custom Catch-all
-                            "public.data"                         # .parquet, .feather, .duckdb, .ddb, .rdata, '.pkl', '.pickle', '.pck'
-                        ],
-                        "NSSendTypes": ["NSFilenamesPboardType"],
-                    }
-                ],
-            }
-            with (contents_path / "Info.plist").open("wb") as f:
-                plistlib.dump(info, f)
-
-            with (contents_path / "document.wflow").open("wb") as f:
-                plistlib.dump(self.macos_workflow_document(), f)
-
-            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            workflow_name = "Create xleda Workbook.workflow"
+            source_workflow_path = Path(__file__).parent / workflow_name
             
+            if not source_workflow_path.exists():
+                print(f"Error: Internal asset framework '{workflow_name}' missing.")
+                return False
+                
+            destination_path = Path.home() / "Library" / "Services" / workflow_name
+            
+            if destination_path.exists():
+                shutil.rmtree(destination_path)
+                
+            # Copies the folder structure, plist properties, and your custom png image natively!
+            shutil.copytree(source_workflow_path, destination_path)
+            
+            # Flush the system Pasteboard background registries to activate the menu item row instantly
+            subprocess.run(["/System/Library/CoreServices/pbs", "-flush"], capture_output=True, check=False)
             return True
-        
-        except Exception:
+        except Exception as e:
+            print(f"Installation failed: {e}")
             return False
 
-
-
     def uninstall_macos_context_menu(self) -> bool:
-
         """
-        Uninstalls the context menu on MacOS
+        Uninstalls a context menu Quick Service into MacOS
         
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
         """
 
         try:
-            service_path = Path.home() / "Library" / "Services" / self.macos_service_name
+            service_path = Path.home() / "Library" / "Services" / "Create xleda Workbook.workflow"
+            
+            # Physically erase the folder layout from disk if it exists
             if service_path.exists():
-                import shutil
-
                 shutil.rmtree(service_path)
-
-            subprocess.run(["/System/Library/CoreServices/pbs"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
+                
+            # Re-flush the background system services daemon to sync the menu instantly
+            subprocess.run(["/System/Library/CoreServices/pbs", "-flush"])
             return True
-        
-        except Exception:
-            
+        except Exception as e:
+            print(f"Uninstallation failed: {e}")
             return False
 
 
@@ -390,7 +254,6 @@ class CLI():
                                "For more documentation, visit https://github.com/InfoDesigner/xleda")
                     
             print(success_message)
-            
 
     def uninstall(self) -> None:
         
@@ -406,6 +269,7 @@ class CLI():
         
         if success:
             print("Uninstalled the xleda right-click menu.")
+            
             
 
     

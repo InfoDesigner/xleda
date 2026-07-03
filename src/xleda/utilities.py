@@ -351,13 +351,20 @@ class Settings():
         
         """
         
+        # Get settings path
         path = Path(self.settings_path)
+        
+        
+        # Get venv executable path
+        venv_root = Path(sys.prefix).resolve()
+       
         
         # Write to a temporary file first, then rename it
         tmp_path = path.with_suffix(".tmp")
         
         persistent_settings = {'no_vba': self.no_vba,
-                               'theme': self.color}
+                               'theme': self.color,
+                               'python_executable': str(venv_root / "bin" / "python")}
         
 
         try:
@@ -437,8 +444,8 @@ class Environment():
             if win:
                 
                 # Read the current Excel version from the Windows registry
-                with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key:
-                    app_version, _ = winreg.QueryValueEx(key, "")
+                with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key: # type: ignore
+                    app_version, _ = winreg.QueryValueEx(key, "") # type: ignore
                     app_version = app_version.split(".")[-1]
                     
             if mac:

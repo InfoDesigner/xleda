@@ -14,9 +14,6 @@ from .utilities import (Template, DataSet, DataSetParser, ExportDict,
                         Logger, Settings, separator, TemplateError)
 
 
-
-
-
 # -------------------------------------------------------
 # Primary class
 
@@ -210,20 +207,25 @@ class wb():
         # Open/Prepare the Template with a Context Manager
 
         with xw.App(visible=debug, add_book=False) as app:
+            
 
-
-            # Set vars, open workbook
+            # Set vars, open and activate workbook
+            
+            # Activate Excel on MacOS to prevent losing 'App' connection later.
+            if self.env.mac:
+                template.macos_focus_excel()
+            
             book = app.books.open(template.path, read_only=False)
             template.add_book(book=book)
+            app.display_alerts = debug
             
-            # Close progress bar/Add Init Log
+            # Close progress bar/Add Initialization Log
             progress_bar.update(2) # 10
             progress_bar.close()
             logger.log(section='Initializing wb Components')
             
 
-            app.display_alerts = debug
-            app.screen_updating = debug
+
             
             # --------------------------------------------------
             # Adding Data
@@ -341,6 +343,11 @@ class wb():
 
 
         with xw.App(visible=settings.debug, add_book=False) as app:
+            
+            
+            # Activate Excel on MacOS to prevent losing 'App' connection later.
+            if env.mac:
+                template.macos_focus_excel()
             
             app.display_alerts = False
             app.screen_updating = settings.debug
