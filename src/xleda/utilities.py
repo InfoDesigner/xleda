@@ -104,6 +104,7 @@ class Settings():
         # Initialize/Check Environment, get settings path
         self.env = Environment()
         self.settings_path = self.get_settings_path()
+        self.logger = logger
         
 
         # Runtime settings
@@ -140,7 +141,7 @@ class Settings():
                
         
         # Now that settings are complete, add them to the logger
-        logger.add_settings(settings=self)
+        self.logger.add_settings(settings=self)
         
 
         # No that we have a themed logger, download the http files if needed
@@ -210,11 +211,16 @@ class Settings():
 
         no_vba = input_args.get('no_vba', None)
         color = input_args.get('theme', '')
+        vba_toggle = input_args.pop('vba_toggle', None)
 
         
         # if provided arguments are explicit, change class properties
-        if no_vba is not None:        
+        if no_vba is not None:
             self.no_vba = no_vba
+        
+        # If vba_toggle is provided, swap it
+        if  vba_toggle:
+            self.no_vba = not self.no_vba
             
             
         # if provided theme is explicit, change class properties
@@ -2051,7 +2057,9 @@ class Logger():
         """
         
         
-        # Get output variables
+        
+        # Store variables
+        self.settings = wb.settings
         data = wb.settings.data
         file_name = wb.settings.file_name
         export = wb.settings.export
@@ -2378,14 +2386,11 @@ class DataSetParser():
     
 
     def __init__(self,
-                 settings: Settings,
-                 logger: Logger):
+                 settings: Settings):
         
 
-
-        self.large_report = settings.large_report
-        self.env = settings.env
-        self.logger = logger
+        # Store settings
+        self.settings = settings
 
         
         # Create a datasets placeholder and parse the data argument
@@ -2409,7 +2414,8 @@ class DataSetParser():
         # Set vars
         data = settings.data
         input_df = settings.input_df
-        logger = self.logger
+        logger = self.settings.logger
+        self.large_report = self.settings.large_report
 
 
 
@@ -2633,7 +2639,7 @@ class DataSetParser():
                 df = pd.json_normalize(data) 
                 self.datasets.append(DataSet(input_df=df,
                                                   name=self.file_name,
-                                                  large_report=self.large_report))
+                                                  large_report=self.settings.large_report))
 
                 
         except Exception: 
@@ -2666,7 +2672,7 @@ class DataSetParser():
 
                         self.datasets.append(DataSet(input_df=data,
                                                      name=self.file_name,
-                                                     large_report=self.large_report))
+                                                     large_report=self.settings.large_report))
                                                      
                                                      
         except EOFError:

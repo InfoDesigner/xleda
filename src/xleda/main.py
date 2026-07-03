@@ -155,8 +155,7 @@ class wb():
         
         
         # Prepare datasets
-        self.datasets: list[DataSet] = DataSetParser(settings=self.settings, 
-                                                     logger=self.logger).datasets
+        self.datasets: list[DataSet] = DataSetParser(settings=self.settings).datasets
         pbar.update(2) # 2
         
 
