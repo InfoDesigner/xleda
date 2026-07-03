@@ -19,7 +19,10 @@ from .main import wb
 import typer
 from typer import rich_utils
 
-color = Settings(Logger()).theme.color
+logger = Logger()
+settings = Settings(logger=logger)
+color = settings.theme.color
+    
 
 # Apply Hex colors for typer app
 rich_utils.STYLE_OPTION = color
@@ -41,16 +44,17 @@ rich_utils.STYLE_USAGE_COMMAND = color
 
 
 
-
         
 # -------------------------------------------------
 # CLI
 
 class CLI():
-
+    
+    # A class representing a CLI application
+    
     @staticmethod
     def help_message() -> str:
-        color = Settings(Logger()).theme.color
+
         return (
             f"[{color}]{separator}[/]\n\n\n\n"
             f"[{color}]Use 'xleda wb <data file path>' to create a workbook[/]\n\n"
@@ -61,14 +65,23 @@ class CLI():
             f"[{color}]Expected extensions:[/]\n\n"
             f"[{color}]    {supported}[/]\n\n\n"
             f"[{color}] [/]\n\n"
-            f"[{color}]Example Command:[/]\n\n"
+            f"[{color}]Create an example workbook:[/]\n\n"
             f"[{color}]    xleda wb 'https://github.com/InfoDesigner/xleda/blob/main/examples/data/penguins_raw.csv'[/]\n\n"
             f"[{color}] [/]\n\n"
-            f"[{color}]wb Help Command:[/]\n\n"
+            f"[{color}]Set your theme without creating a workbook:[/]\n\n"
+            f"[{color}]    xleda theme '#262626'[/]\n\n"
+            f"[{color}] [/]\n\n"
+            f"[{color}]Toggle your workbook style to use or not use VBA:[/]\n\n"
+            f"[{color}]    xleda vba[/]\n\n"
+            f"[{color}] [/]\n\n"
+            f"[{color}]wb help command:[/]\n\n"
             f"[{color}]    xleda wb --help[/]\n\n"
             f"[{color}] [/]\n\n\n"
             f"[{color}]For more documentation, visit https://github.com/InfoDesigner/xleda[/]"
         )
+    
+    
+    
 
     def __init__(self):
 
@@ -76,10 +89,18 @@ class CLI():
         self.macos_service_name = "Create xleda Workbook.workflow"
 
         self.env = Environment()
+        
 
     def wb(self, **kwargs):
-        """Create a workbook via the underlying workbook class."""
+        
+        """
+        Create a workbook via the underlying workbook class
+        
+        """
         return wb(**kwargs)
+    
+    
+    
 
     def create_windows_context_menu_command(self) -> str:
 
@@ -186,6 +207,8 @@ class CLI():
                'done')
         
         return cmd
+
+
 
 
     def macos_workflow_document(self) -> dict:
@@ -316,6 +339,7 @@ class CLI():
             return False
 
 
+
     def uninstall_macos_context_menu(self) -> bool:
 
         """
@@ -366,6 +390,7 @@ class CLI():
                                "For more documentation, visit https://github.com/InfoDesigner/xleda")
                     
             print(success_message)
+            
 
     def uninstall(self) -> None:
         
@@ -390,10 +415,6 @@ class CLI():
         Checks for an updated version on PyPi
         
         """
-        
-
-
-
         
         # Set Var
         msg = ""
@@ -435,7 +456,10 @@ class CLI():
         settings = Settings(logger=logger)  # noqa: F841
         logger.print(msg)
 
-cli = typer.Typer(epilog=CLI.help_message(), rich_markup_mode="rich", no_args_is_help=True)
+
+help_message = str(CLI.help_message())
+
+cli = typer.Typer(epilog=help_message, rich_markup_mode="rich", no_args_is_help=True)
 
 
 @cli.command()
@@ -444,19 +468,69 @@ def install():
     CLI().install()
 
 
+
 @cli.command()
 def uninstall():
     """Uninstalls the right-click context menu."""
     CLI().uninstall()
 
 
+
 @cli.command()
 def version():
     """Checks for an updated version on PyPI."""
     CLI().version()
+    
 
 
-@cli.command(name="wb", epilog=CLI.help_message())
+@cli.command()
+def theme(color: str = typer.Argument(None, help="Change your theme preference for future workbooks")):
+    
+    """
+    Change your theme preference without creating a workbook
+    
+    """
+
+
+    # If no color was provided, show a helpful message and exit
+    if not color:
+        logger.print("No color provided. Usage: xleda theme '#305CDE' or: xleda theme 305CDE (quote the value on PowerShell).")
+        return
+
+    # Ensure color starts with a '#'
+    if not color.startswith('#'):
+        color = f"#{color}"
+
+    # Basic validation for a hex color (#RGB or #RRGGBB)
+    import re
+    if not re.match(r"^#(?:[0-9a-fA-F]{3}){1,2}$", color):
+        logger.print(f"Invalid color '{color}'. Provide a hex color like '#305CDE'.")
+        return
+
+    # Pass the theme value correctly to Settings (use the 'theme' key)
+    settings = Settings(logger=logger, locals={'theme': color})
+
+    logger.print(f"Theme preference has been changed to {settings.theme.color}")
+
+
+
+@cli.command()
+def vba():
+    
+    """
+    Toggles your VBA preference without creating a workbook
+        
+    """
+    
+    logger = Logger()
+    settings = Settings(locals={'vba_toggle': True},
+                        logger=logger)
+    
+    logger.print(f"Future workbooks will be created {'without' if settings.no_vba else 'with'} VBA")
+    
+
+
+@cli.command(name="wb", epilog=help_message)
 def cli_wb(data: str = typer.Argument(..., help="Path to a supported data file"),
            file_name: str = typer.Option(None, "--file_name", show_default=False, help="Name of the created workbook. Defaults to the same name as the data file"),
            theme: str = typer.Option(None, "--theme", help="Hex color used for theme in workbook. This setting will persist after using.  Defaults to a neutral color"),

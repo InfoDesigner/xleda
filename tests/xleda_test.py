@@ -163,7 +163,15 @@ cli_args = {
                 
     # These are kept
     'sqlite': ['wb', sqlite, '--theme', "#7124BA", '--wb_path', str(examples_path)], 
-    'feather': ['wb', air_bnb, '--file_name', 'Airbnb', '--theme', '#B30934', '--wb_path', str(examples_path)], }
+    'feather': ['wb', air_bnb, '--file_name', 'Airbnb', '--theme', '#B30934', '--wb_path', str(examples_path)], 
+    
+    
+    # These don't create workbooks
+    'toggle_vba': ['cli_settings', 'vba'], 
+    'retoggle_vba': ['cli_settings', 'vba'], 
+    'theme': ['cli_settings', 'theme', '#262626']
+    
+    }
 
 
 
@@ -393,26 +401,33 @@ def test_from_cli(command: list):
     temp_folder = Path(tmp_path)
     
     
-    # Add common options to input commands
-    command += ['--vba', '--no_open_wb', '--overwrite']
+    # If it's a cli setting, remove that flag before running
+    if 'cli_settings' in command:
+        command = command[1:]
+    
+    # Add common options if it's a 'xleda wb' command
+    else:
+    
+        # Add common options
+        command += ['--vba', '--no_open_wb', '--overwrite']
     
     
-    # Add path when needed
-    if 'wb_path' not in str(command):
-        command += ['--wb_path', tmp_path]
+        # Add path when needed
+        if 'wb_path' not in str(command):
+            command += ['--wb_path', tmp_path]
         
     
-    # Show the workbook if debugging
-    if debug:
-        command += ['--debug']
+        # Show the workbook if debugging
+        if debug:
+            command += ['--debug']
+        
+        # Recreate the tmp directory on start
+        shutil.rmtree(temp_folder, ignore_errors=True)
+        temp_folder.mkdir(parents=True, exist_ok=True)
+            
 
-    
-    # Recreate the tmp directory on start
-    shutil.rmtree(temp_folder, ignore_errors=True)
-    temp_folder.mkdir(parents=True, exist_ok=True)
-    
-    
-    # Create the workbook and assert that there was no error
+
+    # Run the cli command and assert that there was no error
     result = runner.invoke(cli, command)
     assert result.exit_code == 0, f"CLI failed with output: {result.output}"
 
@@ -447,7 +462,7 @@ def test_valids(args: dict):
     
     # Calculate the Datasets externally
     logger = Logger()
-    external_datasets = DataSetParser(settings=Settings(logger=logger), logger=logger).datasets
+    external_datasets = DataSetParser(settings=Settings(locals=args, logger=logger)).datasets
     
     # Use the internal datasets to capture worksheet/table names
     datasets = wb_object.datasets
@@ -576,5 +591,3 @@ def test_valids(args: dict):
             
                 
     assert actual == expected
-
-
