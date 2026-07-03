@@ -35,41 +35,41 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 <table width="100%">
   <tbody>
     <tr>
-      <td width="20%" valign="top">Field Analysis&emsp;&emsp;</td>
-      <td width="80%">
-          <details>
-            <summary>Anatomy of a Field Analysis Worksheet</summary>
-            <p align="left">
-              <img
-                src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true"
-                width="100%"
-                alt="Field Analysis Anatomy"
-              />
-              <p></p>
-              <em>Field Analysis Anatomy</em>
-            </p>
-          </details><br>
+      <!-- width: 1% forces this column to stay as narrow as its text -->
+      <td valign="top" style="width: 1%; white-space: nowrap; padding-right: 20px;">
+        <strong>Field&nbsp;Analysis</strong>
+      </td>
+      <td valign="top">
+        <details>
+          <summary>Anatomy of a Field Analysis Worksheet</summary>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
+          </p>
+          <em>Field Analysis Anatomy</em>
+        </details>
+        <br>
       </td>
     </tr>
     <tr>
-      <td width="20%" valign="top">Overview</td>
-      <td width="80%">
+      <td valign="top" style="width: 1%; white-space: nowrap; padding-right: 20px;">
+        Overview
+      </td>
+      <td valign="top">
         <details>
           <summary>Anatomy of an Overview Worksheet</summary>
           <p align="left">
-            <img
-              src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true"
-              width="100%"
-              alt="Overview Anatomy"
-            />
-            <p></p>
-            <em>Overview Worksheet with Multiple Dataframes</em>
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
           </p>
-        </details><br>
+          <em>Overview Worksheet with Multiple Dataframes</em>
+        </details>
+        <br>
       </td>
     </tr>
   </tbody>
-</table><br><br>
+</table>
+
+
+
 
 <hr><br>
 
@@ -809,7 +809,6 @@ print(export_dicts[0].keys())
             <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
             <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
           </ul>
-          <hr>
         </details><br>
         <details>
           <summary>Expanded Metadata:</summary><br>
@@ -1139,6 +1138,7 @@ app = xw.App()
           <li>Added a CLI interface which replicates most of the Python API</li>
           <li>Includes structured help and is consistent with the Python API in almost every way</li>
           <li>CLI also includes install/uninstall commands which install right-click on supported files functionality on MacOS/Windows</li>
+          <li>Added vba toggle and theme setting to cli</li>
         </ul>
         <strong>Significantly overhauled the experience when using multiple dataframes</strong><br>
         <ul>
