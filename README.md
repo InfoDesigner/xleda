@@ -104,7 +104,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
 <table>
   <tbody>
     <tr>
-      <th width="30%" valign="top"><strong>1. Prepare Your Source Data</strong></th>
+      <th width="30%" valign="top"><br><strong>1. Prepare Your Source Data</strong></th>
       <td>
         <br>We'll start by gathering your source data into one place that we can provide to xleda<br><br><br>
         <ul>
@@ -117,7 +117,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
       </td>
     </tr>
     <tr>
-      <th valign="top"><strong>2. Install UV</strong></th>
+      <th valign="top"><br><strong>2. Install UV</strong></th>
       <td><br>
         UV will used to install xleda<br><br><br>
           <ul>
@@ -144,7 +144,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
   </tbody>
   <tbody>
     <tr>
-      <th valign="top"><strong>3. Install xleda</strong></th>
+      <th valign="top"><br><strong>3. Install xleda</strong></th>
       <td><br>
         UV will be used to install xleda<br><br><br>
           <ul>
@@ -158,7 +158,7 @@ uv tool install xleda
 </td>
     </tr>
     <tr>
-      <th valign="top"><strong>4. Install right-click functionality</strong></th>
+      <th valign="top"><br><strong>4. Install right-click functionality</strong></th>
       <td><br>
         xleda will be used to install right-click on supported files functionality<br><br><br>
           <ul>
@@ -173,7 +173,7 @@ xleda install
       </td>
     </tr>     
     <tr>
-      <th valign="top"><strong>4. Create an xleda workbook</strong></th>
+      <th valign="top"><br><strong>5. Create an xleda workbook</strong></th>
       <td><br>
         This step lets you create your workbook and choose your theme for future xleda workbooks at the same time<br><br><br>
           <ul>  
@@ -197,6 +197,7 @@ If you want to change your theme, use that very last line to create a new workbo
 
 The only thing that's close to a catch is that using this method doesn't include automatic updates.   If you've followed these steps, be sure to periodically update it using `uv tool upgrade xleda`.<br><br>
 
+---
 
 </details><br><br>
 
@@ -250,7 +251,12 @@ uv tool install xleda
 xleda install
 ```
 
+---
+
 </details><br><br>
+
+
+
 
 <h3>Basic Usage</h3>
 
@@ -498,7 +504,7 @@ xleda wb --help
 <h2>Examples</h2><br>
 
 <details>
-  <summary><h4>Example: Creating a workbook from multiple dataframes</h4></summary>
+  <summary>Example: Creating a workbook from multiple dataframes</summary><br>
 
 ```python
 import seaborn as sns
@@ -512,10 +518,12 @@ dataframe_dict = {df_name: sns.load_dataset(df_name) for df_name in seaborn_data
 wb(data=dataframe_dict)
 ```
 
+---
+
 </details>
 
 <details>
-  <summary><h4>Example: Using wb_path as a directory or a file</h4></summary><br>
+  <summary>Example: Using wb_path as a directory or a file</summary><br>
 
 ```python
 from xleda import wb
@@ -530,9 +538,11 @@ wb(data={"Penguins": df},
    wb_path=r"c:\my_awesome_workbook.xlsx")
 ```
 
+---
+
 </details>
 <details>
-  <summary><h4>Example: Adding custom plots to a workbook</h4></summary><br>
+  <summary>Example: Adding custom plots to a workbook</summary><br>
 
 ```python
 from xleda import wb
@@ -559,11 +569,14 @@ wb(data={"Penguins": df},
    plots={'Pair Plots': pair_plots,
           'Null Matrix': null_matrix})
 ```
+
+---
+
 </details>
 
 
 <details>
-<summary><h4>Example: Creating workbooks without VBA</h4></summary><br>
+<summary>Example: Creating workbooks without VBA</summary><br>
 
 ```python
 from xleda import wb
@@ -580,16 +593,18 @@ wb(data=df,
    wb_path="Penguins.xlsx")
 ```
 
+---
+
 </details>
 
 <details>
-<summary><h4>Example: Creating a workbook from a database</h4></summary><br>
+<summary>Example: Creating a workbook from a database</summary><br>
 
 <strong>From Python</strong>
 ```python
 from xleda import wb
 
-# <your database goes here>
+# < your database goes here>
 sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
 
 # Creates "Chinook.xlsm" in the current directory with 11 dataframes
@@ -603,12 +618,14 @@ wb(data=sqlite_db,
 xleda wb chinook.db --name "Chinook"
 ```
 
+---
+
 </details>
 
 
 
 <details>
-<summary><h4>Example: Basic Metadata Export</h4></summary><br>
+<summary>Example: Basic Metadata Export</summary><br>
 
 Basic metadata export sources data from Python
 
@@ -627,10 +644,12 @@ export_dicts = wb(data={"Titanic": df},
 print(export_dicts[0].keys())
 ```
 
+---
+
 </details>
 
 <details>
-<summary><h4>Example: Full Metadata Export</h4></summary><br>
+<summary>Example: Full Metadata Export</summary><br>
 
 Full export sources data from the workbook when possible<br><br>
 
@@ -665,6 +684,8 @@ export_dicts = wb(data={"Titanic": df},
 print(export_dicts[0].keys())
 ```
 
+---
+
 </details><br><br>
 
 
@@ -677,12 +698,12 @@ print(export_dicts[0].keys())
   <!-- Field and Record Lists -->
   <tbody>
     <tr>
-      <td width="30%" valign="top">Field and Record Lists</td>
+      <td width="30%" valign="top"><br>Field and Record Lists</td>
       <td valign="top"><br>
         The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
         <ul>
           <li>Use these to organize fields into groups such as "fields_to_delete", "fields_from_system_a", "fields_to_fix", or whatever your workflow needs</li><br>
-          <li>The Record List works similarly though it tags individual records instead of lists</li>
+          <li>The Record List works similarly though it tags individual records instead of lists</li><br><br>
         </ul>
         <details>
           <summary>List Details</summary>
@@ -703,7 +724,7 @@ print(export_dicts[0].keys())
     </tr>
     <!-- Large Data Sets -->
     <tr>
-      <td width="30%" valign="top">Large Data Sets</td>
+      <td width="30%" valign="top"><br>Large Data Sets</td>
       <td valign="top"><br>
         On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS<br><br>
         <ul>
@@ -711,7 +732,7 @@ print(export_dicts[0].keys())
           <li>You can optionally override default limits to use Excel's limits of 16,000 columns, 1,000,000 rows by using <code>large_report=True</code></li>
         </ul>
         <details>
-        <summary><h5>Performance Details</h5></summary><br>
+        <summary>Performance Details</summary><br>
           <ul>
             <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
             <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
@@ -725,7 +746,7 @@ print(export_dicts[0].keys())
     </tr>
     <!-- Exporting Metadata -->
     <tr>
-      <td width="30%" valign="top"><h4>Exporting Metadata</h4></td>
+      <td width="30%" valign="top">Exporting Metadata</td>
       <td valign="top"><br>
         Accessing your notes/lists/defintions from Python is easy<br><br>
         <ul>
@@ -733,7 +754,7 @@ print(export_dicts[0].keys())
           <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li>
         </ul>
         <details>
-        <summary><h5>Default Metadata</h5></summary>
+        <summary>Default Metadata</summary>
           The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
             <li><code>df_overview</code>: Dataframe level metadata</li><br>
@@ -743,7 +764,7 @@ print(export_dicts[0].keys())
           </ul>
         </details>
         <details>
-          <summary><h5>Expanded Metadata:</h5></summary>
+          <summary>Expanded Metadata:</summary>
           Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
           This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
           Includes the following for each provided dataframe:<br><br>
@@ -759,7 +780,7 @@ print(export_dicts[0].keys())
     </tr>
     <!-- MacOS Support -->
     <tr>
-      <td width="30%" valign="top"><h4>MacOS Support</h4></td>
+      <td width="30%" valign="top">MacOS Support</td>
       <td valign="top"><br>
        xleda will create the same workbooks in MacOS<br><br>
         <ul>
@@ -767,7 +788,7 @@ print(export_dicts[0].keys())
           <li>Look for the bouncing Excel icon</li>
         </ul>
       <details>
-        <summary><h5>MacOS Details</h5></summary>
+        <summary>MacOS Details</summary>
         <table>
           <thead>
             <tr>
@@ -812,7 +833,7 @@ print(export_dicts[0].keys())
           <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li>
         </ul>
       <details>
-        <summary><h5>What the VBA Code Does</h5></summary><br>
+        <summary>What the VBA Code Does</summary><br>
         <ol>
           <li>Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right</li><br>
           <li>Adds a <strong>PythonList</strong> UDF that creates Python lists from cell values</li><br>
@@ -848,7 +869,7 @@ print(export_dicts[0].keys())
 
 
 <details>
-<summary><h4>xleda is slow</h4></summary>
+<summary>xleda is slow</summary>
   <ul>
     <li>Try reducing the amount of data you're sending to it, and let it finish.</li><br>
     <li>After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.</li><br>
@@ -857,7 +878,7 @@ print(export_dicts[0].keys())
 </details><br>
 
 <details>
-  <summary><h4>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks</h4></summary><br>
+  <summary>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks</summary><br>
     <ul>
       <li>You may have a hidden Excel instance that needs to be closed.</li><br>
       <li>Guidance on closing hidden Excel windows for <a href="https://www.google.com/search?q=hidden+excel+instance+in+macos">MacOS</a> and <a href="https://www.google.com/search?q=hidden+excel+instance+in+windows">Windows</a></li><br>
@@ -865,7 +886,7 @@ print(export_dicts[0].keys())
 </details><br>
 
 <details> 
-  <summary><h4>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:</h4></summary><br>
+  <summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:</summary><br>
   <ul>
     <li>The Excel app may have crashed or is otherwise disconnected from Python.</li><br>
     <li>Close all Excel windows and try running the command again.</li><br>
@@ -874,7 +895,7 @@ print(export_dicts[0].keys())
 
 
 <details markdown="1">
-  <summary><h4>xleda won't run at all and are using Windows/MacOS with a full Office Installation</h4></summary><br>
+  <summary>xleda won't run at all and are using Windows/MacOS with a full Office Installation</summary><br>
     <ul>
       <li>If you can get the script below to run successfully using xlwings (not xlwings-lite), xleda has a good chance of working reliably.</li><br>
       <li>All it does is open Excel and create a new workbook.</li><br>
