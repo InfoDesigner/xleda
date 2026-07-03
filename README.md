@@ -28,8 +28,8 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 <table>
   <tbody>
     <tr>
-      <td valign="center"><h3>Field Analysis</h3><br></td>
-      <td valign="center"><h3>Overview</h3><br></td>
+      <td valign="center">Field Analysis<br></td>
+      <td valign="center">Overview<br></td>
     </tr><br>
     <tr>
       <td><br>
@@ -96,7 +96,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
 
 <details>
 <summary>Non-Developer Quick Start Guide</summary><br><br>
-  <h3>Following the steps below will provide you with:</h3><br><br>
+  <strong>Following the steps below will provide you with:</strong><br><br>
   <ol>
     <li>A comprehensive document for your data with worksheets for each related data source and placeholders for field definitions and notes that you can share with other contributors</li><br><br>
     <li>The ability to create the same workbooks in the future by right-clicking on your source data files and choosing <strong>Create xleda Workbook<br><br><br></strong></li>
@@ -104,7 +104,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
 <table>
   <tbody>
     <tr>
-      <th width="30%" valign="top"><h4>1. Prepare Your Source Data</h4></th>
+      <th width="30%" valign="top"><strong>1. Prepare Your Source Data</strong></th>
       <td>
         <br>We'll start by gathering your source data into one place that we can provide to xleda<br><br><br>
         <ul>
@@ -117,7 +117,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
       </td>
     </tr>
     <tr>
-      <th valign="top"><h4>2. Install UV</h4></th>
+      <th valign="top"><strong>2. Install UV</strong></th>
       <td><br>
         UV will used to install xleda<br><br><br>
           <ul>
@@ -144,7 +144,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
   </tbody>
   <tbody>
     <tr>
-      <th valign="top"><h4>3. Install xleda</h4></th>
+      <th valign="top"><strong>3. Install xleda</strong></th>
       <td><br>
         UV will be used to install xleda<br><br><br>
           <ul>
@@ -158,7 +158,7 @@ uv tool install xleda
 </td>
     </tr>
     <tr>
-      <th valign="top"><h4>4. Install right-click functionality</h4></th>
+      <th valign="top"><strong>4. Install right-click functionality</strong></th>
       <td><br>
         xleda will be used to install right-click on supported files functionality<br><br><br>
           <ul>
@@ -173,7 +173,7 @@ xleda install
       </td>
     </tr>     
     <tr>
-      <th valign="top"><h4>4. Create an xleda workbook</h4></th>
+      <th valign="top"><strong>4. Create an xleda workbook</strong></th>
       <td><br>
         This step lets you create your workbook and choose your theme for future xleda workbooks at the same time<br><br><br>
           <ul>  
@@ -210,14 +210,14 @@ The only thing that's close to a catch is that using this method doesn't include
 <table>
   <tbody>
     <tr>
-      <td width="30%" valign="top"><h4>Package/CLI</h4></td>
+      <td width="30%" valign="top"><strong>Package/CLI</strong></td>
       <td valign="top">
         <br>
         <code>uv add xleda</code> or <code>pip install xleda</code><br><br>
       </td>
     </tr>
     <tr>
-      <td valign="top"><h4>Right-Click Menu</h4></td>
+      <td valign="top"><strong>Right-Click Menu</strong></td>
       <td valign="top"><br>
         xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.
         <ul><br>
@@ -336,7 +336,7 @@ xleda wb --help
 <table>
   <tbody>
     <tr>
-      <td width="30%" valign="top"><h3><code>data</code></h3>
+      <td width="30%" valign="top"><strong><code>data</code></strong>
       </td>
       <td valign="top"><br>
         <strong>Dataframe or Path or string | Mandatory</strong><br><br>
@@ -367,7 +367,7 @@ xleda wb --help
     </tr>
     <!-- file name -->
     <tr>
-      <td width="30%" valign="top"><h3><code>file_name</code></h3>
+      <td width="30%" valign="top"><strong><code>file_name</code></strong>
       </td>
       <td valign="top"><br>
         <strong>str | Optional</strong><br><br>
@@ -379,7 +379,7 @@ xleda wb --help
     </tr>
     <!-- wb path -->
     <tr>
-      <td width="30%" valign="top"><h3><code>wb_path</code></h3>
+      <td width="30%" valign="top"><strong><code>wb_path</code></strong>
       </td>
       <td valign="top"><br>
         <strong>Path or string | Optional</strong><br><br>
@@ -393,7 +393,7 @@ xleda wb --help
     </tr>
     <!-- theme -->
     <tr>
-      <td width="30%" valign="top"><h3><code>theme</code></h3>
+      <td width="30%" valign="top"><strong><code>theme</code></strong>
       </td>
       <td valign="top"><br>
         <strong>str | Optional</strong><br><br>
@@ -414,7 +414,7 @@ xleda wb --help
     </tr>
     <!-- plots -->
     <tr>
-      <td width="30%" valign="top"><h3><code>plots</code></h3>
+      <td width="30%" valign="top"><strong><code>plots</code></strong>
       </td>
       <td valign="top"><br>
         <strong>dict | Optional</strong><br><br>
@@ -427,7 +427,7 @@ xleda wb --help
     </tr>
     <!-- overwrite -->
     <tr>
-      <td width="30%" valign="top"><h3><code>overwrite</code></h3>
+      <td width="30%" valign="top"><strong><code>overwrite</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -440,7 +440,7 @@ xleda wb --help
     </tr>
     <!-- large_report -->
     <tr>
-      <td width="30%" valign="top"><h3><code>large_report</code></h3>
+      <td width="30%" valign="top"><strong><code>large_report</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -453,7 +453,7 @@ xleda wb --help
     </tr>
     <!-- no_vba -->
     <tr>
-      <td width="30%" valign="top"><br><h3><code>no_vba</code></h3>
+      <td width="30%" valign="top"><br><strong><code>no_vba</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -467,7 +467,7 @@ xleda wb --help
     </tr>
     <!-- open_wb -->
     <tr>
-      <td width="30%" valign="top"><br><h3><code>open_wb</code></h3>
+      <td width="30%" valign="top"><br><strong><code>open_wb</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -480,7 +480,7 @@ xleda wb --help
     </tr>
     <!-- export -->
     <tr>
-      <td width="30%" valign="top"><br><h3><code>export</code></h3>
+      <td width="30%" valign="top"><br><strong><code>export</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -495,9 +495,9 @@ xleda wb --help
 </table><br><br>
 
 	
-<h2>Examples</h2>
+<h2>Examples</h2><br>
 
-<br><details>
+<details>
   <summary><h4>Example: Creating a workbook from multiple dataframes</h4></summary>
 
 ```python
