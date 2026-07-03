@@ -1803,8 +1803,6 @@ class Template():
             
             ws.api.sheet_tab.color.set((shade))
 
-        self.theme_color = settings.theme_color
-        self.env = settings.env
 
     def add_small_plot(self, fig: Figure, target_range: xw.Range, name: str):
 
