@@ -243,7 +243,7 @@ The only thing that's close to a catch is that using this method doesn't include
 
 <h2>Basic Usage</h2><br><br>
 
-Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
 <h4>From a Dataframe</h4>
 
@@ -256,6 +256,23 @@ df = sns.load_dataset("titanic")
 
 # Creates xleda.xlsm in the current directory
 wb(df)
+```
+
+<br><br>
+
+<h4>From a Dictionary of Dataframes</h4>
+
+```python
+from xleda import wb
+import seaborn as sns
+
+# < your dataframes go here >
+df1 = sns.load_dataset("titanic")
+df2 = sns.load_dataset("penguins")
+
+# Creates Titanic.xlsm in the current directory
+wb({"Titanic": df1,
+    "Penguins": df2})
 ```
 
 <br><br>
@@ -489,8 +506,11 @@ xleda wb --help
 
 Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
-It works almost the same way as the Python API except that it only accepts file for <code>data</code> and doesn't accept the <code>plots</code> argument<br>
+It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument<br>
 
+
+<details>
+  <summary>CLI Commands</summary>
 
 <table>
   <tbody>
@@ -541,6 +561,9 @@ xleda theme 262626
     </tr>
   </tbody>
 </table><br><br>
+
+</details>
+
 
 
 
