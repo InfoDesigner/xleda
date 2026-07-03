@@ -46,7 +46,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
           </details><br>
       </td>
       <td><br>
-        <details><br>
+        <details>
           <summary>Anatomy of an Overview Worksheet</summary><br><br>
           <p align="left"><br>
             <img
@@ -210,14 +210,14 @@ The only thing that's close to a catch is that using this method doesn't include
 <table>
   <tbody>
     <tr>
-      <td width="30%" valign="top"><strong>Package/CLI</strong></td>
+      <td width="30%" valign="top"><br><strong>Package/CLI</strong></td>
       <td valign="top">
         <br>
         <code>uv add xleda</code> or <code>pip install xleda</code><br><br>
       </td>
     </tr>
     <tr>
-      <td valign="top"><strong>Right-Click Menu</strong></td>
+      <td valign="top"><br><strong>Right-Click Menu</strong></td>
       <td valign="top"><br>
         xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.
         <ul><br>
@@ -336,7 +336,7 @@ xleda wb --help
 <table>
   <tbody>
     <tr>
-      <td width="30%" valign="top"><strong><code>data</code></strong>
+      <td width="30%" valign="top"><strong><br><code>data</code></strong>
       </td>
       <td valign="top"><br>
         <strong>Dataframe or Path or string | Mandatory</strong><br><br>
@@ -345,7 +345,7 @@ xleda wb --help
           <li>For files, xleda will create a workbook from all tabular objects in the file</li><br>
           <li>Supported types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</li><br>
         </ul>
-          <details><br>
+          <details>
             <summary><h4>Data File Limitations</h4></summary>
             If the provided data file doesn't parse correctly, try creating a 
             dataframe first and use that with xleda instead of the file<br><br>
@@ -367,7 +367,7 @@ xleda wb --help
     </tr>
     <!-- file name -->
     <tr>
-      <td width="30%" valign="top"><strong><code>file_name</code></strong>
+      <td width="30%" valign="top"><strong><br><code>file_name</code></strong>
       </td>
       <td valign="top"><br>
         <strong>str | Optional</strong><br><br>
@@ -379,7 +379,7 @@ xleda wb --help
     </tr>
     <!-- wb path -->
     <tr>
-      <td width="30%" valign="top"><strong><code>wb_path</code></strong>
+      <td width="30%" valign="top"><strong><br><code>wb_path</code></strong>
       </td>
       <td valign="top"><br>
         <strong>Path or string | Optional</strong><br><br>
@@ -393,7 +393,7 @@ xleda wb --help
     </tr>
     <!-- theme -->
     <tr>
-      <td width="30%" valign="top"><strong><code>theme</code></strong>
+      <td width="30%" valign="top"><strong><br><code>theme</code></strong>
       </td>
       <td valign="top"><br>
         <strong>str | Optional</strong><br><br>
@@ -414,7 +414,7 @@ xleda wb --help
     </tr>
     <!-- plots -->
     <tr>
-      <td width="30%" valign="top"><strong><code>plots</code></strong>
+      <td width="30%" valign="top"><strong><br><code>plots</code></strong>
       </td>
       <td valign="top"><br>
         <strong>dict | Optional</strong><br><br>
@@ -427,7 +427,7 @@ xleda wb --help
     </tr>
     <!-- overwrite -->
     <tr>
-      <td width="30%" valign="top"><strong><code>overwrite</code></strong>
+      <td width="30%" valign="top"><strong><br><code>overwrite</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -440,7 +440,7 @@ xleda wb --help
     </tr>
     <!-- large_report -->
     <tr>
-      <td width="30%" valign="top"><strong><code>large_report</code></strong>
+      <td width="30%" valign="top"><strong><br><code>large_report</code></strong>
       </td>
       <td valign="top"><br>
         <strong>bool | Optional</strong><br><br>
@@ -677,7 +677,7 @@ print(export_dicts[0].keys())
   <!-- Field and Record Lists -->
   <tbody>
     <tr>
-      <td width="30%" valign="top"><h4>Field and Record Lists</h4></td>
+      <td width="30%" valign="top">Field and Record Lists</td>
       <td valign="top"><br>
         The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
         <ul>
@@ -685,7 +685,7 @@ print(export_dicts[0].keys())
           <li>The Record List works similarly though it tags individual records instead of lists</li>
         </ul>
         <details>
-          <summary><h5>List Details</h5></summary>
+          <summary>List Details</summary>
           <ul><br>
             <li>Anything not marked as False will be included in each list</li><br>
             <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
@@ -703,7 +703,7 @@ print(export_dicts[0].keys())
     </tr>
     <!-- Large Data Sets -->
     <tr>
-      <td width="30%" valign="top"><h4>Large Data Sets</h4></td>
+      <td width="30%" valign="top">Large Data Sets</td>
       <td valign="top"><br>
         On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS<br><br>
         <ul>
@@ -1072,6 +1072,7 @@ app = xw.App()
           <li>Added a CLI interface which replicates most of the Python API</li>
           <li>Includes structured help and is consistent with the Python API in almost every way</li>
           <li>CLI also includes install/uninstall commands which install right-click on supported files functionality on MacOS/Windows</li>
+          <li>Added vba toggle and theme setting to cli</li>
         </ul>
         <strong>Significantly overhauled the experience when using multiple dataframes</strong><br>
         <ul>
