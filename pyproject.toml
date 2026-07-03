@@ -61,7 +61,7 @@ classifiers = [
     ]
 
 [project.scripts]
-xleda = "xleda.main:cli"
+xleda = "xleda.cli:cli"
 
 
 [project.urls]

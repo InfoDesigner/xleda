@@ -18,6 +18,6 @@ null_matrix.set_size_inches(9.35, 4.5)
 
 # Creates Penguins.xlsm with two extra plot sheets
 wb(data={"Penguins": df},
-   theme_color="#4335A0",
+   theme="#4335A0",
    plots={'Pair Plots': pair_plots,
           'Null Matrix': null_matrix})
