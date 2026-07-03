@@ -104,7 +104,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
 <table>
   <tbody>
     <tr>
-      <th width="30%" valign="top"><br><strong>1. Prepare Your Source Data</strong></th>
+      <th align="left" width="30%" valign="top"><br><strong>1. Prepare Your Source Data</strong></th>
       <td>
         <br>We'll start by gathering your source data into one place that we can provide to xleda<br><br><br>
         <ul>
@@ -117,7 +117,7 @@ xleda can help you perform this task easily, quickly, and without having to writ
       </td>
     </tr>
     <tr>
-      <th valign="top"><br><strong>2. Install UV</strong></th>
+      <th align="left" valign="top"><br><strong>2. Install UV</strong></th>
       <td><br>
         UV will used to install xleda<br><br><br>
           <ul>
@@ -144,7 +144,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
   </tbody>
   <tbody>
     <tr>
-      <th valign="top"><br><strong>3. Install xleda</strong></th>
+      <th align="left" valign="top"><br><strong>3. Install xleda</strong></th>
       <td><br>
         UV will be used to install xleda<br><br><br>
           <ul>
@@ -158,7 +158,7 @@ uv tool install xleda
 </td>
     </tr>
     <tr>
-      <th valign="top"><br><strong>4. Install right-click functionality</strong></th>
+      <th align="left" valign="top"><br><strong>4. Install right-click functionality</strong></th>
       <td><br>
         xleda will be used to install right-click on supported files functionality<br><br><br>
           <ul>
@@ -173,7 +173,7 @@ xleda install
       </td>
     </tr>     
     <tr>
-      <th valign="top"><br><strong>5. Create an xleda workbook</strong></th>
+      <th align="left" valign="top"><br><strong>5. Create an xleda workbook</strong></th>
       <td><br>
         This step lets you create your workbook and choose your theme for future xleda workbooks at the same time<br><br><br>
           <ul>  
@@ -352,7 +352,7 @@ xleda wb --help
           <li>Supported types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</li><br>
         </ul>
           <details>
-            <summary><h4>Data File Limitations</h4></summary>
+            <summary>Data File Limitations</summary>
             If the provided data file doesn't parse correctly, try creating a 
             dataframe first and use that with xleda instead of the file<br><br>
             <strong>Expect problems with</strong>:<br><br>
@@ -703,7 +703,7 @@ print(export_dicts[0].keys())
         The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
         <ul>
           <li>Use these to organize fields into groups such as "fields_to_delete", "fields_from_system_a", "fields_to_fix", or whatever your workflow needs</li><br>
-          <li>The Record List works similarly though it tags individual records instead of lists</li><br><br>
+          <li>The Record List works similarly though it tags individual records instead of lists</li><br>
         </ul>
         <details>
           <summary>List Details</summary>
@@ -729,7 +729,7 @@ print(export_dicts[0].keys())
         On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS<br><br>
         <ul>
           <li>To ensure workbooks are created quickly, each dataframe is by default subsampled to only include the first 50 columns and a random sample of 25,000 records.</li><br>
-          <li>You can optionally override default limits to use Excel's limits of 16,000 columns, 1,000,000 rows by using <code>large_report=True</code></li>
+          <li>You can optionally override default limits to use Excel's limits of 16,000 columns, 1,000,000 rows by using <code>large_report=True</code></li><br>
         </ul>
         <details>
         <summary>Performance Details</summary><br>
@@ -751,10 +751,10 @@ print(export_dicts[0].keys())
         Accessing your notes/lists/defintions from Python is easy<br><br>
         <ul>
           <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li><br>
-          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li>
+          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li><br>
         </ul>
         <details>
-        <summary>Default Metadata</summary>
+        <summary>Default Metadata</summary><br>
           The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
             <li><code>df_overview</code>: Dataframe level metadata</li><br>
@@ -762,9 +762,10 @@ print(export_dicts[0].keys())
             <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
             <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
           </ul>
+          <hr>
         </details>
         <details>
-          <summary>Expanded Metadata:</summary>
+          <summary>Expanded Metadata:</summary><br>
           Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
           This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
           Includes the following for each provided dataframe:<br><br>
@@ -785,7 +786,7 @@ print(export_dicts[0].keys())
        xleda will create the same workbooks in MacOS<br><br>
         <ul>
           <li>Creating them is significantly slower and you may get two different types of prompts that require your attention</li><br>
-          <li>Look for the bouncing Excel icon</li>
+          <li>Look for the bouncing Excel icon</li><br>
         </ul>
       <details>
         <summary>MacOS Details</summary>
@@ -830,7 +831,7 @@ print(export_dicts[0].keys())
         The included VBA code is short and easy to understand<br><br>
         <ul>
           <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li><br>
-          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li>
+          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li><br>  
         </ul>
       <details>
         <summary>What the VBA Code Does</summary><br>
@@ -869,7 +870,7 @@ print(export_dicts[0].keys())
 
 
 <details>
-<summary>xleda is slow</summary>
+<summary>xleda is slow</summary><br>
   <ul>
     <li>Try reducing the amount of data you're sending to it, and let it finish.</li><br>
     <li>After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.</li><br>
