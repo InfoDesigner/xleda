@@ -20,9 +20,11 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br><br>
 
-<h2>xleda Components</h2>
 
-<br>All xleda workbooks include an **Overview** worksheet and a **Field Analysis** worksheet for each provided dataframe.<br>
+<h2>xleda Components</h2><br>
+
+
+All xleda workbooks include an **Overview** worksheet and a **Field Analysis** worksheet for each provided dataframe.<br>
 
 
 <table>
@@ -64,8 +66,9 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 
 
-<h2>Requirements/Compatibility</h2>
-<br>
+<h2>Requirements/Compatibility</h2><br>
+
+
 <table>
   <tbody>
     <tr>
@@ -202,12 +205,12 @@ The only thing that's close to a catch is that using this method doesn't include
 </details><br><br>
 
 
-<h2>xleda for Developers</h2>
+<h2>xleda for Developers</h2><br>
 
 
-<h3>Installation</h3>
+<h3>Installation</h3><br>
 
-<br>
+
 <table>
   <tbody>
     <tr>
@@ -258,9 +261,9 @@ xleda install
 
 
 
-<h3>Basic Usage</h3>
+<h3>Basic Usage</h3><br><br>
 
-<br>Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
 
 <h4>From a Dataframe</h4>
 
@@ -335,10 +338,9 @@ xleda wb --help
 </table><br><br>
 
 
-<h2>xleda.wb() Configuration</h2>
+<h2>xleda.wb() Configuration</h2><br>
 
 
-<br>
 <table>
   <tbody>
     <tr>
@@ -500,8 +502,69 @@ xleda wb --help
   </tbody>
 </table><br><br>
 
-	
+
+
+<h2>CLI Basics</h2><br>
+
+Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
+
+It works almost the same way as the Python API except that it only accepts file for <code>data</code> and doesn't accept the <code>plots</code> argument<br>
+
+
+<table>
+  </tbody>
+    <tr>
+      <td width="20%" valign="top"><br><code>xleda --help</code><br><br></td>
+      <td>Shows the xleda help menu</td>
+    </tr>
+    <!-- xleda wb help -->
+    <tr>
+      <td valign="top"><br><code>xleda wb --help</code><br><br></td>
+      <td>Shows help for the wb command and it's flags</td>
+    </tr>  
+    <!-- xleda install -->
+    <tr>
+      <td valign="top"><br><code>xleda install</code><br><br></td><br>
+      <td>Installs right-click on supported files to create workbooks functionality</td>
+    </tr>  
+    <!-- `xleda uninstall -->
+    <tr>
+      <td valign="top"><br><code>xleda uninstall</code><br><br></td>
+      <td>Uninstalls right-click on supported files to create workbooks functionality</td>
+    </tr>  
+    <!-- xleda version -->
+    <tr>
+      <td valign="top"><br><code>xleda version</code><br><br></td>
+      <td>Compares your installed version with the latest available version on PyPi</td>
+    </tr>
+    <!-- xleda vba -->
+    <tr>
+      <td valign="top"><br><code>xleda vba</code><br><br></td>
+      <td>This toggles your preference for creating workbooks with/without VBA and persists once set.</td>
+    </tr> 
+    <!-- xleda theme -->
+    <tr>
+      <td valign="top"><br><code>xleda theme</code><br><br></td>
+      <td><br>
+        This changes your theme preference without creating a workbook and persists once set<br><br>
+        
+```bash
+# Sets theme to a dark grey
+xleda theme '#262626'
+
+# Also sets theme to a dark grey
+xleda theme 262626
+```
+<br>
+        </td>
+    </tr>
+  </tbody>
+</table><br><br>
+
+
+
 <h2>Examples</h2><br>
+
 
 <details>
   <summary>Example: Creating a workbook from multiple dataframes</summary><br>
@@ -690,11 +753,10 @@ print(export_dicts[0].keys())
 
 
 
+<h2>Usage Notes</h2><br>
 
-<h2>Usage Notes</h2>
 
-
-<br><table>
+<table>
   <!-- Field and Record Lists -->
   <tbody>
     <tr>
@@ -814,7 +876,7 @@ print(export_dicts[0].keys())
               <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
               <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
             </tr>
-            <tr>
+            <tr>a --help
               <td><strong>Remedy</strong></td>
               <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
               <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
@@ -862,12 +924,11 @@ print(export_dicts[0].keys())
       </details><br>
       </td>
     </tr>
-  </tbody>
+    </tbody>
 </table><br><br>
 
 
-<h2>Troubleshooting</h2>
-
+<h2>Troubleshooting</h2><br>
 
 <details>
 <summary>xleda is slow</summary><br>
@@ -915,10 +976,9 @@ app = xw.App()
 
 
 
-<h2>Changelog</h2>
+<h2>Changelog</h2><br>
 
 
-<br><br>
 <table>
 <!-- Version 0.8.185 -->
   <tbody>
