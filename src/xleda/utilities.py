@@ -18,7 +18,7 @@ from typing import Any
 import send2trash
 from collections import defaultdict
 import json
-
+from importlib.resources import files
 
 # TQDM Imports
 from tqdm.auto import tqdm
@@ -78,8 +78,8 @@ upper_column_limit = 16_000
 
 
 # Template Variables
-xlsm_file = Path(__file__).parent / "xleda_template.xlsm"
-xlsx_file = Path(__file__).parent / "xleda_template.xlsx"
+xlsm_file = Path(str(files('xleda').joinpath('assets', "xleda_template.xlsm")))
+xlsx_file = Path(str(files('xleda').joinpath('assets', "xleda_template.xlsx")))
 
 
 template_objects ={"SinglePlot": [],
@@ -280,22 +280,18 @@ class Settings():
             # Get a temporary file path
             temp_file_path = Path(tempfile.gettempdir()) / file_name
             
+            # Create a progress bar
+            pbar = self.logger.create_progress_bar(desc="", total=total_size, file_name=file_name)
+            
             # Add a temporary progress bar
-            with open(temp_file_path, "wb") as f, tqdm(
-                total=total_size,
-                unit='B',
-                unit_scale=True,
-                desc=f"Downloading {file_name}",
-                colour=self.theme.print_color,
-                position=1,
-                leave=False) as pbar_temporary:
+            with open(temp_file_path, "wb") as f, pbar:
                 
                 
                 # Download and update
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if chunk:
                         f.write(chunk)
-                        pbar_temporary.update(len(chunk))
+                        pbar.update(len(chunk))
 
             return temp_file_path.expanduser().resolve()
 
@@ -356,13 +352,20 @@ class Settings():
         
         """
         
+        # Get settings path
         path = Path(self.settings_path)
+        
+        
+        # Get venv executable path
+        venv_root = Path(sys.prefix).resolve()
+       
         
         # Write to a temporary file first, then rename it
         tmp_path = path.with_suffix(".tmp")
         
         persistent_settings = {'no_vba': self.no_vba,
-                               'theme': self.color}
+                               'theme': self.color,
+                               'python_executable': str(venv_root / "bin" / "python")}
         
 
         try:
@@ -442,8 +445,8 @@ class Environment():
             if win:
                 
                 # Read the current Excel version from the Windows registry
-                with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key:
-                    app_version, _ = winreg.QueryValueEx(key, "")
+                with winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Application\CurVer") as key: # type: ignore
+                    app_version, _ = winreg.QueryValueEx(key, "") # type: ignore
                     app_version = app_version.split(".")[-1]
                     
             if mac:
@@ -564,10 +567,10 @@ class Theme():
 
 
         self.color = settings.color
+        self.rgb: tuple = self.hex_to_rgb(self.color)
         self.black_text: bool = self.use_black_text(self.color)
         self.print_color: str = self.ensure_readable(self.color[:7])
         self.ansi_color: str = self.hex_to_ansi(self.color)
-        self.rgb: tuple = self.hex_to_rgb(self.color)
         self.tab = self.get_tab_color(settings)
         
 
@@ -578,22 +581,21 @@ class Theme():
 
         """
         
+        hex = self.color[1:]
+        r = int(hex[0:2], 16)
+        g = int(hex[2:4], 16)
+        b = int(hex[4:6], 16)
+        
 
         # Get OS appropriate colors
         if settings.env.win:
             
-            hex = self.color[1:]
-            # Extract Red, Green, and Blue integer values
-            r = int(hex[0:2], 16)
-            g = int(hex[2:4], 16)
-            b = int(hex[4:6], 16)
-
             # Construct color number
             color = r + (g * 256) + (b * 65536)
 
-        
+        # Use RGB tuple for macos
         elif settings.env.mac:
-            color = self.rgb
+            color = (r, g, b)
         
         return color
 
@@ -614,16 +616,30 @@ class Theme():
 
 
 
-    def hex_to_rgb(self, hex_str):
+    def hex_to_rgb(self, hex_str, normalized=False):
 
         """
-        Converts #RRGGBB to (R, G, B) normalized to 0-1.
+        Converts #RRGGBB to (R, G, B), optionally normalized to 0-1.
         
         """
+        
+        hex = hex_str.lstrip('#')
+        
+        # Normalize it to 0-1 for use for ensure_readable
+        if normalized:
+            return tuple(int(hex[i:i+2], 16) / 255.0 for i in (0, 2, 4))
+        
+        # Return an (r, g, b) tuple
+        else:
+            r = int(hex[0:2], 16)
+            g = int(hex[2:4], 16)
+            b = int(hex[4:6], 16)
+            
+            return tuple((r, g, b))
 
-        hex_str = hex_str.lstrip('#')
 
-        return tuple(int(hex_str[i:i+2], 16) / 255.0 for i in (0, 2, 4))
+
+        
 
 
 
@@ -672,7 +688,7 @@ class Theme():
         
         """
 
-        rgb = self.hex_to_rgb(hex_color)
+        rgb = self.hex_to_rgb(hex_color, normalized=True)
         black = (0, 0, 0)
         
         if self.get_contrast(rgb, black) >= target_ratio:
@@ -1861,6 +1877,19 @@ class Template():
             pic.api.placement.set(k.placement_move_and_size)
 
 
+    def macos_focus_excel(self):
+        
+        """
+        Simulates a user clicking on Excel by forcing macOS to bring it forward
+        
+        """
+        
+        # Activate Excel to prevent it losing connection
+        script = 'tell application "Microsoft Excel" to activate'
+        subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+
+
+
     def create_composition_plot(self, input_series: pd.Series) -> Figure:
         
         """
@@ -2129,7 +2158,7 @@ class Logger():
     
     
     
-    def create_progress_bar(self, desc: str, total: float, download: bool=False) -> tqdm:
+    def create_progress_bar(self, desc: str, total: float, file_name: str="") -> tqdm:
         
         """
         Creates a tqdm progress bar
@@ -2140,30 +2169,23 @@ class Logger():
             A tqdm object
         """
         
-        color = self.settings.theme.color
+        color = self.settings.theme.print_color
         
-        # Create a temporary progress bar
-        if download:
+        # Create a temporary progress bar for downloads
+        if file_name:
             
-            
-            fmt = "{desc} | {percentage:3.0f}% | {bar} | {elapsed}"
-
-
-            # Pad the raw desc for alignment
-            padded_desc = f"{desc:<30}"
-
             # Create a tqdm instance
             pbar = tqdm(
                 total=total,
-                desc=padded_desc,
-                bar_format=fmt,
                 colour=color,
-                # ncols=100,
-                # dynamic_ncols=True
-            )
+                unit='B',
+                unit_scale=True,
+                desc=f"Downloading {file_name}",
+                position=1,
+                leave=False)
 
-        
-        # Create a permanent progress bar
+
+        # Create a permanent progress bar when not downloading
         else:
                         
             fmt = "{desc} | {percentage:3.0f}% | {bar} | {elapsed}"

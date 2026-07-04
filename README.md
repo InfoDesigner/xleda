@@ -243,7 +243,7 @@ The only thing that's close to a catch is that using this method doesn't include
 
 <h2>Basic Usage</h2><br><br>
 
-Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.<br><br>
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
 <h4>From a Dataframe</h4>
 
@@ -256,6 +256,23 @@ df = sns.load_dataset("titanic")
 
 # Creates xleda.xlsm in the current directory
 wb(df)
+```
+
+<br><br>
+
+<h4>From a Dictionary of Dataframes</h4>
+
+```python
+from xleda import wb
+import seaborn as sns
+
+# < your dataframes go here >
+df1 = sns.load_dataset("titanic")
+df2 = sns.load_dataset("penguins")
+
+# Creates Titanic.xlsm in the current directory
+wb({"Titanic": df1,
+    "Penguins": df2})
 ```
 
 <br><br>
@@ -487,10 +504,13 @@ xleda wb --help
 
 <h2>CLI Basics</h2><br><br>
 
-Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
+<p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
-It works almost the same way as the Python API except that it only accepts file for <code>data</code> and doesn't accept the <code>plots</code> argument<br>
+It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument</p><br>
 
+
+<details>
+  <summary>CLI Commands</summary>
 
 <table>
   <tbody>
@@ -542,6 +562,7 @@ xleda theme 262626
   </tbody>
 </table><br><br>
 
+</details><br>
 
 
 <hr><br>
@@ -874,10 +895,10 @@ print(export_dicts[0].keys())
     <tr>
       <td width="30%" valign="top"><br><strong>VBA Code</strong></td>
       <td valign="top"><br>
-        The included VBA code is short and easy to understand<br><br>
+        The included <a href="https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas">VBA code</a> is short and easy to understand<br><br>
         <ul>
           <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li><br>
-          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li><br>  
+          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Using <code>wb_path</code> doesn't work this way.</li><br>  
         </ul>
       <details>
         <summary>What the VBA Code Does</summary><br>

@@ -314,7 +314,6 @@ def test_completed_example(create_completed_example):
     actual = wb(data=titanic,
                 wb_path=examples_path / 'Titanic Completed.xlsm', 
                 file_name='Titanic',
-                no_vba=True,
                 export=True).export_dicts
 
     for i in range(len(actual)):
