@@ -319,13 +319,11 @@ xleda wb --help
     </tr>
     <tr>
       <td valign="top"><br>
-        After running <code>xleda install</code>...<br><br>
         <p align="left">
           <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
         </p><br>
       </td>
       <td valign="top"><br>
-        After running <code>xleda install</code>...<br><br>
         <p align="left">
           <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
         </p><br>
