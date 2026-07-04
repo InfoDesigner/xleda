@@ -897,10 +897,10 @@ print(export_dicts[0].keys())
     <tr>
       <td width="30%" valign="top"><br><strong>VBA Code</strong></td>
       <td valign="top"><br>
-        The included VBA code is short and easy to understand<br><br>
+        The included <a href="https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas">VBA code</a> is short and easy to understand<br><br>
         <ul>
           <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li><br>
-          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Set it once and forget it. Using <code>wb_path</code> doesn't work this way.</li><br>  
+          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Using <code>wb_path</code> doesn't work this way.</li><br>  
         </ul>
       <details>
         <summary>What the VBA Code Does</summary><br>

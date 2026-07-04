@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
-import shlex
 import subprocess
-import sys
 import urllib.request
 from importlib.metadata import version as package_version
 from pathlib import Path
 import shutil
+from importlib.resources import files, as_file
+import zipfile
 
 
 from packaging.version import parse
@@ -25,6 +25,11 @@ logger = Logger()
 settings = Settings(logger=logger)
 color = settings.theme.color
     
+
+
+if settings.env.win:
+    import winreg
+
 
 # Apply Hex colors for typer app
 rich_utils.STYLE_OPTION = color
@@ -105,51 +110,70 @@ class CLI():
     
 
     def create_windows_context_menu_command(self) -> str:
+        
+        """
+        Constructs a context menu command for Windows to run xleda on Windows
+        
+        """
+        settings_json = r"$env:USERPROFILE\AppData\Roaming\.xleda\settings.json"
+        fallback_py = "python"
+        
+        # Constructs a powershell command to pull the last python interpreter that xleda 
+        # was run with from persistent settings
+        ps_cmd = (
+            f"$s = '{settings_json}'; "
+            f"$p = '{fallback_py}'; "
+            "if (Test-Path $s) { "
+                "$j = Get-Content $s | ConvertFrom-Json; "
+                "if ($j.python_executable) { $p = $j.python_executable } "
+            "}; "
+            
+            "Start-Process $p -ArgumentList '-m', 'xleda', 'wb', $args[0] -NoNewWindow -Wait"
+        )
+        
+        # '%1' is passed outside of the -Command string block to care for files with spaces or special characters
+        return f'powershell.exe -NoExit -ExecutionPolicy Bypass -Command "{ps_cmd}" -- "%1"'
 
-        """
-        Constructs the context menu command for Windows
-        
-        """
-        
-        python = str(Path(sys.executable).resolve())
-        module_command = f"& {shlex.quote(python)} -m xleda wb '%1'"
-        pause_command = "Write-Host ''; Read-Host 'Operation Completed, you can now close this window'"
-        return f'powershell.exe -NoExit -ExecutionPolicy Bypass -Command "{module_command}; {pause_command}"'
 
 
     def install_windows_context_menu(self) -> bool:
         
         """
-        Installs the context menu on Windows
+        Installs the icon and context menu on Windows
         
-        Returns
-        -------
-        bool
-            A boolean indicating success
-
         """
-        
-        import winreg
         command = self.create_windows_context_menu_command()
         
         try:
-
-            icon_path = Path(__file__).parent / 'rectangle_icon.ico'
+            
+            # Contruct pesistent settings directory if needed
+            appdata_dir = Path.home() / 'AppData' / 'Roaming' / '.xleda'
+            appdata_dir.mkdir(parents=True, exist_ok=True)
+            
+            source_icon = files('xleda').joinpath('assets', 'rectangle_icon.ico')
+            dest_icon = appdata_dir / 'rectangle_icon.ico'
+            
+            
+            # Copy icon to the pesistent settings folder
+            with as_file(source_icon) as src_icon:
+                shutil.copy2(src_icon, dest_icon)
             
             for extension in supported_extensions:
                 base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
                 
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key: # type: ignore
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name) # type: ignore
-                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path)) # type: ignore
-
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key: # type: ignore
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command) # type: ignore
+                # Creates a key for each extension
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, base_key) as key:   # type: ignore
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, self.windows_menu_name)  # type: ignore
+                    
+                    # Add icon from persistent settings to the key
+                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(dest_icon))  # type: ignore
                 
+                # Creates a key for the xleda command
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"{base_key}\command") as key:  # type: ignore
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, command)  # type: ignore
+                    
             return True
-        
         except Exception:
-            
             return False
         
 
@@ -169,7 +193,8 @@ class CLI():
         
         try:
             import winreg
-
+            
+            # Adds xleda for supported file types
             for extension in supported_extensions:
                 base_key = rf"Software\Classes\SystemFileAssociations\{extension}\shell\xleda"
                 try:
@@ -183,35 +208,54 @@ class CLI():
         except Exception:
             return False
 
+
+
     def install_macos_context_menu(self) -> bool:
-        """
-        Installs a context menu Quick Service into MacOS
         
         """
+        Installs a context menu Quick Service into macOS
+        
+        """
+        
         try:
-            workflow_name = "Create xleda Workbook.workflow"
-            source_workflow_path = Path(__file__).parent / workflow_name
+        
+            # Define paths and names
+            zip_name = "Create xleda Workbook.workflow.zip"
+            destination_dir = Path.home() / "Library" / "Services"
+            destination_workflow = destination_dir / "Create xleda Workbook.workflow"
+
+            # Locate the workflow archive using importlib
+            source_zip_resource = files("xleda").joinpath("assets", zip_name)
             
-            if not source_workflow_path.exists():
-                print(f"Error: Internal asset framework '{workflow_name}' missing.")
+            # If the workflow archive doesn't exist, raise an error
+            if not source_zip_resource.exists(): # type: ignore
+                print(f"Error: Internal asset archive '{zip_name}' is missing.")
                 return False
-                
-            destination_path = Path.home() / "Library" / "Services" / workflow_name
-            
-            if destination_path.exists():
-                shutil.rmtree(destination_path)
-                
-            # Copies the folder structure, plist properties, and your custom png image natively!
-            shutil.copytree(source_workflow_path, destination_path)
-            
-            # Flush the system Pasteboard background registries to activate the menu item row instantly
+
+            # Perform a clean reinstall
+            if destination_workflow.exists():
+                shutil.rmtree(destination_workflow)
+
+            # Install the .workflow
+            with as_file(source_zip_resource) as zip_disk_path:
+                with zipfile.ZipFile(zip_disk_path, 'r') as zip_ref:
+                    
+                    # Extracts the contents directly into ~/Library/Services/
+                    zip_ref.extractall(destination_dir)
+
+            # Flush the system Pasteboard registries to activate the quick action entry
             subprocess.run(["/System/Library/CoreServices/pbs", "-flush"], capture_output=True, check=False)
             return True
+
         except Exception as e:
             print(f"Installation failed: {e}")
             return False
+        
+    
+    
 
     def uninstall_macos_context_menu(self) -> bool:
+        
         """
         Uninstalls a context menu Quick Service into MacOS
         
@@ -246,14 +290,14 @@ class CLI():
             success = self.install_macos_context_menu()
         
         if success:
-
             
-            success_message = (f"{separator}\033[1m\n\nInstalled the xleda right-click menu\033[0m\n\n"
+            success_message = (f"{separator}\n\nInstalled the xleda right-click menu\n\n"
                                "Supported file types:\nCSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML\n\n"
                                f"Expected extensions:\n{supported}\n\n"
-                               "For more documentation, visit https://github.com/InfoDesigner/xleda")
+                               "For more documentation, visit https://github.com/InfoDesigner/xleda\n")
                     
-            print(success_message)
+            settings.logger.print(success_message)
+
 
     def uninstall(self) -> None:
         

@@ -212,7 +212,7 @@ class wb():
             # Set vars, open and activate workbook
             
             # Activate Excel on MacOS to prevent losing 'App' connection later.
-            if self.env.mac:
+            if self.settings.env.mac:
                 template.macos_focus_excel()
             
             book = app.books.open(template.path, read_only=False)
@@ -318,6 +318,7 @@ class wb():
         settings = self.settings
         datasets = self.datasets
         logger = self.logger
+        env = self.settings.env
 
         missing_dfs = []
 

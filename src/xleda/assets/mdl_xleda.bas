@@ -49,39 +49,64 @@ End Sub
 
 
 Function PythonList(rng As Variant) As String
+
+    ' Creates a Python list from ranges or inputs
+
     Dim Element As Variant
     Dim result As String
 
+    ' If the input argument is a cell range, extract the values and format them
     If TypeName(rng) = "Range" Then
         For Each Element In rng.Cells
             If Not IsEmpty(Element.Value) Then result = result & PythonListFormat(Element.Value) & ", "
         Next
+        
+    ' If the input argument is an arrary from something like a function return value, format the values
     ElseIf IsArray(rng) Then
         For Each Element In rng
             If Not IsEmpty(Element) Then result = result & PythonListFormat(Element) & ", "
         Next
+    
+    ' If something else is provided, format it and return it
     Else
         If Not IsEmpty(rng) Then result = result & PythonListFormat(rng) & ", "
     End If
 
-    If Len(result) > 0 Then result = Left(result, Len(result) - 2)
+    ' Remove next item placeholders from the Python list
+    If Len(result) > 0 Then 
+        result = Left(result, Len(result) - 2)
+    
+    ' Add open/closing brackets
     PythonList = "[" & result & "]"
+    
 End Function
 
 
 
 Private Function PythonListFormat(v As Variant) As String
+
+    ' Formats values for Python lists
+    
+    ' Adds quotes for blanks/errors
     If IsError(v) Or IsNull(v) Then
         PythonListFormat = "''"
         Exit Function
     End If
 
     Select Case VarType(v)
+        
+        ' Uses boolean for True/False 
         Case vbBoolean
             PythonListFormat = IIf(v, "True", "False")
+            
+        ' Leaves values as-is for number types
         Case vbByte, vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbDecimal
             PythonListFormat = CStr(v)
+        
+        ' Add quotes for others
         Case Else
             PythonListFormat = "'" & Replace(CStr(v), "'", "\'") & "'"
+            
     End Select
+    
 End Function
