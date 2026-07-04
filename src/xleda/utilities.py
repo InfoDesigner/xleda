@@ -355,17 +355,13 @@ class Settings():
         # Get settings path
         path = Path(self.settings_path)
         
-        
-        # Get venv executable path
-        venv_root = Path(sys.prefix).resolve()
-       
-        
+              
         # Write to a temporary file first, then rename it
         tmp_path = path.with_suffix(".tmp")
         
         persistent_settings = {'no_vba': self.no_vba,
                                'theme': self.color,
-                               'python_executable': str(venv_root / "bin" / "python")}
+                               'python_executable': sys.executable}
         
 
         try:
