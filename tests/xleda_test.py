@@ -53,7 +53,6 @@ feather_data_path = data_dir / 'feathers'
 # Local Data
 
 # Dataframes
-african_soil = pd.read_feather(data_dir / 'african_soil.feather').iloc[:, :600]
 nyc_taxi = pd.read_feather(data_dir / 'nyc_taxi.feather')
 air_bnb = pd.read_feather(data_dir / 'air_bnb.feather')
 og_penguins = pd.read_csv(data_dir / "penguins_raw.csv")
@@ -125,13 +124,7 @@ valids = {
                      'plots': {'Pair Plots': pair_plots,
                                'Null Matrix': null_matrix},
                      'expected_path': examples_path / "Penguins.xlsm"},
-        
-        'african_soil': {'data': {"African Soil": african_soil},
-                         'wb_path':examples_path,
-                         'large_report': True,
-                         'theme': '#31AC83',
-                         'expected_path': examples_path / "African Soil.xlsm"},
-                         
+                                 
         'nyc_xlsx': {'data': {"NYC Taxi": nyc_taxi},
                      'wb_path': examples_path / "NYC Taxi.xlsx",
                      'expected_path': examples_path / "NYC Taxi.xlsx"},
