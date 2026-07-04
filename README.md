@@ -504,9 +504,9 @@ xleda wb --help
 
 <h2>CLI Basics</h2><br><br>
 
-Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
+<p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
-It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument<br>
+It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument</p><br>
 
 
 <details>
@@ -562,9 +562,7 @@ xleda theme 262626
   </tbody>
 </table><br><br>
 
-</details>
-
-
+</details><br>
 
 
 <hr><br>

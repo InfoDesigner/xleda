@@ -8,8 +8,8 @@ os = platform.system()
 win = os == 'Windows'
 mac = os == 'Darwin'
 
-xlsm_file = Path(__file__).parent.parent / "src/xleda/xleda_template.xlsm"
-xlsx_file = Path(__file__).parent.parent / "src/xleda/xleda_template.xlsx"
+xlsm_file = Path(__file__).parent.parent / "src/xleda/assets/xleda_template.xlsm"
+xlsx_file = Path(__file__).parent.parent / "src/xleda/assets/xleda_template.xlsx"
 
 
 shape_collection = {
