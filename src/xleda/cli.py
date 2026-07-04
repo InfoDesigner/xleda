@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 import subprocess
 import urllib.request
 from importlib.metadata import version as package_version
@@ -110,29 +112,34 @@ class CLI():
     
 
     def create_windows_context_menu_command(self) -> str:
-        
         """
         Constructs a context menu command for Windows to run xleda on Windows
-        
         """
-        settings_json = r"$env:USERPROFILE\AppData\Roaming\.xleda\settings.json"
-        fallback_py = "python"
+        # Escaped double quotes ensure PowerShell treats the path as a single string
+        ps_settings_path = '\\"$env:LOCALAPPDATA/.xleda/settings.json\\"'
         
-        # Constructs a powershell command to pull the last python interpreter that xleda 
-        # was run with from persistent settings
         ps_cmd = (
-            f"$s = '{settings_json}'; "
-            f"$p = '{fallback_py}'; "
-            "if (Test-Path $s) { "
-                "$j = Get-Content $s | ConvertFrom-Json; "
-                "if ($j.python_executable) { $p = $j.python_executable } "
-            "}; "
-            
-            "Start-Process $p -ArgumentList '-m', 'xleda', 'wb', $args[0] -NoNewWindow -Wait"
+            "& { "
+                "param($target); "
+                f"$s = {ps_settings_path}; "
+                f"$p = '{sys.executable}'; "
+                "if (Test-Path $s) { "
+                    "$j = Get-Content $s -Raw | ConvertFrom-Json; "
+                    "if ($j.python_executable) { "
+                        
+                        
+                        "$p = [System.IO.Path]::GetFullPath($j.python_executable.ToString()); "
+                    "} "
+                "}; "
+                "if ([string]::IsNullOrWhiteSpace($target)) { exit 1 }; "
+                "& $p -m xleda wb -- $target"
+            "} '%1'"
         )
         
-        # '%1' is passed outside of the -Command string block to care for files with spaces or special characters
-        return f'powershell.exe -NoExit -ExecutionPolicy Bypass -Command "{ps_cmd}" -- "%1"'
+        return f'powershell.exe -NoExit -NoProfile -WindowStyle Normal -ExecutionPolicy Bypass -Command "{ps_cmd}"'
+
+
+
 
 
 
@@ -147,7 +154,7 @@ class CLI():
         try:
             
             # Contruct pesistent settings directory if needed
-            appdata_dir = Path.home() / 'AppData' / 'Roaming' / '.xleda'
+            appdata_dir = Path(os.environ.get("LOCALAPPDATA", "~")).expanduser() / '.xleda'
             appdata_dir.mkdir(parents=True, exist_ok=True)
             
             source_icon = files('xleda').joinpath('assets', 'rectangle_icon.ico')

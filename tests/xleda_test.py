@@ -97,8 +97,6 @@ plt.style.use("dark_background")
 null_matrix.set_size_inches(9.35, 4.5) # type: ignore
 
 
-
-
 # --------------------------------------------------------------------
 # Invalid argument sets that produce erorrs
 
