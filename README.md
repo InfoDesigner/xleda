@@ -41,7 +41,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
       </td>
       <td valign="top">
         <details>
-          <summary>Anatomy of a Field Analysis Worksheet</summary>
+          <summary>Anatomy of a Field Analysis Worksheet<br><br></summary>
           <p align="left">
             <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
           </p>
@@ -56,7 +56,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
       </td>
       <td valign="top">
         <details>
-          <summary>Anatomy of an Overview Worksheet</summary>
+          <summary>Anatomy of an Overview Worksheet<br><br></summary>
           <p align="left">
             <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
           </p>
@@ -132,7 +132,7 @@ xleda install
 <p>xleda can help you perform this task easily, quickly, and without having to write a single line of Python code.</p><br>
 
 <details>
-<summary>Non-Developer Quick Start Guide</summary><br><br>
+<summary>Non-Developer Quick Start Guide<br><br></summary><br><br>
   <p><strong>Following the steps below will provide you with:</strong></p>
   <ol>
     <li>A comprehensive document for your data with worksheets for each related data source and placeholders for field definitions and notes that you can share with other contributors</li><br><br>
@@ -163,14 +163,14 @@ xleda install
 		        <li>See their site for a variety of install options or use one of the TLDR versions below in your operating system's terminal</li><br><br>
           </ul>
 		  <details>
-			<summary><strong>Windows PowerShell</strong></summary>
+			<summary><strong>Windows PowerShell</strong><br><br></summary>
       
 ```bash
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 </details><br>
 		  <details>
-			<summary><strong>MacOS</strong></summary>
+			<summary><strong>MacOS</strong><br><br></summary>
       
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -350,7 +350,7 @@ xleda wb --help
           <li>Supported types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</li><br>
         </ul>
           <details>
-            <summary>Data File Limitations</summary><br>
+            <summary>Data File Limitations<br><br></summary><br>
             <p>If the provided data file doesn't parse correctly, try creating a 
             dataframe first and use that with xleda instead of the file</p><br>
             <strong>Expect problems with</strong>:<br><br>
@@ -508,7 +508,7 @@ It works almost the same way as the Python API except that it only accepts files
 
 
 <details>
-  <summary>CLI Commands</summary>
+  <summary>CLI Commands<br><br></summary>
 
 <table>
   <tbody>
@@ -570,7 +570,7 @@ xleda theme 262626
 
 
 <details>
-  <summary>Example: Creating a workbook from multiple dataframes</summary><br>
+  <summary>Example: Creating a workbook from multiple dataframes<br><br><br>
 
 ```python
 import seaborn as sns
@@ -589,7 +589,7 @@ wb(data=dataframe_dict)
 </details>
 
 <details>
-  <summary>Example: Using wb_path as a directory or a file</summary><br>
+  <summary>Example: Using wb_path as a directory or a file<br><br></summary><br>
 
 ```python
 from xleda import wb
@@ -608,7 +608,7 @@ wb(data={"Penguins": df},
 
 </details>
 <details>
-  <summary>Example: Adding custom plots to a workbook</summary><br>
+  <summary>Example: Adding custom plots to a workbook<br><br></summary><br>
 
 ```python
 from xleda import wb
@@ -642,7 +642,7 @@ wb(data={"Penguins": df},
 
 
 <details>
-<summary>Example: Creating workbooks without VBA</summary><br>
+<summary>Example: Creating workbooks without VBA<br><br></summary><br>
 
 ```python
 from xleda import wb
@@ -664,7 +664,7 @@ wb(data=df,
 </details>
 
 <details>
-<summary>Example: Creating a workbook from a database</summary><br>
+<summary>Example: Creating a workbook from a database<br><br></summary><br>
 
 <strong>From Python</strong>
 ```python
@@ -691,7 +691,7 @@ xleda wb chinook.db --name "Chinook"
 
 
 <details>
-<summary>Example: Basic Metadata Export</summary><br>
+<summary>Example: Basic Metadata Export<br><br></summary><br>
 
 Basic metadata export sources data from Python
 
@@ -715,7 +715,7 @@ print(export_dicts[0].keys())
 </details>
 
 <details>
-<summary>Example: Full Metadata Export</summary><br>
+<summary>Example: Full Metadata Export<br><br></summary><br>
 
 Full export sources data from the workbook when possible<br><br>
 
@@ -772,7 +772,7 @@ print(export_dicts[0].keys())
           <li>The Record List works similarly though it tags individual records instead of lists</li><br>
         </ul>
         <details>
-          <summary>List Details</summary>
+          <summary>List Details<br><br></summary>
           <ul><br>
             <li>Anything not marked as False will be included in each list</li><br>
             <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
@@ -798,7 +798,7 @@ print(export_dicts[0].keys())
           <li>You can optionally override default limits to use Excel's limits of 16,000 columns, 1,000,000 rows by using <code>large_report=True</code></li><br>
         </ul>
         <details>
-        <summary>Performance Details</summary><br>
+        <summary>Performance Details<br><br></summary><br>
           <ul>
             <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
             <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
@@ -820,7 +820,7 @@ print(export_dicts[0].keys())
           <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li><br>
         </ul>
         <details>
-        <summary>Default Metadata</summary><br>
+        <summary>Default Metadata<br><br></summary><br>
           The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
             <li><code>df_overview</code>: Dataframe level metadata</li><br>
@@ -830,7 +830,7 @@ print(export_dicts[0].keys())
           </ul>
         </details><br>
         <details>
-          <summary>Expanded Metadata:</summary><br>
+          <summary>Expanded Metadata:<br><br></summary><br>
           Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
           This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
           Includes the following for each provided dataframe:<br><br>
@@ -854,7 +854,7 @@ print(export_dicts[0].keys())
           <li>Look for the bouncing Excel icon</li><br>
         </ul>
       <details>
-        <summary>MacOS Details</summary>
+        <summary>MacOS Details<br><br></summary>
         <table>
           <thead>
             <tr>
@@ -899,7 +899,7 @@ print(export_dicts[0].keys())
           <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Using <code>wb_path</code> doesn't work this way.</li><br>  
         </ul>
       <details>
-        <summary>What the VBA Code Does</summary><br>
+        <summary>What the VBA Code Does<br><br></summary><br>
         <ol>
           <li>Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right</li><br>
           <li>Adds a <strong>PythonList</strong> UDF that creates Python lists from cell values</li><br>
@@ -935,7 +935,7 @@ print(export_dicts[0].keys())
 <h2>Troubleshooting</h2><br><br>
 
 <details>
-<summary>xleda is slow</summary><br>
+<summary>xleda is slow<br><br></summary><br>
   <ul>
     <li>Try reducing the amount of data you're sending to it, and let it finish.</li><br>
     <li>After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.</li><br>
@@ -944,7 +944,7 @@ print(export_dicts[0].keys())
 </details><br>
 
 <details>
-  <summary>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks</summary><br>
+  <summary>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks<br><br></summary><br>
     <ul>
       <li>You may have a hidden Excel instance that needs to be closed.</li><br>
       <li>Guidance on closing hidden Excel windows for <a href="https://www.google.com/search?q=hidden+excel+instance+in+macos">MacOS</a> and <a href="https://www.google.com/search?q=hidden+excel+instance+in+windows">Windows</a></li><br>
@@ -952,7 +952,7 @@ print(export_dicts[0].keys())
 </details><br>
 
 <details> 
-  <summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:</summary><br>
+  <summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:<br><br></summary><br>
   <ul>
     <li>The Excel app may have crashed or is otherwise disconnected from Python.</li><br>
     <li>Close all Excel windows and try running the command again.</li><br>
@@ -961,7 +961,7 @@ print(export_dicts[0].keys())
 
 
 <details markdown="1">
-  <summary>xleda won't run at all and are using Windows/MacOS with a full Office Installation</summary><br>
+  <summary>xleda won't run at all and are using Windows/MacOS with a full Office Installation<br><br></summary><br>
     <ul>
       <li>If you can get the script below to run successfully using xlwings (not xlwings-lite), xleda has a good chance of working reliably.</li><br>
       <li>All it does is open Excel and create a new workbook.</li><br>
@@ -989,7 +989,7 @@ app = xw.App()
       <td width="30%" valign="top"><br><strong>Version 0.8.185</strong></td>
       <td valign="top"><br>
         <details>
-          <summary>New simplified API, simplified export, general polish</summary><br>
+          <summary>New simplified API, simplified export, general polish<br><br></summary><br>
             <strong>Simplified basic usage to make it quicker to use and easier to memorize.</strong><br><br>
               <ul>
                 <li>Changed the default entry point to <code>xleda.wb()</code> from <code>xleda.FieldAnalysis()</code></li>
@@ -1038,7 +1038,7 @@ app = xw.App()
       <td valign="top"><br><strong>Version 0.8.186</strong></td>
       <td valign="top"><br>
         <details>
-          <summary><strong>Add multiple dataframes, module refactoring into classes, added logging</strong></summary><br><br>
+          <summary><strong>Add multiple dataframes, module refactoring into classes, added logging</strong><br><br></summary><br><br>
           <strong>Implemented add_dfs</strong><br>
           <ul>
             <li>Adds Field Analysis/Overview reports for each additional dataframe</li>
@@ -1093,8 +1093,7 @@ app = xw.App()
       <td width="30%" valign="top"><br><strong>Version 0.8.193</strong></td>
       <td valign="top"><br>
       <details>
-        <summary><strong>Added MacOS support</strong></summary><br>
-        <strong>Added MacOS support</strong><br>
+        <summary><strong>Added MacOS support</strong><br><br></summary><br>
         <ul>
           <li>Used xlwings when possible, appscript/AppleScript/subprocess otherwise.</li>
           <li>Reduced OS branching when possible.</li>
@@ -1120,7 +1119,7 @@ app = xw.App()
       <td valign="top"><br><strong>Version 0.8.197</strong></td>
       <td valign="top"><br>
       <details>
-        <summary><strong>Readme/pyproject.toml polish/minor fixes</strong></summary><br>
+        <summary><strong>Readme/pyproject.toml polish/minor fixes</strong><br><br></summary><br>
         <ul>
           <li>Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README</li>
           <li>Fixed a cross-platform formatting issue with the debug worksheet</li>
@@ -1136,7 +1135,7 @@ app = xw.App()
       <td valign="top"><br><strong>Version 0.9.001</strong></td>
       <td valign="top"><br>
       <details>
-        <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong></summary><br>
+        <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>
         <strong>Simplified API</strong><br>
         <ul>
           <li>'input_df' was changed to 'data'</li>
