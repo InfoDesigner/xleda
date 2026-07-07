@@ -1,122 +1,503 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="None">
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
         
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>xleda</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
         
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>My Docs</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/fontawesome.min.css" rel="stylesheet">
-        <link href="css/brands.min.css" rel="stylesheet">
-        <link href="css/solid.min.css" rel="stylesheet">
-        <link href="css/v4-font-face.min.css" rel="stylesheet">
-        <link href="css/base.css" rel="stylesheet">
-        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
-        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script>hljs.highlightAll();</script> 
-    </head>
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
 
-    <body class="homepage">
-        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" href=".">My Docs</a>
-
-                <!-- Expanded navigation -->
-                <div id="navbar-collapse" class="navbar-collapse collapse">
-
-                    <ul class="nav navbar-nav ms-md-auto">
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="row">
-                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
-            <span class="fa fa-angle-down"></span>
-        </button>
-    </div>
 
     
-    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
-        <ul class="nav flex-column">
-            
-            <li class="nav-item" data-bs-level="1"><a href="#_1" class="nav-link"></a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#requirementscompatibility" class="nav-link">Requirements/Compatibility</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#installation" class="nav-link">Installation</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#quick-start" class="nav-link">Quick Start</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#xleda-components" class="nav-link">xleda Components</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#xledawb-configuration" class="nav-link">xleda.wb() Configuration</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-bs-level="1"><a href="#usage-notes" class="nav-link">Usage Notes</a>
-              <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#changelog" class="nav-link">Changelog</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-              </ul>
-            </li>
-        </ul>
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/badge.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#xleda-components" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
-</div></div>
-                    <div class="col-md-9" role="main">
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="xleda" class="md-header__button md-logo" aria-label="xleda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            xleda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="xleda" class="md-nav__button md-logo" aria-label="xleda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    xleda
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#xleda-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xleda Components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirementscompatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements/Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#xleda-for-non-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xleda for Non-Developers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-a-dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From a Dataframe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-a-dictionary-of-dataframes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From a Dictionary of Dataframes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From a File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-the-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From the CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-right-clicking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From Right-Clicking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#xledawb-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xleda.wb() Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Basics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changelog
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Home</h1>
 
 <div align="center">
-
-[![License: Apache](https://img.shields.io/badge/license-Apache-**blue**)](https://www.apache.org/licenses/LICENSE-2.0.txt)
-[![PyPI - Version](https://img.shields.io/pypi/v/xleda)](https://pypi.org/project/xleda)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xleda.svg)](https://pypi.org/project/xleda)
-[![Downloads](https://static.pepy.tech/badge/xleda)](https://pepy.tech/project/xleda)
-[![Made by a Human](https://img.shields.io/badge/Made%20By%20A%20Human-95%25-blue)](https://github.com/InfoDesigner/xleda)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/informationdesigner)
-
-
+    <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/v/xleda"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/pyversions/xleda.svg"></a> <a href="https://pepy.tech/project/xleda"><img src="https://static.pepy.tech/badge/xleda"></a> <a href="https://github.com/InfoDesigner/xleda"><img src="https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue)"></a> <a href="https://buymeacoffee.com/informationdesigner"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black"></a>
 </div>
-
+<p><br></p>
 <p align="center">
     <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/logo.webp?raw=true" width="250" alt="Logo">
     <br>
 </p>
-<p align="center" style="font-size: 26px; font-weight: bold;">A Microsoft Excel powered EDA tool</p>
 
-<h1 id="_1"></h1>
-<p><br></p>
+<p>xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets.<br><br></p>
 <ul>
 <li>
-<p>Produces Microsoft Excel workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets. <br><br></p>
-</li>
-<li>
-<p>Works on both MacOS/Windows as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br></p>
+<p>Works on Windows or MacOS as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br></p>
 </li>
 <li>
 <p>There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br></p>
@@ -126,1008 +507,1168 @@
 </li>
 </ul>
 <p align="center">
-    <img src="../../assets/images/top_view.webp"  width="600" alt="Example Top View"> 
+    <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
     <br>
     <em>Top view of a Field Analysis worksheet.</em>
 </p>
-<p><br></p>
-<h1 id="requirementscompatibility"><strong>Requirements/Compatibility</strong></h1>
-<h4 id="desktop-excel"><strong>Desktop Excel</strong></h4>
-<ul>
-<li>
-<p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks. </p>
-</li>
-<li>
-<p>See MacOS Support section below for details on MacOS usage.</p>
-</li>
-</ul>
-<h4 id="supported-data-sources"><strong>Supported Data Sources</strong></h4>
-<ul>
-<li>Supports pandas dataframes and the following file types:<ul>
-<li>CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML.</li>
-</ul>
-</li>
-</ul>
 <p><br><br></p>
-<h1 id="installation"><strong>Installation</strong></h1>
-<h4 id="packagecli"><strong>Package/CLI</strong></h4>
-<pre><code class="language-bash">uv add xleda
-</code></pre>
-<p>or </p>
-<pre><code class="language-bash">pip install xleda
-</code></pre>
-<h4 id="right-click-menu"><strong>Right-Click Menu</strong></h4>
-<p>xleda can optionally be installed into the OS such that it will create workbooks from a right-click context menu action on supported file types.</p>
-<ul>
-<li>Works on both Windows and MacOS</li>
-<li>After installing as a package, use <code>xleda install</code> or <code>xleda uninstall</code> to add/remove right-click menus.<br><br></li>
-</ul>
-<details>
-<summary><strong>Tips:</strong> Managing the Install
-</summary><br>
-
-###### Managing the Install
-
-* `xleda install` adds right-click functionality to your OS but it does not modify your path to make the CLI globally available.<br>
-
-* If the Python environment that xleda was installed into is deleted after running `xleda install`, the right-click functionality will need to be either repaired or uninstalled by running `xleda install` or `xleda uninstall` again from a new Python environment.<br>
-
-* If you have UV installed, you can install/uninstall the package, CLI, and right-click menus systemwide without having to maintain a venv with these one-liners. <br><br>
-
-Windows PowerShell<br>
-
-
-<pre><code class="language-bash"># Installs the package and right-click menus
-uv tool install xleda; if ($?) { xleda install }
-
-# Uninstalls the package and right-click menus
-xleda uninstall; if ($?) { uv tool uninstall xleda }
-
-</code></pre>
-
-
-MacOS<br>
-
-
-<pre><code class="language-bash"># Installs the package and right-click menus
-uv tool install xleda &amp;&amp; xleda install
-
-# Uninstalls the package and right-click menus
-xleda uninstall &amp;&amp; uv tool uninstall xleda
-</code></pre>
-
-</details>
-<p><br><br></p>
-<h1 id="quick-start"><strong>Quick Start</strong></h1>
-<p>Use <code>wb()</code> to quickly create an xleda workbook from a dataframe or a supported data file.</p>
-<h4 id="from-a-dataframe"><strong>From a Dataframe:</strong></h4>
-<pre><code class="language-python">from xleda import wb
-import seaborn as sns
-
-# &lt; your dataframe goes here &gt;
-df = sns.load_dataset(&quot;titanic&quot;)
-
-# Creates xleda.xlsm in the current directory
-wb(df)
-</code></pre>
-<h4 id="from-a-file"><strong>From a File:</strong></h4>
-<pre><code class="language-python">from xleda import wb
-
-# &lt; your data file goes here &gt;
-duckdb_file = Path(&quot;my_fancy_db.duckdb&quot;)
-
-# Creates my_fancy_db.xlsm in the current directory 
-# Includes data from all tables in the db file
-wb(duckdb_file)
-</code></pre>
-<h4 id="from-the-cli"><strong>From the CLI:</strong><br></h4>
-<pre><code class="language-bash"># Creates 'my_parquet_file.xlsm' in the current directory
-xleda wb 'my_parquet_file.parquet'
-</code></pre>
-<h4 id="from-right-clicking-on-supported-files"><strong>From right-clicking on supported files:</strong><br><br></h4>
-<p align="left">
-    <img src="../../assets/images/from_right_click.webp"  width="600" alt="From right-click"> 
-    <br>
-</p>
-<p><br><br></p>
-<h1 id="xleda-components"><strong>xleda Components</strong></h1>
-<p>All xleda workbooks include an <strong>Overview</strong> worksheet and a <strong>Field Analysis</strong> worksheet for each provided dataframe.</p>
-<h4 id="field-analysis"><strong>Field Analysis</strong></h4>
-<ul>
-<li>Placeholders for inputting definitions/notes</li>
-<li>Metadata for each field and dataframe</li>
-<li>Per Field Charts</li>
-<li>A way to create lists of fields/records</li>
-<li>A Source Data Table.<br><br></li>
-</ul>
-<details>
-<summary><strong>Anatomy of a Field Analysis Worksheet:</strong>
-</summary><br>
-
-<p align="center">
-    <img src="../../assets/images/field_analysis_anatomy.webp"  width="600" alt="Field Analysis Anatomy"> 
-    <br>
-    <em>Field Analysis Anatomy</em>
-</p>
-<br>
-
-</details>
+<hr>
 <p><br></p>
-<h4 id="overview"><strong>Overview</strong></h4>
-<p>The <strong>Overview</strong> worksheet includes:
-* A dataframe-level metadata table with links to each Field Analysis worksheet and a calculated field for tracking how many fields have definitions.<br><br>
-* A field-level metadata table that includes all fields from all provided dataframes in one table so that you can sort/filter fields by their name, memory usage, missing %, your notes/definitions/etc.
-<br><br></p>
-<details>
-<summary><strong>Anatomy of an Overview Worksheet:</strong>
-</summary><br>
-
-<p align="center">
-    <img src="../../assets/images/overview_anatomy.webp"  width="1200" alt="Overview Anatomy"> 
-    <br>
-    <em>Overview Worksheet with Multiple Dataframes</em>
-</p>
-<br>
-
-</details>
-<p><br><br></p>
-<p><br></p>
-<h1 id="xledawb-configuration"><strong>xleda.wb() Configuration</strong></h1>
-<h3 id="data-dataframe-or-path-or-string-mandatory"><strong>data</strong> | Dataframe or Path or string | Mandatory</h3>
-<ul>
-<li>
-<p>Accepts any of:</p>
-<ul>
-<li>A pandas dataframe</li>
-<li>A dictionary of dataframes in <code>{dataframe_name: dataframe, ...}</code> format</li>
-<li>A string/pathlib Path to data file of a supported file type.</li>
-</ul>
-</li>
-<li>
-<p>When providing files as arguments:</p>
-<ul>
-<li>
-<p>The workbook will default to use the same directory as the provided file and the same name.</p>
-</li>
-<li>
-<p>Supported file types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML.</p>
-</li>
-<li>
-<p>See <strong><em>Data File Limitations</em></strong> below for additional details. <br><br></p>
-</li>
-</ul>
-</li>
-</ul>
-<details>
-<summary><strong>Example:</strong> Using a dictionary of dataframes
-</summary><br>
-
-
-<pre><code class="language-python">import seaborn as sns
-from xleda import wb
-
-seaborn_datasets = ['diamonds', 'dots', 'dowjones']
-
-dataframe_dict = {df_name: sns.load_dataset(df_name) for df_name in seaborn_datasets}
-
-# Creates Diamonds.xlsm in the current directory
-# Also includes dots and dow jones data
-wb(data=dataframe_dict)
-</code></pre>
-
-
-
-
-
-</details>
-
-<h3 id="file_name-str-optional"><strong>file_name</strong> | str | Optional</h3>
-<ul>
-<li>
-<p>Name of the workbook to be created.</p>
-</li>
-<li>
-<p>Defaults to:</p>
-<ul>
-<li>If a file is provided to the <code>data</code> argument, the same file name will be used.</li>
-<li>If a dictionary of dataframes is provided to the <code>data</code> argument, the first key will be used</li>
-<li>Otherwise, <code>xleda</code> will be used<br><br></li>
-</ul>
-</li>
-</ul>
-<h3 id="wb_path-path-or-string-optional"><strong>wb_path</strong> | Path or string | Optional</h3>
-<ul>
-<li>Uses a string or Pathlib path of a directory or file<br></li>
-<li>
-<p>If a directory is provided, the workbook will be created in that directory.</p>
-</li>
-<li>
-<p>If a file name ending in <code>.xlsm</code> or <code>.xlsx</code> is provided:</p>
-<ul>
-<li>It will either create that file or export from that file depending on whether <code>export=True</code> is also selected. </li>
-<li>Passing a <code>.xlsx</code> file will also set <code>no_vba=True</code><br></li>
-</ul>
-</li>
-<li>
-<p>Defaults to current working directory<br><br></p>
-</li>
-</ul>
-<details>
-<summary><strong>Example:</strong> Using wb_path
-</summary><br>
-
-
-<pre><code class="language-python">from xleda import wb
-from pathlib import Path
-
-# Creates &quot;c:\my_target_folder\Penguins.xlsm&quot;
-wb(data={&quot;Penguins&quot;: df},
-   wb_path=Path(r&quot;c:\my_target_folder&quot;))
-
-# Creates &quot;c:\my_awesome_workbook.xlsx&quot;
-wb(data={&quot;Penguins&quot;: df},
-   wb_path=r&quot;c:\my_awesome_workbook.xlsx&quot;)
-</code></pre>
-
-
-<br>
-</details>
-<p><br></p>
-<h3 id="theme_color-str-optional"><strong>theme_color</strong> | str | Optional</h3>
-<ul>
-<li>
-<p>Sets the primary color of the charts and the color of the headings in the workbook to a hex color of your choice. </p>
-</li>
-<li>
-<p>This setting will persist once set.  Set it to your favorite color and forget it.</p>
-</li>
-<li>
-<p><code>theme_color="random"</code> sets a random theme<br></p>
-</li>
-<li>Defaults to a neutral color <br>
-<br></li>
-</ul>
-<p align="center">
-    <img src="../../assets/images/theme_colors.webp" width="800" alt="Theme Colors">
-    <br>
-    <em>theme_color affects the workbooks and default charts.</em>
-</p>
-<p><br><br></p>
-<h3 id="plots-dict-optional"><strong>plots</strong> | dict | Optional</h3>
-<ul>
-<li>
-<p>Will add additional worksheets with plots of your choosing. </p>
-</li>
-<li>
-<p>Accepts a dictionary of matplotlib Figure objects in <code>{'plotname': Figure, ...}</code> format. </p>
-</li>
-<li>
-<p>No styling/sizing of additional plots is performed.</p>
-</li>
-<li>
-<p>Setting plots to 10" wide should be a good starting place.</p>
-</li>
-<li>
-<p>The example below adds two additional plot worksheets, one from seaborn and another from missingno.  The workbook can be found <a href="https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Penguins.xlsm">here</a>.<br><br></p>
-</li>
-</ul>
-<details>
-<summary><strong>Example:</strong> Including additional plots
-</summary><br>
-
-
-<pre><code class="language-python">from xleda import wb
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import missingno as msno
-
-
-# &lt; your dataframe goes here &gt;
-df = penguins = sns.load_dataset(&quot;penguins&quot;)
-
-
-# Style the additional plots | optional
-plt.style.use(&quot;dark_background&quot;)
-
-
-# Create additional plots
-pair_plots = sns.pairplot(df, hue=&quot;species&quot;).figure
-null_matrix = msno.matrix(df).get_figure()
-
-
-# Resize the null matrix  | optional
-null_matrix.set_size_inches(9.35, 4.5)
-
-
-# Creates Penguins.xlsm with two extra plot sheets
-wb(data={&quot;Penguins&quot;: df},
-   theme_color=&quot;#4C4C4C&quot;,
-   plots={'Pair Plots': pair_plots,
-          'Null Matrix': null_matrix})
-</code></pre>
-
-
-<br>
-</details>
-<p><br></p>
-<h3 id="overwrite-bool-optional"><strong>overwrite</strong> | bool | Optional</h3>
-<ul>
-<li>
-<p>Whether to overwrite existing workbooks of the same name. </p>
-</li>
-<li>
-<p>Existing workbooks are sent to Trash/Recycle Bin</p>
-</li>
-<li>
-<p>Defaults to <code>False</code><br><br></p>
-</li>
-</ul>
-<h3 id="large_report-bool-optional"><strong>large_report</strong> | bool | Optional</h3>
-<ul>
-<li>
-<p>Raises the default dataframe size limits of 25,000 rows/50 columns to Excel's limits of 1,000,000 rows and 16,000 columns.  </p>
-</li>
-<li>
-<p>The closer your are to this limit, the more RAM and patience you'll need to produce a workbook.</p>
-</li>
-<li>
-<p>See additional details in the performance section below.</p>
-</li>
-<li>
-<p>Defaults to <code>False</code><br><br></p>
-</li>
-</ul>
-<h3 id="no_vba-bool-optional"><strong>no_vba</strong> | bool | Optional</h3>
-<ul>
-<li>
-<p>Creates the workbook as a <code>.xlsx</code> file without VBA.</p>
-</li>
-<li>
-<p>This setting will persist once set.  If you don't want VBA workbooks, use this flag then forget it.</p>
-</li>
-<li>
-<p>An alternative to using this option is to provide a file name ending in <code>.xlsx</code> for <code>wb_path</code> though this setting will not persist.</p>
-</li>
-<li>
-<p>See the <strong>VBA Code</strong> section below for additional details.</p>
-</li>
-<li>
-<p>Defaults to <code>False</code><br><br></p>
-</li>
-</ul>
-<details>
-<summary><strong>Example:</strong> Creating workbooks without VBA
-</summary>
-
-
-<pre><code class="language-python">from xleda import wb
-import seaborn as sns
-
-df = sns.load_dataset('penguins')
-
-# Creates &quot;Penguins.xlsx&quot; in the current directory
-wb(data={&quot;Penguins&quot;: df},
-   no_vba=True)
-
-
-# Also creates &quot;Penguins.xlsx&quot; in the current directory
-wb(data=df,
-   wb_path=&quot;Penguins.xlsx&quot;)
-
-
-</code></pre>
-
-
-</details>
-<p><br></p>
-<h3 id="open_wb-bool-optional"><strong>open_wb</strong> | bool | Optional</h3>
-<ul>
-<li>
-<p>Opens the workbook after creating.</p>
-</li>
-<li>
-<p>Setting this to <code>False</code> is useful when creating multiple workbooks</p>
-</li>
-<li>
-<p>Defaults to <code>True</code>.<br><br></p>
-</li>
-</ul>
-<h3 id="export-bool-optional"><strong>export</strong> | bool | Optional</h3>
-<ul>
-<li>
-<p>Performs an export from an xleda workbook instead of creating one.</p>
-</li>
-<li>
-<p>See <strong><em>Exporting Metadata to Python</em></strong> section below for examples/additional details.</p>
-</li>
-<li>
-<p>Defaults to <code>False</code>.<br><br></p>
-</li>
-</ul>
-<p><br></p>
-<h1 id="usage-notes"><strong>Usage Notes</strong></h1>
-<p><br></p>
-<details>
-<summary><strong>Creating Field or Record Lists</strong></summary><br>
-
-## Creating Field or Record Lists
-
-The `Field Lists` section includes placeholders for 8 field lists.
-
-* Anything not marked as `False` will be included in each list.   
-
-* You can rename any list to `Anything You Want` and the list will be renamed to `anything_you_want`.
-
-* The `Record List` field added to your source data works the same way except it creates a list of records instead of a list of fields.
-
-* The Compiled Lists section formats your lists as python lists.
-
-<br>
-
-<p align="center">
-    <img src="../../assets/images/field_lists.webp" width="500" alt="Field Lists">
-    <br>
-    <em>Easily create lists of fields in your data.</em>
-</p>
-<br><br>
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>Limits with Large Data Sets</strong></summary><br>
-
-## Limits with Large Data Sets
-
-To ensure workbooks are created quickly, defaults limit data to the first 50 columns and a random sample of 25,000 records. 
-
-* You can optionally override this to Excel's limits by using `large_report=True`.
-
-* You'll see a warning banner if you hit a limit.
-
-<p align="center">
-    <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="500" alt="Warning Banner">
-</p>
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>Data File Limitations</strong></summary><br>
-
-## Data File Limitations
-
-When provided data files instead of dataframes, xleda will attempt to create a workbook that includes dataframes for all tabular objects within the data file.  e.g. All tables in database files, all tables from Excel files, or all dataframes in RData/Pickle files. 
-
-This functionality comes with some important limitations.  
-
-* Not all files will parse successfully. 
-    * e.g. Deeply nested JSON/XML, a CSV file with tabs instead of commas, `.db` files that are neither SQLite or DuckDB files, or DuckDB files with a `.txt` extension.
-
-* Not all objects within a file can be represented by a dataframe.
-    * e.g.  R Functions from an RData file, matplotlib Figures from a pickle file, or anything in an Excel file that isn't a proper Excel Table. 
-
-* Data types may not always translate well into Excel.
-    * e.g. xml fields will arrive into Excel as strings, or dates from an sqlite file may or may not appear as dates in Excel.
-
-* If the provided data file doesn't parse correctly, try creating a dataframe first and use that with xleda instead of the file.
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>Performance</strong></summary><br>
-
-## Performance
-
-On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS 
-
-* Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are.  
-
-* There is a detailed output provided when creating a workbook that does a pretty good job of letting you know what it's doing. 
-
-* This information is also added to the `debug` section of the `Overview` worksheet<br>
-
-<p align="center">
-    <img src="../../assets/images/create_example.webp" width="800" alt="Create Example">
-    <br>
-    <em>Console output of from creating an xleda workbook</em>
-</p>
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>Columns Added to Source Data</strong></summary><br>
-
-## Columns Added to Source Data
-
-There are some columns added to the Source Data table to support an EDA workflow. 
-
-* `HasBlank`: If any field in a record has a missing value, this will show 1 otherwise 0
-
-* `Record Hash`:  Uses a built-in pandas feature [hash_pandas_object](https://pandas.pydata.org/docs/reference/api/pandas.util.hash_pandas_object.html) to uniquely identify records.  If two records share all column values they also share a `Record Hash`. 
-
-* `Record List`:  Used to tag individual records.  Like `Field Lists` above, anything not marked false gets added to 'Record List'.
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>Exporting Metadata to Python</strong></summary><br>
-
-## Exporting Metadata to Python
-
-##### **Default Metadata**
-
-Metadata from  all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, accessible through `xleda.wb().export_dicts`  <br>
-
-
-* The following metadata is available without using `export=True`
-
-    * `field_metadata`: A basic metadata dataframe, combining information from pandas info/describe/quantile.
-
-    * `field_overview`:  Field-level metadata as seen in the field section of the **Overview** worksheet.
-
-    * `df_overview`: Dataframe level metadata as seen in the dataframe section of the **Overview** worksheet.
-
-    * `source_data`: A copy of the source data that also includes  `Record Hash`/`Record List`/`HasBlank`/`index` columns.<br><br>
-
-<details>
-<summary><strong>Example:</strong> Accesssing basic metadata
-</summary>
-
-
-
-<pre><code class="language-python"># Creates &quot;Titanic.xlsm&quot; and exports default metadata
-export_dicts = wb(data={&quot;Titanic&quot;, df}).export_dicts
-
-# Returns ['field_metadata', 'field_overview', 'df_overview', 'source_data']
-export_dicts[0].keys()
-</code></pre>
-
-
-</details><br>
-
-##### **Expanded Metadata**
-
-Using `xleda.wb(export=True)` reads the xleda workbook it would have created instead of creating it.  <br>
-
-* Includes the default metadata described above but they are instead sourced from the workbook and will reflect any changes you've made in Excel.  
-
-* Also includes the following for each provided dataframe:
-
-    * `description`: Dataframe description if you've added one
-
-    * `definitions`: Any field definitions you've added.
-
-    * `notes`: Any field notes you've added
-
-    * `lists`: Any lists showing in the compiled lists section
-
-         ** *Note that data types will likely change in the round-trip translation.* <br><br>
-
-
-<details>
-<summary><strong>Example:</strong> Exporting from a completed workbook
-</summary><br>
-
-
-* The xleda workbook pictured here is used in for the export code example below .  
-
-* It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).
-
-<p align="center">
-    <img src="../../assets/images/completed_field_analysis.webp" width="500" alt="Completed Field Analysis">
-    <br>
-    <em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
-</p>
-<br>
-
-
-
-<pre><code class="language-python">from xleda import wb
-
-# Performs a full export from &quot;Titanic Completed.xlsm&quot;
-export_dicts = wb(data={&quot;Titanic Completed&quot;, df},
-                  export=True).export_dicts
-
-
-# Returns ['description', 'definitions', 'notes', 'lists', 'field_metadata', 'field_overview', 'df_overview', 'source_data']
-print(export_dicts[0].keys())
-</code></pre>
-
-
-<br>
-</details><br>
-
-</details>
-<p><br></p>
-<details>
-<summary><strong>MacOS Support</strong></summary><br>
-
-## MacOS Support
-
-xleda will create the same workbooks in MacOS though creating them is signficantly slower and you may get two different types of prompts that require your attention.  Look for the bouncing Excel icon.
-
-<table>
-  <thead>
-    <tr>
-      <th width="120"></th>
-      <th width="330">To Access Files</th>
-      <th width="330">To Enable Macros</th>
-    </tr>
-  </thead>
+<h2 id="xleda-components">xleda Components<br><br></h2>
+<p>All xleda workbooks include an <strong>Overview</strong> worksheet and a <strong>Field Analysis</strong> worksheet for each provided dataframe.<br><br></p>
+<table width="100%">
   <tbody>
     <tr>
-      <td><strong>Source</strong></td>
-      <td>MacOS</td>
-      <td>Excel</td>
+      <!-- width: 1% forces this column to stay as narrow as its text -->
+      <td valign="top" style="width: 1%; white-space: nowrap; padding-right: 20px;">
+        <strong>Field&nbsp;Analysis</strong>
+      </td>
+      <td valign="top">
+        <details>
+          <summary>Anatomy of a Field Analysis Worksheet<br><br></summary>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
+          </p>
+          <em>Field Analysis Anatomy</em>
+        </details>
+        <br>
+      </td>
     </tr>
     <tr>
-      <td><strong>Details</strong></td>
-      <td>Prompts to Allow Excel to access the file it's creating.<br><br>If you get these prompts, you'll potentially get one for each unique file you create.</td>
-      <td>Prompts to "Enable Macros".  <br><br>If you get these prompts, you'll get two when creating a workbook:<br><br>1. When opening the blank template<br>2. When opening your created workbook.</td>
-    </tr>
-    <tr>
-      <td><strong>Example</strong></td>
-      <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
-      <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
-    </tr>
-    <tr>
-      <td><strong>Remedy</strong></td>
-      <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-      <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+      <td valign="top" style="width: 1%; white-space: nowrap; padding-right: 20px;">
+        Overview
+      </td>
+      <td valign="top">
+        <details>
+          <summary>Anatomy of an Overview Worksheet<br><br></summary>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
+          </p>
+          <em>Overview Worksheet with Multiple Dataframes</em>
+        </details>
+        <br>
+      </td>
     </tr>
   </tbody>
 </table>
 
-
-
-</details>
+<hr>
+<p><br></p>
+<h2 id="requirementscompatibility">Requirements/Compatibility<br><br></h2>
+<table>
+  <tbody>
+    <tr>
+      <td width="20%" valign="top"><strong>Desktop Excel</strong></td>
+      <td valign="top">
+      <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
+        <ul>
+          <li>See MacOS Support section below for details on MacOS usage.</li><p></p>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><strong>Supported Data</strong></td>
+      <td valign="top">
+      <p>Supports pandas dataframes, CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</p><p></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 <p><br></p>
 <details>
-<summary><strong>VBA Code</strong></summary><br>
+<summary><strong>Tips:</strong> Managing the Install<br><br></summary>
+<ul>
+<li>
+<p><code>xleda install</code> adds right-click functionality to your OS but it does not modify your path to make the CLI available systemwide<p></p></p>
+</li>
+<li>
+<p>If the Python environment that xleda was installed into is deleted after running <code>xleda install</code>, the right-click functionality will need to be either repaired or uninstalled by running <code>xleda install/xleda uninstall</code> from a new Python environment.<p></p></p>
+</li>
+<li>
+<p>If you have UV installed, you can install the package, CLI, and right-click menus systemwide without having to maintain a venv with these two lines.<p></p><br></p>
+</li>
+</ul>
+<p><strong>Windows or MacOS</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Installs the package and makes the xleda command available</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>xleda
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Note you may need a new terminal window to see the newly installed xleda command</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>xleda<span class="w"> </span>install
+</span></code></pre></div>
+<p><br></p>
+</details>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="xleda-for-non-developers">xleda for Non-Developers<br><br></h2>
+<p>If you're working with data professionally in any role and find yourself looking at foreign data, one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.</p>
 
-## VBA Code
+<p>xleda can help you perform this task easily, quickly, and without having to write a single line of Python code.</p>
+<p><br></p>
+<details>
+<summary>Non-Developer Quick Start Guide<br><br></summary><br><br>
+  <p><strong>Following the steps below will provide you with:</strong></p>
+  <ol>
+    <li>A comprehensive document for your data with worksheets for each related data source and placeholders for field definitions and notes that you can share with other contributors</li><br><br>
+    <li>The ability to create the same workbooks in the future by right-clicking on your source data files and choosing <strong>Create xleda Workbook<br><br><br></strong></li>
+  </ol>
+<table>
+  <tbody>
+    <tr>
+      <th align="left" width="30%" valign="top"><strong>1. Prepare Your Source Data</strong></th>
+      <td>
+        <p>We'll start by gathering your source data into one place that we can provide to xleda</p><br>
+        <ul>
+          <li>If you're only working with one data source and you already have it in a single file such as a CSV/DuckDB/Parquet/SQLite/JSON/XML file, you can skip this step.</li><br>
+              <li>Using an Excel workbook as a data souce for xleda, will let you create an xleda workbook that includes data from multiple sources</li><br>
+          <li>Get an export or dump from each data source.  You can include as many records for each source as you want though xleda will use a sample of 25,000 rows from each by default.</li><br>
+              <li>Create an Excel workbook that has a <a href="https://www.google.com/search?q=creating+named+excel+tables&oq=creating+named+excel+tables">proper Excel Table for each data source</a>.</li><br>
+              <li>Be sure to name each table clearly.  Worksheet names in this workbook will be ignored by xleda but the table names will be used as worksheet names in your xleda workbook.</li><br>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th align="left" valign="top"><strong>2. Install UV</strong></th>
+      <td>
+        <p>UV will be installed to manage Python</p><br>
+          <ul>
+            <li>It can be installed safely and easily without affecting other software on your system.</li><br>
+                <li>They have <a href="https://docs.astral.sh/uv/getting-started/installation/">one-line installs for all operating systems</a></li><br>
+                <li>See their site for a variety of install options or use one of the TLDR versions below in your operating system's terminal</li><br><br>
+          </ul>
+          <details>
+            <summary><strong>Windows PowerShell</strong><br><br></summary>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>powershell<span class="w"> </span>-ExecutionPolicy<span class="w"> </span>ByPass<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;irm https://astral.sh/uv/install.ps1 | iex&quot;</span>
+</span></code></pre></div>
 
-The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/vba.bas) is fairly short and easy to understand.  &nbsp;You can create a VBA-free, xlsx workbook by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`. 
+</details><br>
+          <details>
+            <summary><strong>MacOS</strong><br><br></summary>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div>
 
-Using `no_vba` will change the default so that once you set it, that setting remains until it's changed.  Using `wb_path` doesn't work this way.
+</details><br>
+      </td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <th align="left" valign="top"><strong>3. Install xleda</strong></th>
+      <td>
+        <p>UV will be used to install xleda</p><br>
+          <ul>
+            <li>If step 2 was the first time you've installed UV, you'll need to open a new terminal window to use the newly installed <code>uv</code> command in this step.  See <a href="https://www.google.com/search?q=how+to+get+the+uv+command+to+show+after+install%3F">this</a> if you run into issues</li><br>
+            <li>Now that UV is installed and the <code>uv</code> command is available, you can install xleda on either MacOS/Windows with</li><br>
+          </ul>
 
-<br>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>xleda
+</span></code></pre></div>
+</td>
+    </tr>
+    <tr>
+      <th align="left" valign="top"><strong>4. Install right-click functionality</strong></th>
+      <td>
+        <p>xleda will be used to install right-click on supported files functionality</p>
+          <ul>
+            <li>This step lets you create xleda workbooks without any terminal commands in the future</li><br>
+            <li>If step 3 was the first time you've installed xleda, you'll need to open a new terminal window to use the newly installed <code>xleda</code> command in this step.  See <a href="https://www.google.com/search?q=how+to+ensure+uv+tool+is+installed+to+path%3F&oq=how+to+ensure+uv+tool+is+installed+to+path%3F">this</a> if you run into issues</li><br>
+            <li>Now that xleda is installed and the <code>xleda</code> command is available, we'll install right-click functionality by running:</li><br>
 
-#### What it does
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>xleda<span class="w"> </span>install
+</span></code></pre></div>
+</ul>
+      </td>
+    </tr>     
+    <tr>
+      <th align="left" valign="top"><strong>5. Create an xleda workbook</strong></th>
+      <td>
+        <p>This step lets you create your workbook and choose your theme for future xleda workbooks at the same time</p><br>
+          <ul>  
+            <li>If you're fine using the default neutral theme, you can skip this step and right-click on the workbook you compiled in step 1</li><br>  
+            <li>Create your workboook on either MacOS or Windows with the same command.</li><br>
+            <li>Be sure to Replace <code>YourSourceData</code> and <code>305CDE</code> with your source data and favorite color</li><br><br>
+            <code>xleda wb YourSourceData.xlsx --theme '#305CDE'</code><br><br>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table><br>
 
-1. Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right.<br>
-2. Adds a PythonList UDF that format cell values as Python lists. <br><br>
-
-#### The Annoyance Cost
-Besides Enable Macros prompts using VBA also includes one annoying side effect.&nbsp;
-Every time a macro is used, it clears your undo history.  &nbsp;The PythonList UDF is immune to this but expanding/collapsing headings is not.
 
 
+<strong>What's the Catch?</strong>
 
+There's not one really.  Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
 
+If you want to change your theme, use that very last line to create a new workbook once and it will remember you preference.  VBA preference works the same way.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either without creating a workbook and other settings.<br><br>
+
+The only thing that's close to a catch is that using this method doesn't include automatic updates.   If you've followed these steps, be sure to periodically update it using `uv tool upgrade xleda`.<br><br>
+
+---
+
+</details>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="basic-usage">Basic Usage<br><br></h2>
+<p>Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br></p>
+<h4 id="from-a-dataframe">From a Dataframe</h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Creates xleda.xlsm in the current directory</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">wb</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</span></code></pre></div>
+<p><br><br></p>
+<h4 id="from-a-dictionary-of-dataframes">From a Dictionary of Dataframes</h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># &lt; your dataframes go here &gt;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">df1</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">df2</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Creates Titanic.xlsm in the current directory</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">wb</span><span class="p">({</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df1</span><span class="p">,</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df2</span><span class="p">})</span>
+</span></code></pre></div>
+<p><br><br></p>
+<h4 id="from-a-file">From a File</h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># &lt; your data file goes here &gt;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">duckdb_file</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb&quot;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Creates duckdb.xlsm in the current directory</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># Includes data from all tables in the db file</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">duckdb_file</span><span class="p">)</span>
+</span></code></pre></div>
+<p><br><br></p>
+<h4 id="from-the-cli">From the CLI</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Creates &#39;userdata.xlsm&#39; in the current directory</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s1">&#39;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet&#39;</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Shows the help command</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>xleda<span class="w"> </span>--help
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Shows the wb help command</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>xleda<span class="w"> </span>wb<span class="w"> </span>--help
+</span></code></pre></div>
+<p><br><br></p>
+<h4 id="from-right-clicking">From Right-Clicking</h4>
+<table>
+  <tbody>
+    <tr>
+      <td width="50%" valign="top"><br><strong>Windows</strong><br><br></td>
+      <td width="50%" valign="top"><br><strong>MacOS</strong><br><br></td>
+    </tr>
+    <tr>
+      <td valign="top"><br>
+        <p align="left">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+        </p><br>
+      </td>
+      <td valign="top"><br>
+        <p align="left">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+        </p><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="xledawb-configuration">xleda.wb() Configuration<br><br></h2>
+<table>
+  <tbody>
+    <tr>
+      <td width="20%" valign="top"><strong><br><code>data</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>Dataframe or Path or string | Mandatory</strong><br><br>
+        <ul>
+          <li>Accepts a pandas dataframe, a dictionary of dataframes, or a supported data file</li><br>
+          <li>For files, xleda will create a workbook from all tabular objects in the file</li><br>
+          <li>Supported types include CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</li><br>
+        </ul>
+          <details>
+            <summary>Data File Limitations<br><br></summary><br>
+            <p>If the provided data file doesn't parse correctly, try creating a 
+            dataframe first and use that with xleda instead of the file</p><br>
+            <strong>Expect problems with</strong>:<br><br>
+            <ul>
+              <li>Deeply nested JSON/XML</li><br>
+              <li>A <code>.CSV</code> file with tabs instead of commas</li><br>
+              <li><code>.db</code> files that are neither SQLite nor DuckDB files</li><br>
+              <li>DuckDB files with a <code>.txt</code> extension</li><br>
+            </ul><br>
+          <strong>Don't expect to see</strong>:<br><br>
+            <ul>
+              <li>Anything from an RData file that isn't a dataframe</li><br>
+              <li>Dataframes that are nested somewhere inside a pickle file</li><br>
+              <li>Anything sourced from an Excel file that isn't a proper Excel Table</li><br>
+            </ul>
+          </details><br>
+      </td>
+    </tr>
+    <!-- file name -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>file_name</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>str | Optional</strong><br><br>
+        <ul>
+          <li>The workbook file name to create.</li><br>
+          <li>Defaults to same name as data files provided for <code>data</code>, the first key in a dataframe dict provided for <code>data</code>, or <code>xleda</code></li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- wb path -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>wb_path</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>Path or string | Optional</strong><br><br>
+        <ul>
+          <li>Use a directory or file path</li><br>
+          <li>If a directory is provided, the workbook is created there</li><br>
+          <li>If a filename ends with <code>.xlsm</code> or <code>.xlsx</code>, xleda will create or export from that file</li><br>
+          <li>Defaults to the current working directory or the source file directory</li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- theme -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>theme</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>str | Optional</strong><br><br>
+        <ul>
+          <li>Sets the primary workbook theme</li><br>
+          <li>Accepts a hex color or <code>random</code></li><br>
+          <li>Defaults to a neutral color.</li><br>
+        </ul>
+        <p align="center"><br>
+          <img
+            src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme.webp?raw=true"
+            width="800"
+            alt="Theme"
+          /><br>
+          <em>theme affects the workbooks and default charts.</em><br>
+        </p><br>
+      </td>
+    </tr>
+    <!-- plots -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>plots</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>dict | Optional</strong><br><br>
+        <ul>
+          <li>Adds extra plot worksheets using a dict of matplotlib Figure objects</li><br>
+          <li>Accepts <code>{'plotname': Figure, ...}</code> format</li><br>
+          <li>No automatic styling or sizing is applied</li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- overwrite -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>overwrite</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>bool | Optional</strong><br><br>
+        <ul>
+          <li>Overwrites existing workbooks of the same name</li><br>
+          <li>Existing files are moved to Trash/Recycle Bin</li><br>
+          <li>Defaults to <code>False</code></li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- large_report -->
+    <tr>
+      <td width="30%" valign="top"><strong><br><code>large_report</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>bool | Optional</strong><br><br>
+        <ul>
+          <li>Raises <code>data</code> limits to Excel's maximum: 1,000,000 rows and 16,000 columns</li><br>
+          <li>Requires more memory and time for large datasets</li><br>
+          <li>Defaults to <code>False</code></li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- no_vba -->
+    <tr>
+      <td width="30%" valign="top"><br><strong><code>no_vba</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>bool | Optional</strong><br><br>
+        <ul>
+          <li>Creates a <code>.xlsx</code> workbook without VBA</li><br>
+          <li>Setting this flag persists the preference so that you can set it and forget it</li><br>
+          <li>Use an <code>.xlsx</code> file for <code>wb_path</code> as an alternative though this won't persist</li><br>
+          <li>Defaults to <code>False</code></li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- open_wb -->
+    <tr>
+      <td width="30%" valign="top"><br><strong><code>open_wb</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>bool | Optional</strong><br><br>
+        <ul>
+          <li>Opens the workbook after creation</li><br>
+          <li>Set to False when creating multiple workbooks</li><br>
+          <li>Defaults to <code>True</code></li><br>
+        </ul>
+      </td>
+    </tr>
+    <!-- export -->
+    <tr>
+      <td width="30%" valign="top"><br><strong><code>export</code></strong>
+      </td>
+      <td valign="top"><br>
+        <strong>bool | Optional</strong><br><br>
+        <ul>
+          <li>Exports data from an xleda workbook instead of creating one</li><br>
+          <li>See the Examples/Exporting Metadata sections below for details</li><br>
+          <li>Defaults to <code>False</code></li><br>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="cli-basics">CLI Basics<br><br></h2>
+<p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
+
+It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument</p>
+<p><br></p>
+<details>
+  <summary>CLI Commands<br><br></summary>
 
 <table>
-  <tr>
-    <td align="center">
-      <img src="../../assets/images/top_view.webp" width="462" alt="Row Groupings">
-      <br>
-      <em>Use headings like web pages to navigate with VBA.</em>
-    </td>
-    <td align="center">
-      <img src="../../assets/images/row_groupings.webp" width="462" alt="Row Groupings">
-      <br>
-      <em>Use row groupings to navigate without VBA.</em>
-    </td>
-  </tr>
+  <tbody>
+    <tr>
+      <td width="20%" valign="top"><br><code>xleda --help</code><br><br></td>
+      <td>Shows the xleda help menu</td>
+    </tr>
+    <!-- xleda wb help -->
+    <tr>
+      <td valign="top"><br><code>xleda wb --help</code><br><br></td>
+      <td>Shows help for the wb command and it's flags</td>
+    </tr>  
+    <!-- xleda install -->
+    <tr>
+      <td valign="top"><br><code>xleda install</code><br><br></td><br>
+      <td>Installs right-click on supported files to create workbooks functionality</td>
+    </tr>  
+    <!-- `xleda uninstall -->
+    <tr>
+      <td valign="top"><br><code>xleda uninstall</code><br><br></td>
+      <td>Uninstalls right-click on supported files to create workbooks functionality</td>
+    </tr>  
+    <!-- xleda version -->
+    <tr>
+      <td valign="top"><br><code>xleda version</code><br><br></td>
+      <td>Compares your installed version with the latest available version on PyPi</td>
+    </tr>
+    <!-- xleda vba -->
+    <tr>
+      <td valign="top"><br><code>xleda vba</code><br><br></td>
+      <td>This toggles your preference for creating workbooks with/without VBA and persists once set.</td>
+    </tr> 
+    <!-- xleda theme -->
+    <tr>
+      <td valign="top"><br><code>xleda theme</code><br><br></td>
+      <td><br>
+        This changes your theme preference without creating a workbook and persists once set<br><br>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Sets theme to a dark grey</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="s1">&#39;#262626&#39;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Also sets theme to a dark grey</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="m">262626</span>
+</span></code></pre></div>
+
+<br>
+        </td>
+    </tr>
+  </tbody>
+</table><br><br>
+
+</details>
+<p><br></p>
+<hr>
+<p><br></p>
+<h2 id="examples">Examples<br><br></h2>
+<details>
+  <summary>Example: Creating a workbook from multiple dataframes<br><br></summary><br>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">seaborn_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;diamonds&#39;</span><span class="p">,</span> <span class="s1">&#39;dots&#39;</span><span class="p">,</span> <span class="s1">&#39;dowjones&#39;</span><span class="p">]</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">dataframe_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">df_name</span><span class="p">:</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">df_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">seaborn_datasets</span><span class="p">}</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Creates diamonds.xlsm in the current directory</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Also includes dots and dow jones data</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataframe_dict</span><span class="p">)</span>
+</span></code></pre></div>
+
+<hr><br>
+
+</details>
+
+<details>
+  <summary>Example: Using wb_path as a directory or a file<br><br></summary><br>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Creates &quot;c:\my_target_folder\Penguins.xlsm&quot;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;c:\my_target_folder&quot;</span><span class="p">))</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># Creates &quot;c:\my_awesome_workbook.xlsx&quot;</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;c:\my_awesome_workbook.xlsx&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+<hr><br>
+
+</details>
+<details>
+  <summary>Example: Adding custom plots to a workbook<br><br></summary><br>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">missingno</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">msno</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">df</span> <span class="o">=</span> <span class="n">penguins</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1"># Style the additional plots | optional</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;dark_background&quot;</span><span class="p">)</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="c1"># Create additional plots</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="n">pair_plots</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;species&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">null_matrix</span> <span class="o">=</span> <span class="n">msno</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="c1"># Resize the null matrix  | optional</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="n">null_matrix</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mf">9.35</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="c1"># Creates Penguins.xlsm with two extra plot sheets</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>   <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;#4C4C4C&quot;</span><span class="p">,</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>   <span class="n">plots</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Pair Plots&#39;</span><span class="p">:</span> <span class="n">pair_plots</span><span class="p">,</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>          <span class="s1">&#39;Null Matrix&#39;</span><span class="p">:</span> <span class="n">null_matrix</span><span class="p">})</span>
+</span></code></pre></div>
+
+<hr><br>
+
+</details>
+
+<details>
+<summary>Example: Creating workbooks without VBA<br><br></summary><br>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;penguins&#39;</span><span class="p">)</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="c1"># Creates &quot;Penguins.xlsx&quot; in the current directory and changes the default workbook style to .xlsx</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>   <span class="n">no_vba</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="c1"># Also creates &quot;Penguins.xlsx&quot; but doesn&#39;t change the default workbook style </span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="s2">&quot;Penguins.xlsx&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+<hr><br>
+
+</details>
+
+<details>
+<summary>Example: Creating a workbook from a database<br><br></summary><br>
+
+<strong>From Python</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># &lt; your database goes here&gt;</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">sqlite_db</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db&quot;</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sqlite_db</span><span class="p">,</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>   <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Chinook&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+<strong>From the CLI</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span>chinook.db<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Chinook&quot;</span>
+</span></code></pre></div>
+
+<hr><br><br>
+
+</details>
+
+<details>
+<summary>Example: Basic Metadata Export<br><br></summary><br>
+
+Basic metadata export sources data from Python
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Creates &quot;Titanic.xlsm&quot; and returns basic metadata</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>                  <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Titanic&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1"># returns [&#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span></code></pre></div>
+
+<hr><br><br>
+
+</details>
+
+<details>
+<summary>Example: Full Metadata Export<br><br></summary>
+<p><br></p>
+<p>Full export sources data from the workbook when possible<br><br></p>
+<ul>
+<li>
+<p>The xleda workbook pictured here is used in for the export code example below .  </p>
+</li>
+<li>
+<p>It can be found <a href="https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm">here.</a>.<br><br></p>
+</li>
+</ul>
+<p align="center">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
+    <br>
+    <em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
+</p>
+<p><br></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># &lt; your completed workbook goes here &gt;</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">edited_workbook_path</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm&quot;</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c1"># Performs a full export from &quot;Titanic Completed.xlsm&quot;</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>                  <span class="n">wb_path</span><span class="o">=</span><span class="n">edited_workbook_path</span><span class="p">,</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>                  <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="c1"># Returns [&#39;description&#39;, &#39;definitions&#39;, &#39;notes&#39;, &#39;lists&#39;, &#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span></code></pre></div>
+<hr />
+</details>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="usage-notes">Usage Notes<br><br></h2>
+<table>
+  <!-- Field and Record Lists -->
+  <tbody>
+    <tr>
+      <td width="30%" valign="top"><br>Field and Record Lists</td>
+      <td valign="top"><br>
+        The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
+        <ul>
+          <li>Use these to organize fields into groups such as "fields_to_delete", "fields_from_system_a", "fields_to_fix", or whatever your workflow needs</li><br>
+          <li>The Record List works similarly though it tags individual records instead of lists</li><br>
+        </ul>
+        <details>
+          <summary>List Details<br><br></summary>
+          <ul><br>
+            <li>Anything not marked as False will be included in each list</li><br>
+            <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
+            <li>The <code>Record List</code> field added to your source data works the same way except it creates a list of all tagged records instead of a list of fields</li><br>
+            <li>The <code>Compiled Lists</code> section formats your lists as python lists</li><br>
+            <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
+          </ul>
+          <p align="center">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
+            <br>
+            <em>Easily create lists of fields in your data.</em>
+          </p>
+        </details><br>
+      </td>
+    </tr>
+    <!-- Large Data Sets -->
+    <tr>
+      <td width="30%" valign="top"><br>Large Data Sets</td>
+      <td valign="top"><br>
+        On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS<br><br>
+        <ul>
+          <li>To ensure workbooks are created quickly, each dataframe is by default subsampled to only include the first 50 columns and a random sample of 25,000 records.</li><br>
+          <li>You can optionally override default limits to use Excel's limits of 16,000 columns, 1,000,000 rows by using <code>large_report=True</code></li><br>
+        </ul>
+        <details>
+        <summary>Performance Details<br><br></summary><br>
+          <ul>
+            <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
+            <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
+            <p align="center">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
+            </p>
+            <li>The <code>debug</code> section of the <code>Overview</code> worksheet has a breakdown of how the time spent to produce your workbook was allocated.</li>
+          </ul>
+        </details><br>
+      </td>
+    </tr>
+    <!-- Exporting Metadata -->
+    <tr>
+      <td width="30%" valign="top">Exporting Metadata</td>
+      <td valign="top"><br>
+        Accessing your notes/lists/defintions from Python is easy<br><br>
+        <ul>
+          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li><br>
+          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li><br>
+        </ul>
+        <details>
+        <summary>Default Metadata<br><br></summary><br>
+          The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
+          <ul>
+            <li><code>df_overview</code>: Dataframe level metadata</li><br>
+            <li><code>field_overview</code>: Field-level metadata</li><br>
+            <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
+            <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
+          </ul>
+        </details><br>
+        <details>
+          <summary>Expanded Metadata:<br><br></summary><br>
+          Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
+          This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
+          Includes the following for each provided dataframe:<br><br>
+          <ul>
+            <li><code>description</code>: Dataframe description if you've added one</li><br>
+            <li><code>definitions</code>: Any field definitions you've added</li><br>
+            <li><code>notes</code>: Any field notes you've added</li><br>
+            <li><code>lists</code>: Any lists showing in the compiled lists section</li><br>
+            <li><code>lists</code>: Note that data types will likely change in the round-trip translation</li><br>
+          </ul>
+        </details><br>
+      </td>
+    </tr>
+    <!-- MacOS Support -->
+    <tr>
+      <td width="30%" valign="top">MacOS Support</td>
+      <td valign="top"><br>
+       xleda will create the same workbooks in MacOS<br><br>
+        <ul>
+          <li>Creating them is significantly slower and you may get two different types of prompts that require your attention</li><br>
+          <li>Look for the bouncing Excel icon</li><br>
+        </ul>
+      <details>
+        <summary>MacOS Details<br><br></summary>
+        <table>
+          <thead>
+            <tr>
+              <th width="120"></th>
+              <th width="330">To Access Files</th>
+              <th width="330">To Enable Macros</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Source</strong></td>
+              <td>MacOS</td><br>
+              <td>Excel</td><br>
+            </tr>
+            <tr>
+              <td><strong>Details</strong></td>
+              <td>Prompts to Allow Excel to access the file it's creating.<br><br>If you get these prompts, you'll potentially get one for each unique file you create.</td>
+              <td>Prompts to "Enable Macros".  <br><br>If you get these prompts, you'll get two when creating a workbook:<br><br>1. When opening the blank template<br><br>2. When opening your created workbook.<br><br></td>
+            </tr>
+            <tr>
+              <td><strong>Example</strong></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
+            </tr>
+            <tr>
+              <td><strong>Remedy</strong></td>
+              <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
+              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+            </tr>
+          </tbody>
+        </table>
+      </details><br>
+      </td>
+    </tr>
+    <!-- VBA Code -->
+    <tr>
+      <td width="30%" valign="top"><br><strong>VBA Code</strong></td>
+      <td valign="top"><br>
+        The included <a href="https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas">VBA code</a> is short and easy to understand<br><br>
+        <ul>
+          <li>You can create a VBA-free, xlsx workbook by either setting <code>no_vba=True</code> or providing a <code>wb_path</code> ending in <code>.xlsx</code></li><br>
+          <li>Providing the <code>no_vba flag</code> will change the default so that the setting will persist. Using <code>wb_path</code> doesn't work this way.</li><br>  
+        </ul>
+      <details>
+        <summary>What the VBA Code Does<br><br></summary><br>
+        <ol>
+          <li>Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right</li><br>
+          <li>Adds a <strong>PythonList</strong> UDF that creates Python lists from cell values</li><br>
+        </ol>
+        <table>
+          <tr>
+            <td align="center">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
+              <br>
+              <em>Use headings like web pages to navigate with VBA.</em>
+            </td>
+            <td align="center">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
+              <br>
+              <em>Use row groupings to navigate without VBA.</em>
+            </td>
+          </tr>
+        </table><br>
+        <strong>The Annoyance Cost</strong><br><br>
+        Besides <strong>Enable Macros</strong> prompts, using VBA also includes one annoying side effect:<br><br>
+        <ul>
+          <li>Every time a macro is used, it clears your undo history</li><br>
+          <li>The <strong>PythonList</strong> UDF is immune to this but expanding/collapsing headings is not</li>
+        </ul>
+      </details><br>
+      </td>
+    </tr>
+    </tbody>
 </table>
-<br><br>
-
+<p><br><br></p>
+<hr>
+<p><br><br></p>
+<h2 id="troubleshooting">Troubleshooting<br><br></h2>
+<details>
+<summary>xleda is slow<br><br></summary><br>
+  <ul>
+    <li>Try reducing the amount of data you're sending to it, and let it finish.</li><br>
+    <li>After production, refer to the `debug` section of the `Overview` worksheet for how the time to produce your workbook is being spent.</li><br>
+    <li>Note that on MacOS, `xleda` is much slower by default and the timings in the debug section may be inflated from missed permission prompts during production.</li><br>
+  </ul>
 </details>
 <p><br></p>
 <details>
-<summary><strong>Troubleshooting</strong></summary><br>
-
-## Troubleshooting
-
-<details> 
-<summary>xleda is slow
-</summary>
-
-
-* Try reducing the amount of data you're sending to it, and let it finish.
-* After production, refer to the debug section of the `Overview` worksheet for how the time to produce your workbook is being spent.
-* Note that on MacOS, `xleda` is much slower by default and the timings in the debug section may be inflated from missed permission prompts during production.
-
-</details><br>
-
-
-<details> 
-<summary>If you receive the "Error: The workbook cannot be overwritten while open!" and don't see any open workbooks:
-</summary>
-
-* You may have a hidden Excel instance that needs to be closed. 
-* Guidance on closing hidden Excel windows for [MacOS](https://www.google.com/search?q=hidden+excel+instance+in+macos)/[Windows](https://www.google.com/search?q=hidden+excel+instance+in+windows)
-
-</details><br>
-
-<details> 
-<summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:
-</summary>
-
-* The Excel app may have crashed or is otherwise disconnected from Python.
-* Close all Excel windows and try running the command again.
-
-</details><br>
-
-
-<details> 
-<summary>If you can't get xleda to run at all and are using Windows/MacOS with a full Office Installation:
-</summary>
-
-
-* Try getting the following script to run using xlwings (not xlwings-lite).
-* All it does is open Excel and create a new workbook.
-* You should be able to `pip install xlwings` and run the script successfully. 
-* If that doesn't work, see their [installation instructions](https://docs.xlwings.org/en/latest/installation.html) for details on how to get it set up.
-* Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.
-* If you can get the script below to run successfully, xleda has a good chance of working reliably.
-* If you can't get it to work and you're on Windows, [this may help](https://www.google.com/search?q=win32+com+corruption+xlwings). 
- <br><br>
-
-
-<pre><code class="language-python">import xlwings as xw
-
-app = xw.App()
-
-</code></pre>
-
-
-</details><br>
-
+  <summary>"Error: The workbook cannot be overwritten while open!" and you don't see any open workbooks<br><br></summary><br>
+    <ul>
+      <li>You may have a hidden Excel instance that needs to be closed.</li><br>
+      <li>Guidance on closing hidden Excel windows for <a href="https://www.google.com/search?q=hidden+excel+instance+in+macos">MacOS</a> and <a href="https://www.google.com/search?q=hidden+excel+instance+in+windows">Windows</a></li><br>
+    </ul>
 </details>
-
-<p></details><br></p>
-<h2 id="changelog">Changelog</h2>
 <p><br></p>
 <details> 
-<summary><strong>Version 0.8.185</strong> New simplified API, simplified export, general polish
-</summary>
-
-<br>
-
-&emsp;**Simplified basic usage to make it quicker to use and easier to memorize.** 
-* Changed the default entry point to `xleda.wb()` from `xleda.FieldAnalysis()`.  
-* `xleda.wb()` now creates and automatically opens workbooks.
-* The only argument needed to create a workbook is now a dataframe. `wb(df)`
-* Workbook name now defaults to `xleda` if no name is given.
-* Protected backwards compatibility while providing guidance to use the new API.
-    * Subclassed the new API to create plugs for the old one.<br><br>
-
-&emsp;**Simplified export functionality**
-* Changed `export_analysis` functionality from a class method to a class argument `wb(df, export=True)`.  
-* All wb() objects now include a export_dict metadata collection that is accessible using dot notation.
-* Added field_metadata, and overview_metadata to export_dict.
-* using wb(export=True) reads a workbook instead of creating one and adds the metadata from the workbooks to export_dict.
-* Added file exists checks for `export=True` with messaging that the export will be limited if the file isn't found. <br><br>
-
-&emsp;**Template updates**
-* Recreated the template, moved formatting to cell styles for simplicity/consistency in maintenance where appropriate. 
-*  Pivot was removed and Blanks was renamed Pivot.
-* `% of Records` field was added to the new Pivot
-* Added dataframe index to source data by default.
-* Added dataframe level metadata to the Data Description section.
-* Added two UDFs to the template, PythonList/PythonDict to create Python formatted strings from cell values
-* Adjusted the named range to support being able to delete almost any column without affecting lists or navigation.
-* General polish.<br><br>
-
-&emsp;**Other updates**
-* Default limits were reduced to 25,000 rows/50 columns
-* Good deal of refactoring to support new entry point, minimize errors, reduce redundancy. 
-    * Removed clipboard usage in all except one place which is formatting instead of data. 
-    * Added `open_wb` argument to prevent automatically opening the workbook.  Useful if creating many workbooks.
-* Replaced rich progress bars with TQDM for better support in notebooks/vs code notebook/console environments.
-* When using overwrite=True, overwritten files now go to the recycle bin/trash.  Console output includes messaging about these files.
-* Clarified/organized readme to support the new API/template.
-* Added production logging metrics so you can see how the time required to create a workbook was utilized.  
-    * This is useful if you're trying to find a good size to subsample to. 
-    * You can find it at `wb().performance` for now.<br>
-
-<br>
+  <summary>If you receive the "Exception: Could not activate App!" or "The RPC server is unavailable". errors:<br><br></summary><br>
+  <ul>
+    <li>The Excel app may have crashed or is otherwise disconnected from Python.</li><br>
+    <li>Close all Excel windows and try running the command again.</li><br>
+  </ul>
 </details>
-<p><br><br></p>
-<details> 
-<summary><strong>Version 0.8.186:</strong> Add multiple dataframes, module refactoring into classes, add logging
-</summary><br>
-
-&emsp;**Implemented  `add_dfs`**
-
-* Adds Field Analysis/Overview reports for each additional dataframe.
-* Pivot is only provided for primary dataframe.
-* Useful for supporting or related data.
-* Worksheet names now include the dataframe name.
-* Each dataframe's worksheet set gets a greyscale gradient so they can be visually distinguished among worksheet tabs.<br><br>
-
-&emsp;**Export adjustments**
-* Implemented an ExportDict class to add structure to export functionalities
-* To support the additional dataframes from `add_dfs` functionality, `export_dict` has been renamed to `export_dicts` and now provides a list of ExportDict objects, one for each provided dataframe.
-* ExportDict allows access to metadata through both dot notation and `dict[key]`.
-* Reinforced handling of modified export workbook. 
-    * If a workbook is found but that the expected worksheets aren't found, i.e. they've been deleted or renamed, it will export what it can and return a list of what wasn't found.<br><br>
-
-&emsp;**Reinforced `wb_path`/`name` handling**
-* `wb_path` now accepts strings, or pathlib Path objects.
-* Also accepts full/partial paths with/without correct extensions
-* Providing a path ending in `xlsx` or `.xlsm` will set `no_vba` to `True`/`False` respectively
-* Illegal characters are now properly stripped from provided names before using in file/object names<br><br>
-
-
-&emsp;**Added production logging/debug worksheet**
-* The `debug` worksheet details how the time it took to produce the workbook was allocated on both field and workbook levels.
-* Also includes configuration and system details<br><br>
-
-&emsp;**Other Updates**
-* Tests, examples, readme updated to reflect new functionality
-* In the template, the `Field Notes` section of the `Field Analysis`worksheet was merged into `Data Description` section.
-* Refactored the primary module into more specialized classes.
-    * Configuration/environment/plotting/logging/theme all have their own classes
-    * Also implemented new Blueprint class
-        * Workbooks are now constructed from config object that includes a list of  Blueprints
-        * Each provided dataframe gets it's own Blueprint
-* Improved handling of datatypes that are unsupported in Excel/xlwings such as TimeDelta
-* Reinforced system configuration checks with more informative offramps for:
-    * Unsupported system configurations
-    * Situations where necessary template components have been removed/renamed.
-* Adjusted Github Action script to remove all but last changelog and convert the details/summary to standard markdown.
-
-<br>
-</details>
-<p><br><br></p>
-<details> 
-<summary><strong>Version 0.8.193:</strong> Added MacOS support
-</summary><br>
-
-&emsp;**Added MacOS support**
-* Used xlwings when possible, appscript/AppleScript/subprocess otherwise
-* Reduced OS branching when possible
-* Documentation/test/tools/examples updated to be cross platform.
-
-&emsp;**Other Updates**
-* Removed field logging from logging/template
-* Simplified some of the pivot configuration where possible.
-* Added multi-threading for the progress bar which keeps the time elapsed ticking during longer iterations.
-
-&emsp;**Template Adjustments**
-* Moved the xlsx conversion to a pre-commit hook instead of an on-demand end-user task. 
-* Adjusted expand/collapse icons to use a more reliable cross-platform character
-* Removed navigation shapes from the xlsx template.
-
-<br>
-
-</details>
-<p><br><br></p>
+<p><br></p>
 <details>
-<summary><strong>Version 0.8.197:</strong> Readme/pyproject.toml polish/minor fixes
-</summary><br>
-
-* Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README.
-* Fixed a cross-platform formatting issue with the debug worksheet
-* Updated a few older screenshots to use the current template.
-* Adjusted "type: ignore" lines where possible
-* Organized pyproject.toml, added "required-environments" section
-
-
+<summary>xleda won't run at all and are using Windows/MacOS with a full Office Installation<br><br></summary>
+<p><br>
+    <ul>
+      <li>If you can get the script below to run successfully using xlwings (not xlwings-lite), xleda has a good chance of working reliably.</li><br>
+      <li>All it does is open Excel and create a new workbook.</li><br>
+      <li>You should be able to <code>pip install xlwings</code> and run the script successfully.</li><br>
+      <li>If that doesn't work, see their <a href="https://docs.xlwings.org/en/latest/installation.html">installation instructions</a> for details on how to get it set up.</li><br>
+      <li>Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.</li><br>
+      <li>If you can't get it to work and you're on Windows, <a href="https://www.google.com/search?q=win32+com+corruption+xlwings">this may help</a>.</li><br><br>
+    </ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">xlwings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xw</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">app</span> <span class="o">=</span> <span class="n">xw</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
+</span></code></pre></div></p>
 </details>
-<p><br><br></p>
-<details>
-<summary><strong>Version 0.8.202:</strong> Fixed matplotlib headless backend implementation
-</summary><br>
+<p><br></p>
+<hr>
+<p><br></p>
+<h2 id="changelog">Changelog<br><br></h2>
+<table>
+<!-- Version 0.8.185 -->
+  <tbody>
+    <tr>
+      <td width="30%" valign="top"><br><strong>Version 0.8.185</strong></td>
+      <td valign="top"><br>
+        <details>
+          <summary>New simplified API, simplified export, general polish<br><br></summary><br>
+            <strong>Simplified basic usage to make it quicker to use and easier to memorize.</strong><br><br>
+              <ul>
+                <li>Changed the default entry point to <code>xleda.wb()</code> from <code>xleda.FieldAnalysis()</code></li>
+                <li><code>xleda.wb()</code> now creates and automatically opens workbooks</li>
+                <li>The only argument needed to create a workbook is now a dataframe: <code>wb(df)</code></li>
+                <li>Workbook name now defaults to <code>xleda</code> if no name is given</li>
+                <li>Protected backwards compatibility while providing guidance to use the new API</li>
+                <li>Subclassed the new API to create plugs for the old one</li>
+              </ul><br>
+            <strong>Simplified export functionality</strong><br>
+              <ul>
+                <li>Changed <code>export_analysis</code> functionality from a class method to a class argument <code>wb(df, export=True)</code></li>
+                <li>All <code>wb()</code> objects now include a <code>export_dict</code> metadata collection that is accessible using dot notation</li>
+                <li>Added <code>field_metadata</code> and <code>overview_metadata</code> to <code>export_dict</code></li>
+                <li>Using <code>wb(export=True)</code> reads a workbook instead of creating one and adds the metadata from the workbooks to <code>export_dict</code></li>
+                <li>Added file exists checks for <code>export=True</code> with messaging that the export will be limited if the file isn't found</li>
+              </ul><br>
+            <strong>Template updates</strong><br>
+              <ul>
+                <li>Recreated the template, moved formatting to cell styles for simplicity/consistency in maintenance where appropriate</li>
+                <li>Pivot was removed and Blanks was renamed Pivot</li>
+                <li><code>% of Records</code> field was added to the new Pivot</li>
+                <li>Added dataframe index to source data by default</li>
+                <li>Added dataframe level metadata to the Data Description section</li>
+                <li>Added two UDFs to the template, PythonList/PythonDict, to create Python formatted strings from cell values</li>
+                <li>Adjusted the named range to support deleting almost any column without affecting lists or navigation</li>
+                <li>General polish</li>
+              </ul><br>
+            <strong>Other updates</strong><br>
+              <ul>
+                <li>Default limits were reduced to 25,000 rows/50 columns</li>
+                <li>Good deal of refactoring to support the new entry point, minimize errors, reduce redundancy</li>
+                <li>Removed clipboard usage in all except one place, where it is used for formatting instead of data</li>
+                <li>Added <code>open_wb</code> argument to prevent automatically opening the workbook, useful when creating many workbooks</li>
+                <li>Replaced rich progress bars with TQDM for better support in notebooks/vs code notebook/console environments</li>
+                <li>When using <code>overwrite=True</code>, overwritten files now go to the recycle bin/trash.</li>
+                <li>Console output includes messaging about these files</li>
+                <li>Clarified/organized readme to support the new API/template</li>
+                <li>Added production logging metrics so you can see how the time required to create a workbook was utilized.</li>
+              </ul>
+        </details><br>
+      </td>
+    </tr>
+<!-- Version 0.8.186 -->
+    <tr>
+      <td valign="top"><br><strong>Version 0.8.186</strong></td>
+      <td valign="top"><br>
+        <details>
+          <summary><strong>Add multiple dataframes, module refactoring into classes, added logging</strong><br><br></summary><br><br>
+          <strong>Implemented add_dfs</strong><br>
+          <ul>
+            <li>Adds Field Analysis/Overview reports for each additional dataframe</li>
+            <li>Pivot is only provided for the primary dataframe</li>
+            <li>Useful for supporting or related data</li>
+            <li>Worksheet names now include the dataframe name</li>
+            <li>Each dataframe's worksheet set gets a greyscale gradient so they can be visually distinguished among worksheet tabs</li>
+          </ul>
+          <strong>Export adjustments</strong><br>
+          <ul>
+            <li>Implemented an ExportDict class to add structure to export functionalities</li>
+            <li>To support the additional dataframes from add_dfs functionality, export_dict has been renamed to export_dicts and now provides a list of ExportDict objects, one for each provided dataframe</li>
+            <li>ExportDict allows access to metadata through both dot notation and dict[key]</li>
+            <li>Reinforced handling of modified export workbooks</li>
+            <li>If a workbook is found but the expected worksheets aren't found (for example, if they've been deleted or renamed), it will export what it can and return a list of what wasn't found</li>
+          </ul>
+        <strong>Reinforced wb_path/name handling</strong><br>
+          <ul>
+            <li>wb_path now accepts strings or pathlib Path objects</li>
+            <li>Also accepts full/partial paths with/without correct extensions.</li>
+            <li>Providing a path ending in .xlsx or .xlsm will set no_vba to True/False respectively.</li>
+            <li>Illegal characters are now properly stripped from provided names before use.</li>
+          </ul>
+        <strong>Added production logging/debug worksheet</strong><br>
+          <ul>
+            <li>The debug worksheet details how the time it took to produce the workbook was allocated on both field and workbook levels</li>
+            <li>Also includes configuration and system details</li>
+          </ul>
+        <strong>Other Updates</strong><br>
+          <ul>
+            <li>Tests, examples, readme updated to reflect new functionality</li>
+            <li>In the template, the Field Notes section of the Field Analysis worksheet was merged into the Data Description section</li>
+            <li>Refactored the primary module into more specialized classes</li>
+            <li>Configuration/environment/plotting/logging/theme all have their own classes</li>
+            <li>Also implemented a new Blueprint class</li>
+            <li>Workbooks are now constructed from a config object that includes a list of Blueprints</li>
+            <li>Each provided dataframe gets its own Blueprint</li>
+            <li>Improved handling of datatypes that are unsupported in Excel/xlwings such as TimeDelta</li>
+            <li>Reinforced system configuration checks with more informative offramps for:
+              <ul>
+                <li>Unsupported system configurations</li>
+                <li>Situations where necessary template components have been removed or renamed</li>
+              </ul>
+            </li>
+            <li>Adjusted Github Action script to remove all but last changelog and convert the details/summary to standard markdown</li>
+          </ul>
+        </details><br>
+      </td>
+    </tr>
+<!-- Version 0.8.193 -->
+    <tr>
+      <td width="30%" valign="top"><br><strong>Version 0.8.193</strong></td>
+      <td valign="top"><br>
+      <details>
+        <summary><strong>Added MacOS support</strong><br><br></summary><br>
+        <ul>
+          <li>Used xlwings when possible, appscript/AppleScript/subprocess otherwise.</li>
+          <li>Reduced OS branching when possible.</li>
+          <li>Documentation/test/tools/examples updated to be cross platform.</li>
+        </ul><br>
+        <strong>Other Updates</strong><br>
+        <ul>
+          <li>Removed field logging from logging/template.</li>
+          <li>Simplified some of the pivot configuration where possible.</li>
+          <li>Added multi-threading for the progress bar which keeps the time elapsed ticking during longer iterations.</li>
+        </ul><br>
+        <strong>Template Adjustments</strong><br>
+        <ul>
+          <li>Moved the xlsx conversion to a pre-commit hook instead of an on-demand end-user task.</li>
+          <li>Adjusted expand/collapse icons to use a more reliable cross-platform character.</li>
+          <li>Removed navigation shapes from the xlsx template.</li>
+        </ul>
+      </details><br>
+      </td>
+    </tr>
+<!-- Version 0.8.197 -->
+    <tr>
+      <td valign="top"><br><strong>Version 0.8.197</strong></td>
+      <td valign="top"><br>
+      <details>
+        <summary><strong>Readme/pyproject.toml polish/minor fixes</strong><br><br></summary><br>
+        <ul>
+          <li>Moved code examples/troubleshooting/usage notes into details/summary blocks to reduce clutter in README</li>
+          <li>Fixed a cross-platform formatting issue with the debug worksheet</li>
+          <li>Updated a few older screenshots to use the current template</li>
+          <li>Adjusted type: ignore lines where possible</li>
+          <li>Organized pyproject.toml, added required-environments section</li>
+        </ul>
+      </details><br>
+      </td>
+    </tr>
+    <!-- Version 0.9.001 -->
+    <tr>
+      <td valign="top"><br><strong>Version 0.9.001</strong></td>
+      <td valign="top"><br>
+      <details>
+        <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>
+        <strong>Simplified API</strong><br>
+        <ul>
+          <li>'input_df' was changed to 'data'</li>
+          <li>'add_plots' was changed to 'plots'</li>
+          <li>'name' was changed to 'file_name'</li>
+          <li>'theme_color' was changed to 'theme'</li>
+        </ul>
+        <strong>Expanded Input Options</strong><br>
+        <ul>
+          <li>Changed the 'input_df' argument to 'data' and opened it up to accept dataframes, dictionaries of dataframes, and data files that are either local or http/https</li>
+          <li>Enabled support for csv, feather, parquet, excel, duckdb, sqlite, rdata, xml, json, and pickle files</li>
+          <li>A file that represents a tabular object, such as parquet/csv files, will create a dataframe and then create a workbook from that dataframe</li>
+          <li>Complex files, such as duckdb, RData, or sqlite files, will create dataframes from all tabular objects within each file and create a workbook with those dataframes</li>
+          <li>Created an input_df placeholder API for backwards compatibility.</li>
+        </ul>
+        <strong>Expanded Interfaces</strong><br>
+        <ul>
+          <li>Added a CLI interface which replicates most of the Python API</li>
+          <li>Includes structured help and is consistent with the Python API in almost every way</li>
+          <li>CLI also includes install/uninstall commands which install right-click on supported files functionality on MacOS/Windows</li>
+          <li>Added vba toggle and theme setting to cli</li>
+        </ul>
+        <strong>Significantly overhauled the experience when using multiple dataframes</strong><br>
+        <ul>
+          <li>Converted the Overview worksheet to a landing page which:
+            <ul>
+              <li>Includes a dataframe-level table that tracks how many of each dataframe's fields have definitions</li>
+              <li>Includes a field-level table that collates metadata, notes, and definitions from all fields across all dataframes in one table</li>
+              <li>Has links to each dataframe's worksheet and to each field within each worksheet</li>
+              <li>Each worksheet includes links back to the Overview.</li>
+            </ul>
+          </li>
+        </ul>
+        <strong>Persistent Settings</strong><br>
+        <ul>
+          <li>Most xleda settings depend on the provided data except for two: no_vba and theme.</li>
+          <li>Changing these settings will change the default so that you can set them and forget about it.</li>
+          <li>Set favorite/company color or decide whether to use vba or not once and for all.</li>
+          <li>Added vba toggle and theme setting to cli to affect these settings without creating workbooks</li>
+        </ul>
+        <strong>Other Updates</strong><br>
+        <ul>
+          <li>Changed the add_plots argument to plots.</li>
+          <li>Simplified/updated documentation where possible/necessary.</li>
+          <li>Removed the pivot worksheet/functionality.</li>
+          <li>Corrected the matplotlib headless backend again.</li>
+          <li>Amended the PythonList UDF to also accept arrays which lets it create Python lists using results from other Excel functions that return arrays like Filter, SumProduct, etc.</li>
+          <li>Removed the PythonDict UDF</li>
+          <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
+          <li>Added CLI/xleda for Non-Developers sections on readme</li>
+        </ul>
+      </details><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><br></p>
 
-* Changed the plotting implementation to only use a headless backend while producing plots.
-
-
-</details>
-<p><br><br></p>
-<details>
-<summary><strong>Version 0.9.001:</strong> Added data file support, added a CLI, added right-click context menu for Mac/Windows, simplified API, signifantly improved experience with multiple dataframes
-</summary><br>
 
 
 
-&emsp;**Expanded Input Options**
-* Added a way to use dataframe dictionaries and data files as sources.
-* A file that represents a tabular object, such as parquet/csv files will create a dataframe then create a workbook from that dataframe
-* Complex files, such as duckdb, RData, or sqlite files will create dataframes from all tabular objects within each file and create workbooks with those dataframes.
-
-&emsp;**Expanded Ways to Use**
-* Added a **CLI** interface which replicates most of the Python API
-* Includes structured help and is consisent with the Python API in almost every way.
-* CLI also includes 'install/uninstall' commands which installs right-click on supported files functionality on MacOS/Windows.
-
-&emsp;**Simplified API**
-* Changed the `input_df` argument to `data` and opened it up to accept dataframes, dictionaries of dataframes, and data files.
-    * Enabled support for csv, feather, parquet, excel, duckdb, sqlite, rdata, xml, json, and pickle files.
-    * `created an `input_df` placeholder API for backwards compatibility.
-* Changed the 'add_plots' argument to 'plots'.
-
-&emsp;**Significanly overhauled the experience when using multiple dataframes**
-
-* Converted the **Overview** worksheet a to a landing page which:
-    * Includes a dataframe-level table 
-    * Includes a field-level table that collates metadata from all field across all dataframes in one table.
-    * Has links to each dataframe's worksheet and each worksheet includes links back to the **Overview**
-    * Has links to each field within it's worksheet
-    * Tracks how many of the fields are defined.
-
-&emsp;**Other Updates**
-
-* Simplified/updated documentation where possible/necessary
-* Removed the pivot worksheet/functionality
-* Corrected the matplotlib headless backend again
-* Amended the PythonList UDF to also accept arrays which lets it create Python lists using results from other Excel functions that return arrays like Filter, SumProduct, etc.
-* Removed the PythonDict UDF
 
 
-</details>
-<p><br></p></div>
+
+
+
+
+
+
+                
+              </article>
             </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-
-        <footer class="col-md-12">
-            <hr>
-            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
-        </footer>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script>
-            var base_url = ".",
-                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
-        </script>
-        <script src="js/base.js"></script>
-
-        <div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 20%;">Keys</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="help shortcut"><kbd>?</kbd></td>
-                    <td>Open this help</td>
-                  </tr>
-                  <tr>
-                    <td class="next shortcut"><kbd>n</kbd></td>
-                    <td>Next page</td>
-                  </tr>
-                  <tr>
-                    <td class="prev shortcut"><kbd>p</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td class="search shortcut"><kbd>s</kbd></td>
-                    <td>Search</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
 </div>
-
-    </body>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["toc.integrate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="assets/javascripts/badge.js" async></script>
+      
+    
+  </body>
 </html>
-
-<!--
-MkDocs version : 1.6.1
-Build Date UTC : 2026-06-25 19:11:52.290946+00:00
--->
