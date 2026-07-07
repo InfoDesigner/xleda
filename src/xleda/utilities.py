@@ -2359,6 +2359,12 @@ class Logger():
         self.section_performance = df
 
 
+    def closing_msg(self, wb: wb):
+
+        """
+        Prints final output message
+        
+        """
 
         # ----------------------------------------------------------------------------------
         # Print closing messsage
