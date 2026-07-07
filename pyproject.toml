@@ -65,8 +65,9 @@ xleda = "xleda.cli:cli"
 
 
 [project.urls]
-Homepage = "https://github.com/InfoDesigner/xleda"
+Homepage = "https://infodesigner.github.io/xleda/"
 Issues = "https://github.com/InfoDesigner/xleda/issues"
+
 
 
 # Other dependency groups

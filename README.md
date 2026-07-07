@@ -26,7 +26,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 <hr><br>
 
-<h2>xleda Components</h2><br><br>
+## xleda Components<br><br>
 
 
 All xleda workbooks include an **Overview** worksheet and a **Field Analysis** worksheet for each provided dataframe.<br><br>
@@ -73,7 +73,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 
 <hr><br>
 
-<h2>Requirements/Compatibility</h2><br><br>
+## Requirements/Compatibility<br><br>
 
 
 <table>
@@ -102,7 +102,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 <details markdown="1">
   <summary><strong>Tips:</strong> Managing the Install<br><br></summary>
   
-* `xleda install` adds right-click functionality to your OS but it does not modify your path to make the CLI available systemwide<br><br>
+* `xleda install` adds right-click functionality to your OS but it does not modify your path to make the CLI available systemwide<p></p>
   
 * If the Python environment that xleda was installed into is deleted after running `xleda install`, the right-click functionality will need to be either repaired or uninstalled by running `xleda install/xleda uninstall` from a new Python environment.<p></p>
 
@@ -125,7 +125,7 @@ xleda install
 <hr><br>
 
 
-<h2>xleda for Non-Developers</h2><br><br>
+## xleda for Non-Developers<br><br>
 
 <p>If you're working with data professionally in any role and find yourself looking at foreign data, one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.</p>
 
@@ -156,7 +156,7 @@ xleda install
     <tr>
       <th align="left" valign="top"><strong>2. Install UV</strong></th>
       <td>
-        <p>UV will used to install xleda</p><br>
+        <p>UV will be installed to manage Python</p><br>
           <ul>
             <li>It can be installed safely and easily without affecting other software on your system.</li><br>
 		        <li>They have <a href="https://docs.astral.sh/uv/getting-started/installation/">one-line installs for all operating systems</a></li><br>
@@ -226,7 +226,7 @@ xleda install
 
 
 
-**What's the Catch?**
+<strong>What's the Catch?</strong>
 
 There's not one really.  Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
 
@@ -241,11 +241,11 @@ The only thing that's close to a catch is that using this method doesn't include
 <hr><br>
 
 
-<h2>Basic Usage</h2><br><br>
+## Basic Usage<br><br>
 
 Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
-<h4>From a Dataframe</h4>
+#### From a Dataframe
 
 ```python
 from xleda import wb
@@ -260,7 +260,7 @@ wb(df)
 
 <br><br>
 
-<h4>From a Dictionary of Dataframes</h4>
+#### From a Dictionary of Dataframes
 
 ```python
 from xleda import wb
@@ -277,7 +277,7 @@ wb({"Titanic": df1,
 
 <br><br>
 
-<h4>From a File</h4>
+#### From a File
 
 ```python
 from xleda import wb
@@ -293,7 +293,7 @@ wb(duckdb_file)
 
 <br><br>
 
-<h4>From the CLI</h4>
+#### From the CLI
 
 ```bash
 # Creates 'userdata.xlsm' in the current directory
@@ -308,7 +308,7 @@ xleda wb --help
 
 <br><br>
 
-<h4>From Right-Clicking</h4>
+#### From Right-Clicking
 
 
 <table>
@@ -334,7 +334,7 @@ xleda wb --help
 
 <hr><br>
 
-<h2>xleda.wb() Configuration</h2><br><br>
+## xleda.wb() Configuration<br><br>
 
 
 <table>
@@ -500,7 +500,7 @@ xleda wb --help
 
 <hr><br>
 
-<h2>CLI Basics</h2><br><br>
+## CLI Basics<br><br>
 
 <p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
@@ -566,11 +566,11 @@ xleda theme 262626
 <hr><br>
 
 
-<h2>Examples</h2><br><br>
+## Examples<br><br>
 
 
 <details>
-  <summary>Example: Creating a workbook from multiple dataframes<br><br><br>
+  <summary>Example: Creating a workbook from multiple dataframes<br><br></summary><br>
 
 ```python
 import seaborn as sns
@@ -714,7 +714,7 @@ print(export_dicts[0].keys())
 
 </details>
 
-<details>
+<details markdown="1">
 <summary>Example: Full Metadata Export<br><br></summary><br>
 
 Full export sources data from the workbook when possible<br><br>
@@ -757,7 +757,7 @@ print(export_dicts[0].keys())
 
 <hr><br>
 
-<h2>Usage Notes</h2><br><br>
+## Usage Notes<br><br>
 
 
 <table>
@@ -879,7 +879,7 @@ print(export_dicts[0].keys())
               <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
               <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
             </tr>
-            <tr>a --help
+            <tr>
               <td><strong>Remedy</strong></td>
               <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
               <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
@@ -932,7 +932,7 @@ print(export_dicts[0].keys())
 
 <hr><br><br>
 
-<h2>Troubleshooting</h2><br><br>
+## Troubleshooting<br><br>
 
 <details>
 <summary>xleda is slow<br><br></summary><br>
@@ -979,7 +979,7 @@ app = xw.App()
 
 <hr><br>
 
-<h2>Changelog</h2><br><br>
+## Changelog<br><br>
 
 
 <table>
