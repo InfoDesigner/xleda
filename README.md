@@ -902,7 +902,6 @@ print(export_dicts[0].keys())
         <summary>What the VBA Code Does<br><br></summary><br>
         <ol>
           <li>Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right</li><br>
-          <li>Adds a <strong>PythonList</strong> UDF that creates Python lists from cell values</li><br>
         </ol>
         <table>
           <tr>
@@ -922,7 +921,6 @@ print(export_dicts[0].keys())
         Besides <strong>Enable Macros</strong> prompts, using VBA also includes one annoying side effect:<br><br>
         <ul>
           <li>Every time a macro is used, it clears your undo history</li><br>
-          <li>The <strong>PythonList</strong> UDF is immune to this but expanding/collapsing headings is not</li>
         </ul>
       </details><br>
       </td>
@@ -1130,9 +1128,9 @@ app = xw.App()
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.001 -->
+    <!-- Version 0.9.005 -->
     <tr>
-      <td valign="top"><br><strong>Version 0.9.001</strong></td>
+      <td valign="top"><br><strong>Version 0.9.005</strong></td>
       <td valign="top"><br>
       <details>
         <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>
@@ -1182,7 +1180,7 @@ app = xw.App()
           <li>Simplified/updated documentation where possible/necessary.</li>
           <li>Removed the pivot worksheet/functionality.</li>
           <li>Corrected the matplotlib headless backend again.</li>
-          <li>Amended the PythonList UDF to also accept arrays which lets it create Python lists using results from other Excel functions that return arrays like Filter, SumProduct, etc.</li>
+          <li>Moved the PythonList UDF to a named lambda function</li>
           <li>Removed the PythonDict UDF</li>
           <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
           <li>Added CLI/xleda for Non-Developers sections on readme</li>
