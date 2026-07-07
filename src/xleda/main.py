@@ -287,6 +287,9 @@ class wb():
             # Save/exit context manager
             book.save(template.path)
             
+            # Print closing message
+            logger.closing_msg(wb=self)
+            
             # Wait 2 seconds to ensure it saves to disk fully before exiting context manager
             time.sleep(2)
             

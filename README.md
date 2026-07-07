@@ -79,7 +79,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 <table>
   <tbody>
     <tr>
-      <td width="20%" valign="top"><strong>Desktop Excel</strong></td>
+      <td width="20%" valign="top"><strong>Desktop&nbsp;Excel</strong></td>
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
@@ -88,7 +88,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
       </td>
     </tr>
     <tr>
-      <td valign="top"><strong>Supported Data</strong></td>
+      <td valign="top"><strong>Supported&nbsp;Data</strong></td>
       <td valign="top">
       <p>Supports pandas dataframes, CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</p><p></p>
       </td>
@@ -764,7 +764,7 @@ print(export_dicts[0].keys())
   <!-- Field and Record Lists -->
   <tbody>
     <tr>
-      <td width="30%" valign="top"><br>Field and Record Lists</td>
+      <td width="30%" valign="top"><br>Field&nbsp;and&nbsp;Record&nbsp;Lists</td>
       <td valign="top"><br>
         The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
         <ul>
@@ -986,7 +986,7 @@ app = xw.App()
 <!-- Version 0.8.185 -->
   <tbody>
     <tr>
-      <td width="30%" valign="top"><br><strong>Version 0.8.185</strong></td>
+      <td width="30%" valign="top"><br><strong>Version&nbsp;0.8.185</strong></td>
       <td valign="top"><br>
         <details>
           <summary>New simplified API, simplified export, general polish<br><br></summary><br>
