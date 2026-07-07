@@ -34,7 +34,7 @@ win = os == 'Windows'
 mac = os == 'Darwin'
 debug = False
 runner = CliRunner()
-update_pickle = False
+update_pickle = True
 
 
 
