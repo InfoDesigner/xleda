@@ -1128,7 +1128,7 @@ app = xw.App()
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.006 -->
+    <!-- Version 0.9.007 -->
     <tr>
       <td valign="top"><br><strong>Version 0.9.005</strong></td>
       <td valign="top"><br>

@@ -1,7 +1,7 @@
 site_name: xleda
 
 nav:
-  - Home: 'index.md#'
+  - Home: index.md
 
 theme:
   name: material
@@ -19,6 +19,7 @@ theme:
   features:
     - toc.integrate
     - navigation.top
+    - navigation.instant
 
 markdown_extensions:
   - md_in_html
