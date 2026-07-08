@@ -28,7 +28,7 @@ theme:
     - content.code.copy
 
 extra_javascript:
-  - js/simple_analytics.js
+  - js/counter.js
 
 markdown_extensions:
   - md_in_html
