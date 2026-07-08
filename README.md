@@ -1128,9 +1128,9 @@ app = xw.App()
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.007 -->
+    <!-- Version 0.9.008 -->
     <tr>
-      <td valign="top"><br><strong>Version 0.9.005</strong></td>
+      <td valign="top"><br><strong>Version 0.9.008</strong></td>
       <td valign="top"><br>
       <details>
         <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>

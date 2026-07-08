@@ -6,8 +6,8 @@ build-backend = "uv_build"
 # Project Metadta
 [project]
 name = "xleda"
-version = "0.9.007"
-description = "xleda is a Microsoft Excel powered EDA tool for Python data"
+version = "0.9.008"
+description = "xleda is a Python/Excel powered EDA tool"
 readme = "README.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
 license = {text = "Apache-2.0"} 
