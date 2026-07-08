@@ -1,13 +1,11 @@
 site_name: xleda
 docs_dir: docs
-site_url: https://infodesigner.github.io/xleda/
 
 nav:
   - Home: index.md
 
 theme:
   name: material
-  custom_dir: docs/overrides
   logo: assets/images/rectangle_icon.png
   favicon: assets/images/rectangle_icon.png
   palette:
@@ -40,9 +38,9 @@ edit_uri: "" # Hide the 'Edit this page' icon
 extra_css:
   - stylesheets/extra.css
 
-extra:
-  analytics:
-    provider: analytics
+
+extra_javascript:
+  - js/logspot.js
 
 markdown_extensions:
   - md_in_html
