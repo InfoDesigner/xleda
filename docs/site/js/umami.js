@@ -6,5 +6,3 @@
     s.setAttribute('data-website-id', 'abaf8a40-864a-4116-b7cb-f9f2e769a009'); // <-- Paste your ID here
     document.head.appendChild(s);
 })();
-
-
