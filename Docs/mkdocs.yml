@@ -1,6 +1,5 @@
 site_name: xleda
 
-
 nav:
   - Home: index.md
 
@@ -21,7 +20,6 @@ theme:
     - toc.integrate
     - navigation.top
     - navigation.instant
-
 
 markdown_extensions:
   - md_in_html
