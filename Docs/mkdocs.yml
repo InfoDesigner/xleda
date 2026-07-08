@@ -1,5 +1,8 @@
 site_name: xleda
 
+nav:
+  - Home: 'index.md#'
+
 theme:
   name: material
   palette:
@@ -15,6 +18,7 @@ theme:
         name: Switch to dark mode
   features:
     - toc.integrate
+    - navigation.top
 
 markdown_extensions:
   - md_in_html
