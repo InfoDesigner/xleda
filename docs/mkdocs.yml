@@ -20,6 +20,7 @@ theme:
     - toc.integrate
     - navigation.top
     - navigation.instant
+    - content.code.copy   # Adds the clipboard icon to all code blocks
 
 markdown_extensions:
   - md_in_html
