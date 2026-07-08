@@ -17,7 +17,12 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 * There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
 
-* See [some example xleda workbooks](https://github.com/InfoDesigner/xleda/tree/main/examples).<br><br>
+* See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non developers <a href="https://infodesigner.github.io/xleda/#non_developer_guide">here</a>.<br><br>
+
+
+
+
+
 <p align="center">
 	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
 	<br>
@@ -131,7 +136,7 @@ xleda install
 
 <p>xleda can help you perform this task easily, quickly, and without having to write a single line of Python code.</p><br>
 
-<details>
+<details id="non_developer_guide">
 <summary>Non-Developer Quick Start Guide<br><br></summary><br><br>
   <p><strong>Following the steps below will provide you with:</strong></p>
   <ol>
@@ -1128,9 +1133,9 @@ app = xw.App()
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.008 -->
+    <!-- Version 0.9.009 -->
     <tr>
-      <td valign="top"><br><strong>Version 0.9.008</strong></td>
+      <td valign="top"><br><strong>Version 0.9.009</strong></td>
       <td valign="top"><br>
       <details>
         <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>

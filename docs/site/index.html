@@ -50,6 +50,16 @@
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-67TGFBC5WC"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-67TGFBC5WC",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-67TGFBC5WC",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -503,7 +513,7 @@
 <p>There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br></p>
 </li>
 <li>
-<p>See <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">some example xleda workbooks</a>.<br><br></p>
+<p>See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non developers <a href="https://infodesigner.github.io/xleda/#non_developer_guide">here</a>.<br><br></p>
 </li>
 </ul>
 <p align="center">
@@ -558,7 +568,7 @@
 <table>
   <tbody>
     <tr>
-      <td width="20%" valign="top"><strong>Desktop Excel</strong></td>
+      <td width="20%" valign="top"><strong>Desktop&nbsp;Excel</strong></td>
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
@@ -567,7 +577,7 @@
       </td>
     </tr>
     <tr>
-      <td valign="top"><strong>Supported Data</strong></td>
+      <td valign="top"><strong>Supported&nbsp;Data</strong></td>
       <td valign="top">
       <p>Supports pandas dataframes, CSV, DuckDB, SQLite, Feather, Parquet, Pickle, Excel, RData, JSON, and XML</p><p></p>
       </td>
@@ -605,7 +615,7 @@
 
 <p>xleda can help you perform this task easily, quickly, and without having to write a single line of Python code.</p>
 <p><br></p>
-<details>
+<details id="non_developer_guide">
 <summary>Non-Developer Quick Start Guide<br><br></summary><br><br>
   <p><strong>Following the steps below will provide you with:</strong></p>
   <ol>
@@ -1189,7 +1199,7 @@ Basic metadata export sources data from Python
   <!-- Field and Record Lists -->
   <tbody>
     <tr>
-      <td width="30%" valign="top"><br>Field and Record Lists</td>
+      <td width="30%" valign="top"><br>Field&nbsp;and&nbsp;Record&nbsp;Lists</td>
       <td valign="top"><br>
         The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields<br><br>
         <ul>
@@ -1327,7 +1337,6 @@ Basic metadata export sources data from Python
         <summary>What the VBA Code Does<br><br></summary><br>
         <ol>
           <li>Makes the sections expand/collapse when you select them as pictured on the left which can also be performed by using row groupings as pictured on the right</li><br>
-          <li>Adds a <strong>PythonList</strong> UDF that creates Python lists from cell values</li><br>
         </ol>
         <table>
           <tr>
@@ -1347,7 +1356,6 @@ Basic metadata export sources data from Python
         Besides <strong>Enable Macros</strong> prompts, using VBA also includes one annoying side effect:<br><br>
         <ul>
           <li>Every time a macro is used, it clears your undo history</li><br>
-          <li>The <strong>PythonList</strong> UDF is immune to this but expanding/collapsing headings is not</li>
         </ul>
       </details><br>
       </td>
@@ -1406,7 +1414,7 @@ Basic metadata export sources data from Python
 <!-- Version 0.8.185 -->
   <tbody>
     <tr>
-      <td width="30%" valign="top"><br><strong>Version 0.8.185</strong></td>
+      <td width="30%" valign="top"><br><strong>Version&nbsp;0.8.185</strong></td>
       <td valign="top"><br>
         <details>
           <summary>New simplified API, simplified export, general polish<br><br></summary><br>
@@ -1550,9 +1558,9 @@ Basic metadata export sources data from Python
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.001 -->
+    <!-- Version 0.9.008 -->
     <tr>
-      <td valign="top"><br><strong>Version 0.9.001</strong></td>
+      <td valign="top"><br><strong>Version 0.9.008</strong></td>
       <td valign="top"><br>
       <details>
         <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>
@@ -1602,7 +1610,7 @@ Basic metadata export sources data from Python
           <li>Simplified/updated documentation where possible/necessary.</li>
           <li>Removed the pivot worksheet/functionality.</li>
           <li>Corrected the matplotlib headless backend again.</li>
-          <li>Amended the PythonList UDF to also accept arrays which lets it create Python lists using results from other Excel functions that return arrays like Filter, SumProduct, etc.</li>
+          <li>Moved the PythonList UDF to a named lambda function</li>
           <li>Removed the PythonDict UDF</li>
           <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
           <li>Added CLI/xleda for Non-Developers sections on readme</li>
@@ -1622,6 +1630,8 @@ Basic metadata export sources data from Python
 
 
 
+  
+
 
 
 
@@ -1632,6 +1642,12 @@ Basic metadata export sources data from Python
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -1662,7 +1678,7 @@ Basic metadata export sources data from Python
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["toc.integrate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["toc.integrate", "navigation.top", "navigation.instant", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="assets/javascripts/bundle.79ae519e.min.js"></script>

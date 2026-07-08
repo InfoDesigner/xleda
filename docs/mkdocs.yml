@@ -20,7 +20,12 @@ theme:
     - toc.integrate
     - navigation.top
     - navigation.instant
-    - content.code.copy   # Adds the clipboard icon to all code blocks
+    - content.code.copy
+
+extra:
+  analytics:
+    provider: google
+    property: G-67TGFBC5WC
 
 markdown_extensions:
   - md_in_html
