@@ -6,6 +6,7 @@ nav:
 
 theme:
   name: material
+  custom_dir: docs/overrides
   logo: assets/images/rectangle_icon.png
   favicon: assets/images/rectangle_icon.png
   palette:
@@ -26,9 +27,6 @@ theme:
     - navigation.top
     - navigation.instant
     - content.code.copy
-
-extra_javascript:
-  - js/counter.js
 
 markdown_extensions:
   - md_in_html
