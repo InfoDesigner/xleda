@@ -17,7 +17,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 * There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
 
-* See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non developers <a href="https://infodesigner.github.io/xleda/#non_developer_guide">here</a>.<br><br>
+* See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non-developers <a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">here</a>.<br><br>
 
 
 
@@ -219,7 +219,7 @@ xleda install
       <td>
         <p>This step lets you create your workbook and choose your theme for future xleda workbooks at the same time</p><br>
           <ul>  
-            <li>If you're fine using the default neutral theme, you can skip this step and right-click on the workbook you compiled in step 1</li><br>  
+            <li>If you're fine using the default neutral theme, you can skip this step and instead right-click on the workbook you compiled in step 1 and choose <strong>Create xleda Workbook</strong></li><br>  
             <li>Create your workboook on either MacOS or Windows with the same command.</li><br>
             <li>Be sure to Replace <code>YourSourceData</code> and <code>305CDE</code> with your source data and favorite color</li><br><br>
             <code>xleda wb YourSourceData.xlsx --theme '#305CDE'</code><br><br>
@@ -231,15 +231,15 @@ xleda install
 
 
 
-<strong>What's the Catch?</strong>
+<strong>What's the Catch?</strong><br>
 
-There's not one really.  Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
+Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
 
-If you want to change your theme, use that very last line to create a new workbook once and it will remember you preference.  VBA preference works the same way.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either without creating a workbook and other settings.<br><br>
+If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.  VBA preference persists in the same way after it's set.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.<br><br>
 
-The only thing that's close to a catch is that using this method doesn't include automatic updates.   If you've followed these steps, be sure to periodically update it using `uv tool upgrade xleda`.<br><br>
+What's the Catch?  There's not one really.  The only thing that's close to a catch is that using this method doesn't include automatic updates.   If you've followed these steps, be sure to periodically update xleda using `uv tool upgrade xleda`.<br><br>
 
----
+
 
 </details><br><br>
 
