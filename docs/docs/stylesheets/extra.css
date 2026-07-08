@@ -1,0 +1,4 @@
+/* Hide the repository statistics (stars, forks, version tags) */
+.md-source__facts {
+  display: none;
+}

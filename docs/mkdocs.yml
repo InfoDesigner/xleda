@@ -25,12 +25,20 @@ theme:
       accent: deep purple
   features:
     - toc.integrate
+    - toc.follow
+    - content.code.copy
     - navigation.top
     - navigation.instant
-    - content.code.copy
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - toc.follow
+    - search.suggest
+
+
+repo_url: https://github.com/InfoDesigner/xleda/
+repo_name: xleda
+edit_uri: "" # Hide the 'Edit this page' icon
+
+
+extra_css:
+  - stylesheets/extra.css
 
 extra:
   analytics:
