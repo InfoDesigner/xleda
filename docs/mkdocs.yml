@@ -1,5 +1,6 @@
 site_name: xleda
 docs_dir: docs
+site_url: https://infodesigner.github.io/xleda/
 
 nav:
   - Home: index.md
@@ -27,6 +28,9 @@ theme:
     - navigation.top
     - navigation.instant
     - content.code.copy
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - toc.follow
 
 extra:
   analytics:
