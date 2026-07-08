@@ -30,7 +30,7 @@ theme:
 
 extra:
   analytics:
-    provider: custom 
+    provider: custom
 
 markdown_extensions:
   - md_in_html
