@@ -27,7 +27,7 @@ jobs:
       # FIX 2: Change path to site since Zensical compiles to the base execution root
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: docs/site
           
       - uses: actions/deploy-pages@v5
         id: deployment
