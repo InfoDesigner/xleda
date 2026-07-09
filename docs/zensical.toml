@@ -79,4 +79,3 @@ pygments_lang_class = true
 [project.plugins]
 search = {}
 badges = {}
-include-markdown = {} 
