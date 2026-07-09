@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: 3.12
         
-      - run: pip install zensical mkdocs-badges mkdocs-include-markdown-plugin pymdown-extensions
+      - run: pip install zensical mkdocs-badges pymdown-extensions
 
       - name: Build Documentation
         run: |
