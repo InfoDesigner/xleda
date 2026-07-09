@@ -23,14 +23,15 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.12
-          
-      - run: pip install zensical mkdocs-badges mkdocs-include-markdown-plugin
-      
-      # Run your exact local command from the root workspace
+        
+      - run: pip install zensical mkdocs-badges mkdocs-include-markdown-plugin pymdown-extensions
+
       - name: Build Documentation
-        run: zensical build -f docs/zensical.toml --clean
-      
-      # FIX: Point exactly to the nested folder that holds your index.html file!
+        run: |
+          cd docs
+          zensical build -f zensical.toml --clean
+
+      # FIX 3: Point the upload artifact to the freshly generated site directory
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v5
         with:
