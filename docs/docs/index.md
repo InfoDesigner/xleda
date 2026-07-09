@@ -1,1 +1,1 @@
-D:/Python/.xleda/README.md
+--8<-- "README.md"
