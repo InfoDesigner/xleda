@@ -22,12 +22,12 @@ jobs:
       - run: pip install zensical mkdocs-badges
       
       # FIX 1: Change -f to --config so Zensical reads your parameters
-      - run: zensical build --config-file zensical.toml --clean
+      - run: zensical build -f docs/zensical.toml --clean
       
       # FIX 2: Change path to site since Zensical compiles to the base execution root
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: docs/site
           
       - uses: actions/deploy-pages@v5
         id: deployment
