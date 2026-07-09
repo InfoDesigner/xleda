@@ -28,14 +28,13 @@ jobs:
       
       # FIX 1: Drop into the 'docs' directory so Zensical looks directly at your nested layout files
       - name: Build Documentation
-        working-directory: docs
-        run: zensical build -f zensical.toml --clean
+        run: zensical build -f docs/zensical.toml --clean
       
       # FIX 2: Upload the resulting 'site' folder from inside the 'docs' directory
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: docs/site
           
       - uses: actions/deploy-pages@v5
         id: deployment
