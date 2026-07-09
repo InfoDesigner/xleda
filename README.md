@@ -7,7 +7,7 @@
 </div><br>
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/logo.webp?raw=true" width="250" alt="Logo">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/logo.webp?raw=true" width="250" alt="Logo">
 	<br>
 </p>
 
@@ -24,14 +24,16 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
 	<br>
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br><br>
 
-<hr><br>
+<hr>
 
-## xleda Components<br><br>
+## xleda Components
+
+<br>
 
 
 All xleda workbooks include an **Overview** worksheet and a **Field Analysis** worksheet for each provided dataframe.<br><br>
@@ -48,7 +50,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         <details>
           <summary>Anatomy of a Field Analysis Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
           </p>
           <em>Field Analysis Anatomy</em>
         </details>
@@ -63,7 +65,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         <details>
           <summary>Anatomy of an Overview Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
           </p>
           <em>Overview Worksheet with Multiple Dataframes</em>
         </details>
@@ -76,9 +78,11 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 
 
 
-<hr><br>
+<hr>
 
-## Requirements/Compatibility<br><br>
+## Compatibility
+
+<br>
 
 
 <table>
@@ -127,10 +131,12 @@ xleda install
 
 </details><br><br>
 
-<hr><br>
+<hr>
 
 
-## xleda for Non-Developers<br><br>
+## xleda for Non-Developers
+
+<br>
 
 <p>If you're working with data professionally in any role and find yourself looking at foreign data, one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.</p>
 
@@ -222,7 +228,11 @@ xleda install
             <li>If you're fine using the default neutral theme, you can skip this step and instead right-click on the workbook you compiled in step 1 and choose <strong>Create xleda Workbook</strong></li><br>  
             <li>Create your workboook on either MacOS or Windows with the same command.</li><br>
             <li>Be sure to Replace <code>YourSourceData</code> and <code>305CDE</code> with your source data and favorite color</li><br><br>
-            <code>xleda wb YourSourceData.xlsx --theme '#305CDE'</code><br><br>
+
+```bash
+xleda wb YourSourceData.xlsx --theme '#305CDE'
+```
+<br><br>
         </ul>
       </td>
     </tr>
@@ -243,10 +253,12 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 
 </details><br><br>
 
-<hr><br>
+<hr>
 
 
-## Basic Usage<br><br>
+## Basic Usage
+
+<br>
 
 Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
@@ -325,21 +337,23 @@ xleda wb --help
     <tr>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
         </p><br>
       </td>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
         </p><br>
       </td>
     </tr>
   </tbody>
 </table><br><br>
 
-<hr><br>
+<hr>
 
-## xleda.wb() Configuration<br><br>
+## xleda.wb() Configuration
+
+<br>
 
 
 <table>
@@ -413,7 +427,7 @@ xleda wb --help
         </ul>
         <p align="center"><br>
           <img
-            src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/theme.webp?raw=true"
+            src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/theme.webp?raw=true"
             width="800"
             alt="Theme"
           /><br>
@@ -503,9 +517,11 @@ xleda wb --help
   </tbody>
 </table><br><br>
 
-<hr><br>
+<hr>
 
-## CLI Basics<br><br>
+## CLI Basics
+
+<br>
 
 <p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
@@ -568,10 +584,12 @@ xleda theme 262626
 </details><br>
 
 
-<hr><br>
+<hr>
 
 
-## Examples<br><br>
+## Examples
+
+<br>
 
 
 <details>
@@ -729,7 +747,7 @@ Full export sources data from the workbook when possible<br><br>
 * It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).<br><br>
 
 <p align="center">
-  <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
 	<br>
 	<em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
 </p>
@@ -760,9 +778,11 @@ print(export_dicts[0].keys())
 </details><br><br>
 
 
-<hr><br>
+<hr>
 
-## Usage Notes<br><br>
+## Usage Notes
+
+<br>
 
 
 <table>
@@ -786,7 +806,7 @@ print(export_dicts[0].keys())
             <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
           </ul>
           <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
             <br>
             <em>Easily create lists of fields in your data.</em>
           </p>
@@ -808,7 +828,7 @@ print(export_dicts[0].keys())
             <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
             <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
             <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
             </p>
             <li>The <code>debug</code> section of the <code>Overview</code> worksheet has a breakdown of how the time spent to produce your workbook was allocated.</li>
           </ul>
@@ -881,13 +901,13 @@ print(export_dicts[0].keys())
             </tr>
             <tr>
               <td><strong>Example</strong></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
             </tr>
             <tr>
               <td><strong>Remedy</strong></td>
               <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
             </tr>
           </tbody>
         </table>
@@ -911,12 +931,12 @@ print(export_dicts[0].keys())
         <table>
           <tr>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use headings like web pages to navigate with VBA.</em>
             </td>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use row groupings to navigate without VBA.</em>
             </td>
@@ -933,9 +953,11 @@ print(export_dicts[0].keys())
     </tbody>
 </table><br><br>
 
-<hr><br><br>
+<hr><br>
 
-## Troubleshooting<br><br>
+## Troubleshooting
+
+<br>
 
 <details>
 <summary>xleda is slow<br><br></summary><br>
@@ -982,7 +1004,9 @@ app = xw.App()
 
 <hr><br>
 
-## Changelog<br><br>
+## Changelog
+
+<br>
 
 
 <table>
@@ -1133,9 +1157,9 @@ app = xw.App()
       </details><br>
       </td>
     </tr>
-    <!-- Version 0.9.009 -->
+    <!-- Version 0.9.010 -->
     <tr>
-      <td valign="top"><br><strong>Version 0.9.009</strong></td>
+      <td valign="top"><br><strong>Version 0.9.010</strong></td>
       <td valign="top"><br>
       <details>
         <summary><strong>Simplified API, Expanded Input Options/Interfaces, Significantly improved experience with multiple dataframes</strong><br><br></summary><br>

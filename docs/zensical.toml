@@ -1,0 +1,82 @@
+# ====================================================
+# Core Project Configuration
+# ====================================================
+[project]
+site_name = "xleda"
+repo_url = "https://github.com"
+repo_name = "xleda"
+edit_uri = ""
+docs_dir = "docs"
+site_dir = "site"
+
+# Define your asset pipelines relative to your docs_dir
+extra_css = ["stylesheets/extra.css"]
+extra_javascript = ["js/logspot.js"]
+
+# ====================================================
+# Theme & Color Palette Definitions
+# ====================================================
+[project.theme]
+name = "material"
+logo = "assets/images/rectangle_icon.png"
+favicon = "assets/images/rectangle_icon.png"
+
+# Native material UI functionality features
+features = [
+    "toc.integrate",
+    "toc.follow",
+    "content.code.copy",
+    "navigation.top",
+    "navigation.instant",
+    "search.suggest"
+]
+
+# First Theme Palette (Slate / Dark Mode)
+[[project.theme.palette]]
+scheme = "slate"
+primary = "black"
+accent = "deep purple"
+[project.theme.palette.toggle]
+icon = "material/brightness-4"
+name = "Switch to light mode"
+
+# Second Theme Palette (Default / Light Mode)
+[[project.theme.palette]]
+scheme = "default"
+primary = "indigo"
+accent = "deep purple"
+[project.theme.palette.toggle]
+icon = "material/brightness-7"
+name = "Switch to dark mode"
+
+# ====================================================
+# Navigation Matrix
+# ====================================================
+[[project.nav]]
+xleda = "index.md"
+
+# ====================================================
+# Markdown & Tooling Extensions
+# ====================================================
+[project.markdown_extensions]
+md_in_html = {}
+
+
+
+# Correct TOML format to force Zensical to register the code block extensions
+"pymdownx.inlinehilite" = {}
+"pymdownx.superfences" = {}
+
+# Custom configurations require structured sub-blocks
+[project.markdown_extensions."pymdownx.highlight"]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+
+# ====================================================
+# Native Core Plugins
+# ====================================================
+[project.plugins]
+search = {}
+badges = {}
+include-markdown = {} 

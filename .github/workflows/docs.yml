@@ -1,27 +1,41 @@
-name: Deploy Docs
+name: Documentation
+
 on:
   push:
     branches:
       - main
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v6
+      - uses: actions/checkout@v7
       
-      - name: Configure Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
-          
-      - name: Install dependencies
+          python-version: 3.12
+        
+      - run: pip install zensical mkdocs-badges mkdocs-include-markdown-plugin pymdown-extensions
+
+      - name: Build Documentation
         run: |
-          pip install mkdocs-material mkdocs-badges mkdocs-include-markdown-plugin
-          # Add your theme here if using one (e.g., pip install mkdocs-material)
+          cd docs
+          zensical build -f zensical.toml --clean
+
+      # FIX 3: Point the upload artifact to the freshly generated site directory
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/site
           
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force  -f docs/mkdocs.yml
+      - uses: actions/deploy-pages@v5
+        id: deployment
