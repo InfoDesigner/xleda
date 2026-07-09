@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: 3.x
           
-      - run: pip install zensical mkdocs-badges
+      - run: pip install zensical mkdocs-badges mkdocs-include-markdown-plugin
       
       # Run your exact local command from the root workspace
       - name: Build Documentation
