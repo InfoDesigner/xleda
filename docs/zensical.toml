@@ -7,8 +7,6 @@ repo_url = "https://github.com"
 repo_name = "xleda"
 edit_uri = ""
 
-# Explicitly mapping your inner source directory 
-docs_dir = "docs"
 
 # Define your asset pipelines relative to your docs_dir
 extra_css = ["stylesheets/extra.css"]
