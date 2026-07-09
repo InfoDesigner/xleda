@@ -1,12 +1,15 @@
 name: Documentation
+
 on:
   push:
     branches:
       - main
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 jobs:
   deploy:
     environment:
@@ -16,18 +19,22 @@ jobs:
     steps:
       - uses: actions/configure-pages@v6
       - uses: actions/checkout@v7
+      
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+          
       - run: pip install zensical mkdocs-badges
       
-      # FIX 1: Change -f to --config so Zensical reads your parameters
-      - run: zensical build -f docs/zensical.toml --clean
+      # FIX 1: Drop into the 'docs' directory so Zensical looks directly at your nested layout files
+      - name: Build Documentation
+        working-directory: docs
+        run: zensical build -f zensical.toml --clean
       
-      # FIX 2: Change path to site since Zensical compiles to the base execution root
-      - uses: actions/upload-pages-artifact@v5
+      # FIX 2: Upload the resulting 'site' folder from inside the 'docs' directory
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v5
         with:
-          path: docs/site
           path: docs/site
           
       - uses: actions/deploy-pages@v5
