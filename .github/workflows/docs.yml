@@ -26,15 +26,15 @@ jobs:
           
       - run: pip install zensical mkdocs-badges
       
-      # FIX 1: Drop into the 'docs' directory so Zensical looks directly at your nested layout files
+      # Run your exact local command from the root workspace
       - name: Build Documentation
         run: zensical build -f docs/zensical.toml --clean
       
-      # FIX 2: Upload the resulting 'site' folder from inside the 'docs' directory
+      # FIX: Point exactly to the nested folder that holds your index.html file!
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: docs/site
+          path: docs/docs/site
           
       - uses: actions/deploy-pages@v5
         id: deployment
