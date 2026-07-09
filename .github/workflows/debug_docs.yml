@@ -37,7 +37,9 @@ jobs:
       # STEP 2: Run your exact local command
       # ----------------------------------------------------
       - name: Execute Local Build Command
-        run: zensical build -f docs/zensical.toml --clean
+        run: 
+          cd docs
+          zensical build -f zensical.toml --clean
 
       # ----------------------------------------------------
       # STEP 3: Find exactly where the HTML files landed

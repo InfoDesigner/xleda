@@ -61,8 +61,6 @@ xleda = "index.md"
 [project.markdown_extensions]
 md_in_html = {}
 
-"pymdownx.snippets" = { base_path = [".."] }
-
 
 
 # Correct TOML format to force Zensical to register the code block extensions
