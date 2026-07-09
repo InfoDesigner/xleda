@@ -89,6 +89,7 @@ dev = [
     "mkdocs-include-markdown-plugin>=7.3.0",
     "mkdocs-material>=9.7.6",
     "mkdocs-badges>=0.6.0",
+    "zensical>=0.0.47",
 ]
 
 

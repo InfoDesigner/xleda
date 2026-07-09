@@ -1,4 +1,16 @@
-/* Hide the repository statistics (stars, forks, version tags) */
-.md-source__facts {
-  display: none;
+/* Hide the automatically generated Index page heading */
+.md-content h1:first-of-type {
+    display: none !important;
+}
+
+/* Hide the secondary page title slot that overrides it on scroll */
+.md-header__topic:first-of-type {
+    display: block !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* Hide the secondary page title slot that overrides it on scroll */
+.md-header__topic + .md-header__topic {
+    display: none !important;
 }

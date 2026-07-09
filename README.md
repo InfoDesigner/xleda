@@ -29,9 +29,11 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br><br>
 
-<hr><br>
+<hr>
 
-## xleda Components<br><br>
+## xleda Components
+
+<br>
 
 
 All xleda workbooks include an **Overview** worksheet and a **Field Analysis** worksheet for each provided dataframe.<br><br>
@@ -76,9 +78,11 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
 
 
 
-<hr><br>
+<hr>
 
-## Requirements/Compatibility<br><br>
+## Compatibility
+
+<br>
 
 
 <table>
@@ -127,10 +131,12 @@ xleda install
 
 </details><br><br>
 
-<hr><br>
+<hr>
 
 
-## xleda for Non-Developers<br><br>
+## xleda for Non-Developers
+
+<br>
 
 <p>If you're working with data professionally in any role and find yourself looking at foreign data, one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.</p>
 
@@ -222,7 +228,11 @@ xleda install
             <li>If you're fine using the default neutral theme, you can skip this step and instead right-click on the workbook you compiled in step 1 and choose <strong>Create xleda Workbook</strong></li><br>  
             <li>Create your workboook on either MacOS or Windows with the same command.</li><br>
             <li>Be sure to Replace <code>YourSourceData</code> and <code>305CDE</code> with your source data and favorite color</li><br><br>
-            <code>xleda wb YourSourceData.xlsx --theme '#305CDE'</code><br><br>
+
+```bash
+xleda wb YourSourceData.xlsx --theme '#305CDE'
+```
+<br><br>
         </ul>
       </td>
     </tr>
@@ -243,10 +253,12 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 
 </details><br><br>
 
-<hr><br>
+<hr>
 
 
-## Basic Usage<br><br>
+## Basic Usage
+
+<br>
 
 Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
@@ -337,9 +349,11 @@ xleda wb --help
   </tbody>
 </table><br><br>
 
-<hr><br>
+<hr>
 
-## xleda.wb() Configuration<br><br>
+## xleda.wb() Configuration
+
+<br>
 
 
 <table>
@@ -503,9 +517,11 @@ xleda wb --help
   </tbody>
 </table><br><br>
 
-<hr><br>
+<hr>
 
-## CLI Basics<br><br>
+## CLI Basics
+
+<br>
 
 <p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
@@ -568,10 +584,12 @@ xleda theme 262626
 </details><br>
 
 
-<hr><br>
+<hr>
 
 
-## Examples<br><br>
+## Examples
+
+<br>
 
 
 <details>
@@ -760,9 +778,11 @@ print(export_dicts[0].keys())
 </details><br><br>
 
 
-<hr><br>
+<hr>
 
-## Usage Notes<br><br>
+## Usage Notes
+
+<br>
 
 
 <table>
@@ -933,9 +953,11 @@ print(export_dicts[0].keys())
     </tbody>
 </table><br><br>
 
-<hr><br><br>
+<hr><br>
 
-## Troubleshooting<br><br>
+## Troubleshooting
+
+<br>
 
 <details>
 <summary>xleda is slow<br><br></summary><br>
@@ -982,7 +1004,9 @@ app = xw.App()
 
 <hr><br>
 
-## Changelog<br><br>
+## Changelog
+
+<br>
 
 
 <table>
