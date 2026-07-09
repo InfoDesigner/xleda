@@ -20,9 +20,9 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install zensical mkdocs-badges
-      - run: zensical build --clean 
+      - run: zensical build -f docs/zensical.toml --clean 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: docs/site
       - uses: actions/deploy-pages@v5
         id: deployment
