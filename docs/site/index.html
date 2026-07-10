@@ -6,7 +6,13 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes or data files that are highly optimized to explore, define, and document data sets">
       
+      
+        <meta name="author" content="Information Designer">
+      
+      
+        <link rel="canonical" href="https://infodesigner.github.io/xleda/">
       
       
       
@@ -50,7 +56,7 @@
       
     
     
-      <link rel="stylesheet" href="./stylesheets/extra.css">
+      <link rel="stylesheet" href="./assets/stylesheets/extra.css">
     
     <script>__md_scope=new URL(".",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
@@ -128,7 +134,7 @@
     <input class="md-option" data-md-color-media="none" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
       </label>
     
   
@@ -138,7 +144,7 @@
     <input class="md-option" data-md-color-media="none" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
       </label>
     
   
@@ -165,7 +171,7 @@
     
     <div class="md-header__source">
       
-        <a href="https://github.com" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/InfoDesigner/xleda" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -212,7 +218,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/InfoDesigner/xleda" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -246,7 +252,7 @@
   <span class="md-ellipsis">
     
   
-  xleda
+  Index
 
     
   </span>
@@ -263,7 +269,7 @@
   <span class="md-ellipsis">
     
   
-  xleda
+  Index
 
     
   </span>
@@ -486,11 +492,16 @@
   <h1 id="__skip">Index</h1>
 
 <div align="center">
-    <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/v/xleda"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/pyversions/xleda.svg"></a> <a href="https://pepy.tech/project/xleda"><img src="https://static.pepy.tech/badge/xleda"></a> <a href="https://github.com/InfoDesigner/xleda"><img src="https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue)"></a> <a href="https://buymeacoffee.com/informationdesigner"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black"></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a>
+  <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/v/xleda"></a>
+  <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/pyversions/xleda.svg"></a>
+  <a href="https://pepy.tech/project/xleda"><img src="https://static.pepy.tech/badge/xleda"></a>
+  <a href="https://github.com/InfoDesigner/xleda"><img src="https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue"></a>
+  <a href="https://buymeacoffee.com/informationdesigner"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black"></a>
 </div>
 <p><br></p>
 <p align="center">
-    <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/logo.webp?raw=true" width="250" alt="Logo">
+    <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/logo.webp?raw=true" width="250" alt="Logo">
     <br>
 </p>
 
@@ -507,14 +518,14 @@
 </li>
 </ul>
 <p align="center">
-    <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
+    <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
     <br>
     <em>Top view of a Field Analysis worksheet.</em>
 </p>
 <p><br><br></p>
 <hr>
 
-<h2 id="xleda-components">xleda Components</h2>
+<h2 id="xleda-components">xleda Components<a class="headerlink" href="#xleda-components" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <p>All xleda workbooks include an <strong>Overview</strong> worksheet and a <strong>Field Analysis</strong> worksheet for each provided dataframe.<br><br></p>
 <table width="100%">
@@ -528,7 +539,7 @@
         <details>
           <summary>Anatomy of a Field Analysis Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
           </p>
           <em>Field Analysis Anatomy</em>
         </details>
@@ -543,7 +554,7 @@
         <details>
           <summary>Anatomy of an Overview Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
           </p>
           <em>Overview Worksheet with Multiple Dataframes</em>
         </details>
@@ -555,7 +566,7 @@
 
 <hr>
 
-<h2 id="compatibility">Compatibility</h2>
+<h2 id="compatibility">Compatibility<a class="headerlink" href="#compatibility" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <table>
   <tbody>
@@ -602,7 +613,7 @@
 <p><br><br></p>
 <hr>
 
-<h2 id="xleda-for-non-developers">xleda for Non-Developers</h2>
+<h2 id="xleda-for-non-developers">xleda for Non-Developers<a class="headerlink" href="#xleda-for-non-developers" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <p>If you're working with data professionally in any role and find yourself looking at foreign data, one of the most important things you can do is document and define your data so that you can ensure everyone is working with the same data and definitions.</p>
 
@@ -716,10 +727,10 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><br><br></p>
 <hr>
 
-<h2 id="basic-usage">Basic Usage</h2>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <p>Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br></p>
-<h4 id="from-a-dataframe">From a Dataframe</h4>
+<h4 id="from-a-dataframe">From a Dataframe<a class="headerlink" href="#from-a-dataframe" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
@@ -730,7 +741,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 </span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">wb</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </span></code></pre></div>
 <p><br><br></p>
-<h4 id="from-a-dictionary-of-dataframes">From a Dictionary of Dataframes</h4>
+<h4 id="from-a-dictionary-of-dataframes">From a Dictionary of Dataframes<a class="headerlink" href="#from-a-dictionary-of-dataframes" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
@@ -743,7 +754,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 </span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df2</span><span class="p">})</span>
 </span></code></pre></div>
 <p><br><br></p>
-<h4 id="from-a-file">From a File</h4>
+<h4 id="from-a-file">From a File<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -755,7 +766,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 </span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">duckdb_file</span><span class="p">)</span>
 </span></code></pre></div>
 <p><br><br></p>
-<h4 id="from-the-cli">From the CLI</h4>
+<h4 id="from-the-cli">From the CLI<a class="headerlink" href="#from-the-cli" title="Permanent link">&para;</a></h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Creates &#39;userdata.xlsm&#39; in the current directory</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s1">&#39;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet&#39;</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
@@ -766,7 +777,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 </span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>xleda<span class="w"> </span>wb<span class="w"> </span>--help
 </span></code></pre></div>
 <p><br><br></p>
-<h4 id="from-right-clicking">From Right-Clicking</h4>
+<h4 id="from-right-clicking">From Right-Clicking<a class="headerlink" href="#from-right-clicking" title="Permanent link">&para;</a></h4>
 <table>
   <tbody>
     <tr>
@@ -776,12 +787,12 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
     <tr>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
         </p><br>
       </td>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
         </p><br>
       </td>
     </tr>
@@ -790,7 +801,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><br><br></p>
 <hr>
 
-<h2 id="xledawb-configuration">xleda.wb() Configuration</h2>
+<h2 id="xledawb-configuration">xleda.wb() Configuration<a class="headerlink" href="#xledawb-configuration" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <table>
   <tbody>
@@ -863,7 +874,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
         </ul>
         <p align="center"><br>
           <img
-            src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/theme.webp?raw=true"
+            src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/theme.webp?raw=true"
             width="800"
             alt="Theme"
           /><br>
@@ -955,7 +966,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><br><br></p>
 <hr>
 
-<h2 id="cli-basics">CLI Basics</h2>
+<h2 id="cli-basics">CLI Basics<a class="headerlink" href="#cli-basics" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <p>Installing the Python package also installs the <code>xleda</code> CLI command<br><br>
 
@@ -1017,10 +1028,10 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br></p>
 <hr>
 
-<h2 id="examples">Examples</h2>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <details>
-  <summary>Example: Creating a workbook from multiple dataframes<br><br></summary><br>
+  <summary>Example: Creating a workbook from a dictionary of dataframes<br><br></summary><br>
 
 <div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
@@ -1167,7 +1178,7 @@ Basic metadata export sources data from Python
 </li>
 </ul>
 <p align="center">
-  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
     <br>
     <em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
 </p>
@@ -1194,7 +1205,7 @@ Basic metadata export sources data from Python
 <p><br><br></p>
 <hr>
 
-<h2 id="usage-notes">Usage Notes</h2>
+<h2 id="usage-notes">Usage Notes<a class="headerlink" href="#usage-notes" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <table>
   <!-- Field and Record Lists -->
@@ -1214,10 +1225,10 @@ Basic metadata export sources data from Python
             <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
             <li>The <code>Record List</code> field added to your source data works the same way except it creates a list of all tagged records instead of a list of fields</li><br>
             <li>The <code>Compiled Lists</code> section formats your lists as python lists</li><br>
-            <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
+            <li>xleda workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
           </ul>
           <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
             <br>
             <em>Easily create lists of fields in your data.</em>
           </p>
@@ -1239,7 +1250,7 @@ Basic metadata export sources data from Python
             <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
             <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
             <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
             </p>
             <li>The <code>debug</code> section of the <code>Overview</code> worksheet has a breakdown of how the time spent to produce your workbook was allocated.</li>
           </ul>
@@ -1252,30 +1263,38 @@ Basic metadata export sources data from Python
       <td valign="top"><br>
         Accessing your notes/lists/defintions from Python is easy<br><br>
         <ul>
-          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li><br>
-          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li><br>
+          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, 
+          one for each dataframe, accessible through <code>xleda.wb().export_dicts</code>.</li><br>
+          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code>.</li><br>
+          <li>Because expanded metadata reflects changes you've made in Excel, this will in effect make Excel a UI for editing your Python data.  Note that 
+          data types will likely change in the round-trip.</li>
         </ul>
         <details>
         <summary>Default Metadata<br><br></summary><br>
           The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
-            <li><code>df_overview</code>: Dataframe level metadata</li><br>
-            <li><code>field_overview</code>: Field-level metadata</li><br>
+            <li><code>df_overview</code>: Dataframe level metadata from all dataframes with empty placeholders for dataframe descriptions</li><br>
+            <li><code>field_overview</code>: Field-level metadata from all dataframes with empty placeholders for field definitions and notes</li><br>
             <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
             <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
           </ul>
         </details><br>
         <details>
-          <summary>Expanded Metadata:<br><br></summary><br>
-          Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
-          This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
-          Includes the following for each provided dataframe:<br><br>
+          <summary>Expanded Metadata:<br><br></summary>
+          <p>Using <code>export=True</code> also provides the default metadata though it is sourced from the 
+          workbook instead and includes any notes, lists, dataframe descriptions, and field definitions you've added to it</p><br>
+
+          The following metadata is included for each provided dataframe when using <code>export=True</code>:<br>
           <ul>
-            <li><code>description</code>: Dataframe description if you've added one</li><br>
+            <li><code>df_overview</code>: Dataframe level metadata from all dataframes.  This includes any dataframe descriptions you've added to the workbook</li><br>
+            <li><code>field_overview</code>: Field-level metadata from all dataframes.  This includes any field definitions and notes you've addeed to your fields</li><br>
+            <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
+            <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns. This will 
+            reflect any changes you've made such as tagging records in the <strong>Record List</strong> column, removing/editing records, removing/renaming columns, etc </li><br>
+            <li><code>description</code>: A Dataframe description if you've added one</li><br>
             <li><code>definitions</code>: Any field definitions you've added</li><br>
             <li><code>notes</code>: Any field notes you've added</li><br>
             <li><code>lists</code>: Any lists showing in the compiled lists section</li><br>
-            <li><code>lists</code>: Note that data types will likely change in the round-trip translation</li><br>
           </ul>
         </details><br>
       </td>
@@ -1312,13 +1331,13 @@ Basic metadata export sources data from Python
             </tr>
             <tr>
               <td><strong>Example</strong></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
             </tr>
             <tr>
               <td><strong>Remedy</strong></td>
               <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
             </tr>
           </tbody>
         </table>
@@ -1342,12 +1361,12 @@ Basic metadata export sources data from Python
         <table>
           <tr>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use headings like web pages to navigate with VBA.</em>
             </td>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use row groupings to navigate without VBA.</em>
             </td>
@@ -1366,7 +1385,7 @@ Basic metadata export sources data from Python
 <p><br><br></p>
 <hr>
 <p><br></p>
-<h2 id="troubleshooting">Troubleshooting</h2>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <details>
 <summary>xleda is slow<br><br></summary><br>
@@ -1411,7 +1430,7 @@ Basic metadata export sources data from Python
 <p><br></p>
 <hr>
 <p><br></p>
-<h2 id="changelog">Changelog</h2>
+<h2 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
 <p><br></p>
 <table>
 <!-- Version 0.8.185 -->
@@ -1617,10 +1636,11 @@ Basic metadata export sources data from Python
           <li>Removed the PythonDict UDF</li>
           <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
           <li>Added CLI/xleda for Non-Developers sections on readme</li>
+          <li>Set up a proper website</li>
         </ul>
       </details><br>
       </td>
-    </tr>
+    </tr>  
   </tbody>
 </table>
 <p><br></p>
@@ -1643,6 +1663,8 @@ Basic metadata export sources data from Python
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -1659,6 +1681,11 @@ Basic metadata export sources data from Python
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Information Designer
+
+    </div>
   
   
     Made with
@@ -1681,12 +1708,12 @@ Basic metadata export sources data from Python
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["toc.integrate","toc.follow","content.code.copy","navigation.top","navigation.instant","search.suggest"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["announce.dismiss","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.instant","navigation.top","navigation.tracking","search.highlight","search.suggest","toc.follow","toc.integrate"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
       <script src="./assets/javascripts/bundle.0df4f2d0.min.js"></script>
       
-        <script src="./js/logspot.js"></script>
+        <script src="./assets/js/logspot.js"></script>
       
     
   </body>

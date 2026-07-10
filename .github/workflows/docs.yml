@@ -28,8 +28,9 @@ jobs:
 
       - name: Build Documentation
         run: |
-          cd docs
-          zensical build -f zensical.toml --clean
+          
+          cp -f readme.md docs/index.md
+          zensical build -f docs/zensical.toml --clean
 
       # FIX 3: Point the upload artifact to the freshly generated site directory
       - name: Upload Pages Artifact

@@ -3,11 +3,18 @@
 
 
 <div align="center">
-    <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/v/xleda"></a> <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/pyversions/xleda.svg"></a> <a href="https://pepy.tech/project/xleda"><img src="https://static.pepy.tech/badge/xleda"></a> <a href="https://github.com/InfoDesigner/xleda"><img src="https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue)"></a> <a href="https://buymeacoffee.com/informationdesigner"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black"></a>
-</div><br>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a>
+  <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/v/xleda"></a>
+  <a href="https://pypi.org/project/xleda"><img src="https://img.shields.io/pypi/pyversions/xleda.svg"></a>
+  <a href="https://pepy.tech/project/xleda"><img src="https://static.pepy.tech/badge/xleda"></a>
+  <a href="https://github.com/InfoDesigner/xleda"><img src="https://img.shields.io/badge/Made%20By%20A%20Human-99%25-blue"></a>
+  <a href="https://buymeacoffee.com/informationdesigner"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black"></a>
+</div>
+<br>
+
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/logo.webp?raw=true" width="250" alt="Logo">
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/logo.webp?raw=true" width="250" alt="Logo">
 	<br>
 </p>
 
@@ -24,7 +31,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 
 <p align="center">
-	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
+	<img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/top_view.webp?raw=true"  width="800" alt="Example Top View"> 
 	<br>
 	<em>Top view of a Field Analysis worksheet.</em>
 </p><br><br>
@@ -50,7 +57,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         <details>
           <summary>Anatomy of a Field Analysis Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/field_analysis_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Field Analysis Anatomy">
           </p>
           <em>Field Analysis Anatomy</em>
         </details>
@@ -65,7 +72,7 @@ All xleda workbooks include an **Overview** worksheet and a **Field Analysis** w
         <details>
           <summary>Anatomy of an Overview Worksheet<br><br></summary>
           <p align="left">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/overview_anatomy.webp?raw=true" style="width: 100%; max-width: 100%;" alt="Overview Anatomy">
           </p>
           <em>Overview Worksheet with Multiple Dataframes</em>
         </details>
@@ -337,12 +344,12 @@ xleda wb --help
     <tr>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
         </p><br>
       </td>
       <td valign="top"><br>
         <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
         </p><br>
       </td>
     </tr>
@@ -427,7 +434,7 @@ xleda wb --help
         </ul>
         <p align="center"><br>
           <img
-            src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/theme.webp?raw=true"
+            src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/theme.webp?raw=true"
             width="800"
             alt="Theme"
           /><br>
@@ -593,7 +600,7 @@ xleda theme 262626
 
 
 <details>
-  <summary>Example: Creating a workbook from multiple dataframes<br><br></summary><br>
+  <summary>Example: Creating a workbook from a dictionary of dataframes<br><br></summary><br>
 
 ```python
 import seaborn as sns
@@ -747,7 +754,7 @@ Full export sources data from the workbook when possible<br><br>
 * It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).<br><br>
 
 <p align="center">
-  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
 	<br>
 	<em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
 </p>
@@ -803,10 +810,10 @@ print(export_dicts[0].keys())
             <li>You can rename any list to <code>Anything You Want</code> and the list will be renamed to <code>anything_you_want</code></li><br>
             <li>The <code>Record List</code> field added to your source data works the same way except it creates a list of all tagged records instead of a list of fields</li><br>
             <li>The <code>Compiled Lists</code> section formats your lists as python lists</li><br>
-            <li>VBA workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
+            <li>xleda workbooks also include an Excel function, <code>PythonList</code>, that creates Python formatted lists out of cell values</li><br>
           </ul>
           <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/field_lists.webp?raw=true" width="800" alt="Field Lists">
             <br>
             <em>Easily create lists of fields in your data.</em>
           </p>
@@ -828,7 +835,7 @@ print(export_dicts[0].keys())
             <li>Performance is largely dependent on how powerful of a machine you have and how many/how large/how complex your dataframes are</li><br>
             <li>You'll see a warning banner on Field Analysis worksheets of affected dataframes if they've exceeded a limit</li><br>
             <p align="center">
-            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/warning.webp?raw=true" width="800" alt="Warning Banner">
             </p>
             <li>The <code>debug</code> section of the <code>Overview</code> worksheet has a breakdown of how the time spent to produce your workbook was allocated.</li>
           </ul>
@@ -841,30 +848,38 @@ print(export_dicts[0].keys())
       <td valign="top"><br>
         Accessing your notes/lists/defintions from Python is easy<br><br>
         <ul>
-          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, one for each dataframe, accessible through <code>xleda.wb().export_dicts</code></li><br>
-          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code></li><br>
+          <li>Metadata from all <code>xleda.wb()</code> objects is collected into a list of dictionary objects, 
+          one for each dataframe, accessible through <code>xleda.wb().export_dicts</code>.</li><br>
+          <li>You can also access expanded metadata, sourced from the workbook by using <code>export=True</code>.</li><br>
+          <li>Because expanded metadata reflects changes you've made in Excel, this will in effect make Excel a UI for editing your Python data.  Note that 
+          data types will likely change in the round-trip.</li>
         </ul>
         <details>
         <summary>Default Metadata<br><br></summary><br>
           The default metadata is the same field and dataframe metadata that is added to the workbooks and is available without using <code>export=True</code><br><br>
           <ul>
-            <li><code>df_overview</code>: Dataframe level metadata</li><br>
-            <li><code>field_overview</code>: Field-level metadata</li><br>
+            <li><code>df_overview</code>: Dataframe level metadata from all dataframes with empty placeholders for dataframe descriptions</li><br>
+            <li><code>field_overview</code>: Field-level metadata from all dataframes with empty placeholders for field definitions and notes</li><br>
             <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
             <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns</li><br>
           </ul>
         </details><br>
         <details>
-          <summary>Expanded Metadata:<br><br></summary><br>
-          Using <code>export=True</code> also provides the default metadata though it is sourced from the workbook instead.<br><br>
-          This includes your notes, lists, definitions, etc. and will reflect any changes you've made in Excel such as renaming fields/deleting values/etc.<br><br>
-          Includes the following for each provided dataframe:<br><br>
+          <summary>Expanded Metadata:<br><br></summary>
+          <p>Using <code>export=True</code> also provides the default metadata though it is sourced from the 
+          workbook instead and includes any notes, lists, dataframe descriptions, and field definitions you've added to it</p><br>
+                    
+          The following metadata is included for each provided dataframe when using <code>export=True</code>:<br>
           <ul>
-            <li><code>description</code>: Dataframe description if you've added one</li><br>
+            <li><code>df_overview</code>: Dataframe level metadata from all dataframes.  This includes any dataframe descriptions you've added to the workbook</li><br>
+            <li><code>field_overview</code>: Field-level metadata from all dataframes.  This includes any field definitions and notes you've addeed to your fields</li><br>
+            <li><code>field_metadata</code>: A basic metadata dataframe, combining information from pandas info/describe/quantile</li><br>
+            <li><code>source_data</code>: A copy of the source data that also includes Record Hash/Record List/HasBlank/index columns. This will 
+            reflect any changes you've made such as tagging records in the <strong>Record List</strong> column, removing/editing records, removing/renaming columns, etc </li><br>
+            <li><code>description</code>: A Dataframe description if you've added one</li><br>
             <li><code>definitions</code>: Any field definitions you've added</li><br>
             <li><code>notes</code>: Any field notes you've added</li><br>
             <li><code>lists</code>: Any lists showing in the compiled lists section</li><br>
-            <li><code>lists</code>: Note that data types will likely change in the round-trip translation</li><br>
           </ul>
         </details><br>
       </td>
@@ -901,13 +916,13 @@ print(export_dicts[0].keys())
             </tr>
             <tr>
               <td><strong>Example</strong></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
-              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/grant_file_access.webp?raw=true" width="350" alt="Grant file access prompt"></td>
+              <td><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/enable_macros.webp?raw=true" width="350" alt="Enable macros prompt"></td>
             </tr>
             <tr>
               <td><strong>Remedy</strong></td>
               <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+              <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
             </tr>
           </tbody>
         </table>
@@ -931,12 +946,12 @@ print(export_dicts[0].keys())
         <table>
           <tr>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/top_view.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use headings like web pages to navigate with VBA.</em>
             </td>
             <td align="center">
-              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/docs/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
+              <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/row_groupings.webp?raw=true" width="400" alt="Row Groupings">
               <br>
               <em>Use row groupings to navigate without VBA.</em>
             </td>
@@ -1213,9 +1228,10 @@ app = xw.App()
           <li>Removed the PythonDict UDF</li>
           <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
           <li>Added CLI/xleda for Non-Developers sections on readme</li>
+          <li>Set up a proper website</li>
         </ul>
       </details><br>
       </td>
-    </tr>
+    </tr>  
   </tbody>
 </table><br>
