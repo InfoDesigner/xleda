@@ -16,7 +16,7 @@
       
       
       
-        <link rel="next" href="">
+        <link rel="next" href="./configuration/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>README - xleda</title>
+        <title>Index - xleda</title>
       
     
     
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              README
+              Index
             
           </span>
         </div>
@@ -254,7 +254,7 @@
   <span class="md-ellipsis">
     
   
-  README
+  Index
 
     
   </span>
@@ -271,7 +271,7 @@
   <span class="md-ellipsis">
     
   
-  README
+  Index
 
     
   </span>
@@ -448,7 +448,8 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="data">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#file_name" class="md-nav__link">
@@ -546,6 +547,11 @@
       </span>
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -685,14 +691,14 @@
   
   
     <li class="md-nav__item">
-      <a href="" class="md-nav__link">
+      <a href="./configuration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-  Index
+  Configuration
 
     
   </span>
@@ -722,7 +728,7 @@
   
 
 
-  <h1 id="__skip">README</h1>
+  <h1 id="__skip">Index</h1>
 
 <div align="center">
   <a href="https://www.apache.org/licenses/LICENSE-2.0.txt"><img src="https://img.shields.io/badge/license-Apache-**blue**"></a>
@@ -796,7 +802,7 @@
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
-          <li>See MacOS Support section below for details on MacOS usage.</li><p></p>
+          <li>See the <a href="https://infodesigner.github.io/xleda/#macos-support">MacOS Support</a> section of the docs for details on MacOS usage.</li><p></p>
         </ul>
       </td>
     </tr>
@@ -1057,7 +1063,7 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 </style>
 
 <div class="doc-grid-container">
-<h5 id="data"><code>data</code><a class="headerlink" href="#data" title="Permanent link">&para;</a></h5>
+<h3 id="data"><code>data</code><a class="headerlink" href="#data" title="Permanent link">&para;</a></h3>
 <div class="section-content">
 <p><strong>DataFrame or dict[str, DataFrame] or Path or string</strong> | Mandatory<br></p>
 <ul>
@@ -1116,6 +1122,9 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <li>
 <p>Defaults to the current working directory or the source file directory<br></p>
 </li>
+<li>
+<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br></p>
+</li>
 </ul>
 </div>
 </div>
@@ -1125,13 +1134,13 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>str</strong> | Optional</p>
 <ul>
 <li>
-<p>Sets the primary workbook theme.</p>
+<p>Sets the primary workbook theme.<br></p>
 </li>
 <li>
-<p>Accepts a hex color or random.</p>
+<p>Accepts a hex color or random.<br></p>
 </li>
 <li>
-<p>Defaults to a neutral color.</p>
+<p>Defaults to a neutral color.<br></p>
 </li>
 </ul>
 <p align="center"><br>
@@ -1150,13 +1159,16 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>dict[str, Figure]</strong> | Optional</p>
 <ul>
 <li>
-<p>Adds extra plot worksheets using a dict of matplotlib Figure objects</p>
+<p>Adds extra plot worksheets using a dict of matplotlib Figure objects<br></p>
 </li>
 <li>
-<p>Accepts <code>{'plotname': Figure, ...}</code> format</p>
+<p>Accepts <code>{'plotname': Figure, ...}</code> format<br></p>
 </li>
 <li>
-<p>No automatic styling or sizing is applied</p>
+<p>No automatic styling or sizing is applied<br></p>
+</li>
+<li>
+<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br></p>
 </li>
 </ul>
 </div>
@@ -1167,13 +1179,13 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>bool</strong> | Optional</p>
 <ul>
 <li>
-<p>Overwrites existing workbooks of the same name</p>
+<p>Overwrites existing workbooks of the same name<br></p>
 </li>
 <li>
-<p>Existing files are moved to Trash/Recycle Bin</p>
+<p>Existing files are moved to Trash/Recycle Bin<br></p>
 </li>
 <li>
-<p>Defaults to <code>False</code></p>
+<p>Defaults to <code>False</code><br></p>
 </li>
 </ul>
 </div>
@@ -1184,13 +1196,13 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>bool</strong> | Optional</p>
 <ul>
 <li>
-<p>Raises <code>data</code> limits to Excel's maximum: 1,000,000 rows and 16,000 columns</p>
+<p>Raises <code>data</code> limits to Excel's maximum: 1,000,000 rows and 16,000 columns<br></p>
 </li>
 <li>
-<p>Requires more memory and time for large datasets</p>
+<p>Requires more memory and time for large datasets<br></p>
 </li>
 <li>
-<p>Defaults to <code>False</code></p>
+<p>Defaults to <code>False</code><br></p>
 </li>
 </ul>
 </div>
@@ -1201,16 +1213,19 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>bool</strong> | Optional</p>
 <ul>
 <li>
-<p>Creates a <code>.xlsx</code> workbook without VBA</p>
+<p>Creates a <code>.xlsx</code> workbook without VBA<br></p>
 </li>
 <li>
-<p>Setting this flag persists the preference so that you can set it and forget it</p>
+<p>Setting this flag persists the preference so that you can set it and forget it<br></p>
 </li>
 <li>
-<p>Use an <code>.xlsx</code> file for <code>wb_path</code> as an alternative though this won't persist</p>
+<p>Use an <code>.xlsx</code> file for <code>wb_path</code> as an alternative though this won't persist<br></p>
 </li>
 <li>
-<p>Defaults to False</p>
+<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br></p>
+</li>
+<li>
+<p>Defaults to False<br></p>
 </li>
 </ul>
 </div>
@@ -1221,13 +1236,13 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>bool</strong> | Optional</strong></p>
 <ul>
 <li>
-<p>Opens the workbook after creation</p>
+<p>Opens the workbook after creation<br></p>
 </li>
 <li>
-<p>Set to False when creating multiple workbooks</p>
+<p>Set to False when creating multiple workbooks<br></p>
 </li>
 <li>
-<p>Defaults to <code>True</code></p>
+<p>Defaults to <code>True</code><br></p>
 </li>
 </ul>
 </div>
@@ -1238,13 +1253,13 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 <p><strong>bool</strong> | Optional</p>
 <ul>
 <li>
-<p>Exports data from an xleda workbook instead of creating one</p>
+<p>Exports data from an xleda workbook instead of creating one<br></p>
 </li>
 <li>
-<p>See the Examples/Exporting Metadata sections below for details</p>
+<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a>/<a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> sections for details<br></p>
 </li>
 <li>
-<p>Defaults to <code>False</code></p>
+<p>Defaults to <code>False</code><br></p>
 </li>
 </ul>
 </div>
@@ -1497,7 +1512,6 @@ Basic metadata export sources data from Python
 <div class="doc-grid-container">
 <h5 id="field-and-record-lists">Field and Record Lists<a class="headerlink" href="#field-and-record-lists" title="Permanent link">&para;</a></h5>
 <div class="section-content">
-<p><strong>bool</strong> | Optional</p>
 <p>The <code>Field Lists</code> section includes placeholders to create 8 custom lists of fields</p>
 <ul>
 <li>
@@ -1530,7 +1544,6 @@ Basic metadata export sources data from Python
 <div class="doc-grid-container">
 <h5 id="large-data-sets">Large Data Sets<a class="headerlink" href="#large-data-sets" title="Permanent link">&para;</a></h5>
 <div class="section-content">
-<p><strong>bool</strong> | Optional</p>
 <p>On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS</p>
 <ul>
 <li>
@@ -1559,7 +1572,6 @@ Basic metadata export sources data from Python
 <div class="doc-grid-container">
 <h5 id="exporting-metadata">Exporting Metadata<a class="headerlink" href="#exporting-metadata" title="Permanent link">&para;</a></h5>
 <div class="section-content">
-<p><strong>bool</strong> | Optional</p>
 <p>Accessing your notes/lists/defintions from Python is easy</p>
 <ul>
 <li>
@@ -1606,7 +1618,6 @@ Basic metadata export sources data from Python
 <div class="doc-grid-container">
 <h5 id="macos-support">MacOS Support<a class="headerlink" href="#macos-support" title="Permanent link">&para;</a></h5>
 <div class="section-content">
-<p><strong>bool</strong> | Optional</p>
 <p>xleda will create the same workbooks in MacOS</p>
 <ul>
 <li>
@@ -1656,7 +1667,6 @@ Basic metadata export sources data from Python
 <div class="doc-grid-container">
 <h5 id="vba-code">VBA Code<a class="headerlink" href="#vba-code" title="Permanent link">&para;</a></h5>
 <div class="section-content">
-<p><strong>bool</strong> | Optional</p>
 <p>The included <a href="https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas">VBA code</a> is short and easy to understand</p>
 <ul>
 <li>
@@ -2018,7 +2028,7 @@ Basic metadata export sources data from Python
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["announce.dismiss","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.instant","navigation.top","navigation.tracking","search.highlight","search.suggest","toc.follow","toc.integrate"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["announce.dismiss","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.expand","navigation.instant","navigation.sections","navigation.top","navigation.tracking","search.highlight","search.suggest","toc.follow","toc.integrate"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
       <script src="./assets/javascripts/bundle.0df4f2d0.min.js"></script>

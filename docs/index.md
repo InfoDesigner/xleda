@@ -92,7 +92,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
-          <li>See MacOS Support section below for details on MacOS usage.</li><p></p>
+          <li>See the <a href="https://infodesigner.github.io/xleda/#macos-support">MacOS Support</a> section of the docs for details on MacOS usage.</li><p></p>
         </ul>
       </td>
     </tr>
@@ -104,6 +104,8 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
     </tr>
   </tbody>
 </table><br>
+
+
 
 
 
@@ -391,7 +393,7 @@ xleda wb --help
 
 <div class="doc-grid-container" markdown="1">
 
-##### `data`
+### `data`
   
   <div class="section-content" markdown="1">
 
@@ -453,6 +455,8 @@ xleda wb --help
 
 * Defaults to the current working directory or the source file directory<br>
 
+* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
+
   </div>
 </div>
 
@@ -464,11 +468,11 @@ xleda wb --help
 
 **str** | Optional
 
-* Sets the primary workbook theme.
+* Sets the primary workbook theme.<br>
 
-* Accepts a hex color or random.
+* Accepts a hex color or random.<br>
 
-* Defaults to a neutral color.
+* Defaults to a neutral color.<br>
 
 
 <p align="center"><br>
@@ -491,11 +495,13 @@ xleda wb --help
 
 **dict[str, Figure]** | Optional
 
-* Adds extra plot worksheets using a dict of matplotlib Figure objects
+* Adds extra plot worksheets using a dict of matplotlib Figure objects<br>
 
-* Accepts `{'plotname': Figure, ...}` format
+* Accepts `{'plotname': Figure, ...}` format<br>
 
-* No automatic styling or sizing is applied
+* No automatic styling or sizing is applied<br>
+
+* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
 
   </div>
 </div>
@@ -508,11 +514,11 @@ xleda wb --help
 
 **bool** | Optional
 
-* Overwrites existing workbooks of the same name
+* Overwrites existing workbooks of the same name<br>
 
-* Existing files are moved to Trash/Recycle Bin
+* Existing files are moved to Trash/Recycle Bin<br>
 
-* Defaults to `False`
+* Defaults to `False`<br>
 
   </div>
 </div>
@@ -525,11 +531,11 @@ xleda wb --help
 
 **bool** | Optional
 
-* Raises `data` limits to Excel's maximum: 1,000,000 rows and 16,000 columns
+* Raises `data` limits to Excel's maximum: 1,000,000 rows and 16,000 columns<br>
 
-* Requires more memory and time for large datasets
+* Requires more memory and time for large datasets<br>
 
-* Defaults to `False`
+* Defaults to `False`<br>
 
   </div>
 </div>
@@ -542,13 +548,15 @@ xleda wb --help
 
 **bool** | Optional
 
-* Creates a `.xlsx` workbook without VBA
+* Creates a `.xlsx` workbook without VBA<br>
 
-* Setting this flag persists the preference so that you can set it and forget it
+* Setting this flag persists the preference so that you can set it and forget it<br>
 
-* Use an `.xlsx` file for `wb_path` as an alternative though this won't persist
+* Use an `.xlsx` file for `wb_path` as an alternative though this won't persist<br>
 
-* Defaults to False
+* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
+
+* Defaults to False<br>
 
   </div>
 </div>
@@ -561,11 +569,11 @@ xleda wb --help
 
 **bool** | Optional</strong>
 
-* Opens the workbook after creation
+* Opens the workbook after creation<br>
 
-* Set to False when creating multiple workbooks
+* Set to False when creating multiple workbooks<br>
 
-* Defaults to `True`
+* Defaults to `True`<br>
 
   </div>
 </div>
@@ -578,11 +586,12 @@ xleda wb --help
 
 **bool** | Optional
 
-* Exports data from an xleda workbook instead of creating one
+* Exports data from an xleda workbook instead of creating one<br>
 
-* See the Examples/Exporting Metadata sections below for details
+* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a>/<a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> sections for details<br>
 
-* Defaults to `False`
+
+* Defaults to `False`<br>
 
   </div>
 </div>
@@ -866,8 +875,6 @@ print(export_dicts[0].keys())
   
   <div class="section-content" markdown="1">
 
-**bool** | Optional
-
 The `Field Lists` section includes placeholders to create 8 custom lists of fields
 
 * Use these to organize fields into groups such as "fields_to_delete", "fields_from_system_a", "fields_to_fix", or whatever your workflow needs
@@ -902,8 +909,6 @@ The `Field Lists` section includes placeholders to create 8 custom lists of fiel
   
   <div class="section-content" markdown="1">
 
-**bool** | Optional
-
 On an average machine, xleda creates workbooks for most data sets less than 20 seconds on Windows/1-2 minutes on MacOS
 
 * To ensure workbooks are created quickly, each dataframe is by default subsampled to only include the first 50 columns and a random sample of 25,000 records.
@@ -934,8 +939,6 @@ On an average machine, xleda creates workbooks for most data sets less than 20 s
 ##### Exporting Metadata
   
   <div class="section-content" markdown="1">
-
-**bool** | Optional
 
 Accessing your notes/lists/defintions from Python is easy
 
@@ -984,8 +987,6 @@ Accessing your notes/lists/defintions from Python is easy
 ##### MacOS Support
   
   <div class="section-content" markdown="1">
-
-**bool** | Optional
 
 xleda will create the same workbooks in MacOS
 
@@ -1039,8 +1040,6 @@ xleda will create the same workbooks in MacOS
   
   <div class="section-content" markdown="1">
 
-**bool** | Optional
-	
 The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas) is short and easy to understand
 
 * You can create a VBA-free, `xlsx` workbook by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`.

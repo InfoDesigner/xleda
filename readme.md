@@ -92,7 +92,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
-          <li>See MacOS Support section below for details on MacOS usage.</li><p></p>
+          <li>See the <a href="https://infodesigner.github.io/xleda/#macos-support">MacOS Support</a> section of the docs for details on MacOS usage.</li><p></p>
         </ul>
       </td>
     </tr>
