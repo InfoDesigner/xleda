@@ -22,11 +22,15 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 * Works on Windows or MacOS as a Python package, a CLI, or as a service that lets you create workbooks by right-clicking supported files.<br><br>
 
-* There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
+* There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br><br>
 
-* See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non-developers <a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">here</a>.<br><br>
-
-
+<p align="center"><a href="https://infodesigner.github.io/xleda">Docs</a> | 
+<a href="https://github.com/InfoDesigner/xleda/tree/main/examples">Sample Workbooks</a> | 
+<a href="https://infodesigner.github.io/xleda/#basic-usage">Basic Usage</a> | 
+<a href="https://infodesigner.github.io/xleda/#xledawb-configuration">Configuration</a> | 
+<a href="https://infodesigner.github.io/xleda/#usage-notes">Usage Notes</a> | 
+<a href="https://infodesigner.github.io/xleda/#examples">Examples</a> | 
+<a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">Quick-Start Guide for Non-Developers</a><br></p><br><br>
 
 
 

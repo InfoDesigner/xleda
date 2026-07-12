@@ -24,10 +24,13 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 * There are some amazing EDA tools available to data professionals. You shouldn't have to start from scratch to include Microsoft Excel among them.<br><br>
 
-* See some example xleda workbooks <a href="https://github.com/InfoDesigner/xleda/tree/main/examples">here</a>, docs <a href="https://infodesigner.github.io/xleda/">here</a>, and a  quick-start guide for non-developers <a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">here</a>.<br><br>
-
-
-
+<p align="center"><a href="https://infodesigner.github.io/xleda">Docs</a> | 
+<a href="https://github.com/InfoDesigner/xleda/tree/main/examples">Sample Workbooks</a> | 
+<a href="https://infodesigner.github.io/xleda/#basic-usage">Basic Usage</a> | 
+<a href="https://infodesigner.github.io/xleda/#xledawb-configuration">Configuration</a> | 
+<a href="https://infodesigner.github.io/xleda/#usage-notes">Usage Notes</a> | 
+<a href="https://infodesigner.github.io/xleda/#examples">Examples</a> | 
+<a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">Quick-Start Guide for Non-Developers</a><br></p><br><br>
 
 
 <p align="center">
@@ -92,7 +95,7 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
       <td valign="top">
       <p>Requires the full version of Microsoft Excel (2016+) on either MacOS or Windows to create workbooks</p>
         <ul>
-          <li>See the <a href="https://infodesigner.github.io/xleda/#macos-support">MacOS Support</a> section of the docs for details on MacOS usage.</li><p></p>
+          <li>See the <a href="https://infodesigner.github.io/xleda/#macos-support">MacOS Support</a> section for details.</li><p></p>
         </ul>
       </td>
     </tr>
@@ -251,7 +254,7 @@ Now that everything is installed, this guide is no longer necessary.  You can no
 
 If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.  VBA preference persists in the same way after it's set.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.<br><br>
 
-What's the Catch?  There's not one really.  The only thing that's close to a catch is that using this method doesn't include automatic updates.   If you've followed these steps, be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.
+If you've followed these steps, be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.
 
 <br><br>
 
@@ -268,101 +271,99 @@ What's the Catch?  There's not one really.  The only thing that's close to a cat
 
 Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
 
-#### From a Dataframe
-
-```python
-from xleda import wb
-import seaborn as sns
-
-# < your dataframe goes here >
-df = sns.load_dataset("titanic")
-
-# Creates xleda.xlsm in the current directory
-wb(df)
-```
-
-<br><br>
-
-#### From a Dictionary of Dataframes
-
-```python
-from xleda import wb
-import seaborn as sns
-
-# < your dataframes go here >
-df1 = sns.load_dataset("titanic")
-df2 = sns.load_dataset("penguins")
-
-# Creates Titanic.xlsm in the current directory
-wb({"Titanic": df1,
-    "Penguins": df2})
-```
-
-<br><br>
-
-#### From a File
-
-```python
-from xleda import wb
-from pathlib import Path
-
-# < your data file goes here >
-duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
-
-# Creates duckdb.xlsm in the current directory
-# Includes data from all tables in the db file
-wb(duckdb_file)
-```
-
-<br><br>
-
-#### From the CLI
-
-```bash
-# Creates 'userdata.xlsm' in the current directory
-xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
-
-# Shows the help command
-xleda --help
-
-# Shows the wb help command
-xleda wb --help
-```
-
-<br><br>
-
-#### From Right-Clicking
 
 
-<table>
-  <tbody>
-    <tr>
-      <td width="50%" valign="top"><br><strong>Windows</strong><br><br></td>
-      <td width="50%" valign="top"><br><strong>MacOS</strong><br><br></td>
-    </tr>
-    <tr>
-      <td valign="top"><br>
-        <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
-        </p><br>
-      </td>
-      <td valign="top"><br>
-        <p align="left">
-          <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
-        </p><br>
-      </td>
-    </tr>
-  </tbody>
-</table><br><br>
+**From a Dataframe**
+
+  ``` python
+  from xleda import wb
+  import seaborn as sns
+
+  # < your dataframe goes here >
+  df = sns.load_dataset("titanic")
+
+  # Creates xleda.xlsm in the current directory
+  wb(df)
+  ```
+
+<hr><br>
+
+**From a Dictionary of Dataframes**
+
+  ``` python
+  from xleda import wb
+  import seaborn as sns
+
+  # < your dataframes go here >
+  df1 = sns.load_dataset("titanic")
+  df2 = sns.load_dataset("penguins")
+
+  # Creates Titanic.xlsm in the current directory
+  wb({"Titanic": df1,
+      "Penguins": df2})
+  ```
+
+<hr><br>
+
+**From a File**
+
+  ```python
+  from xleda import wb
+  from pathlib import Path
+
+  # < your data file goes here >
+  duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
+
+  # Creates duckdb.xlsm in the current directory
+  # Includes data from all tables in the db file
+  wb(duckdb_file)
+  ```
+
+<hr><br>
+
+**From the CLI**
+
+  ```bash
+  # Creates 'userdata.xlsm' in the current directory
+  xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
+
+  # Shows the help command
+  xleda --help
+
+  # Shows the wb help command
+  xleda wb --help
+  ```
+
+<hr><br>
+
+**From Right-Clicking**
+
+  <table>
+    <tbody>
+      <tr>
+        <td width="50%" valign="top"><br><strong>Windows</strong><br><br></td>
+        <td width="50%" valign="top"><br><strong>MacOS</strong><br><br></td>
+      </tr>
+      <tr>
+        <td valign="top"><br>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+          </p><br>
+        </td>
+        <td valign="top"><br>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+          </p><br>
+        </td>
+      </tr>
+    </tbody>
+  </table><br><br>
 
 <hr>
 
 ## xleda.wb() Configuration
 
 <br>
-
-
-
 
 <style>
   /* Container forcing everything to align like a table */
@@ -393,7 +394,7 @@ xleda wb --help
 
 <div class="doc-grid-container" markdown="1">
 
-### `data`
+##### `data`
   
   <div class="section-content" markdown="1">
 
@@ -542,21 +543,21 @@ xleda wb --help
 
 <div class="doc-grid-container" markdown="1">
 
-##### `no_vba`
+##### `vba`
   
   <div class="section-content" markdown="1">
 
 **bool** | Optional
 
-* Creates a `.xlsx` workbook without VBA<br>
+* Creates an `.xlsm` workbook with VBA or an `.xlsx` workbook without VBA<br>
 
-* Setting this flag persists the preference so that you can set it and forget it<br>
+* Setting this flag changes the default workbook type so that you can set it and forget it<br>
 
-* Use an `.xlsx` file for `wb_path` as an alternative though this won't persist<br>
+* Use an `.xlsx` or a `.xlsm` file for `wb_path` as an alternative though this won't change the default workbook preference<br>
 
-* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
+* See this [example](https://infodesigner.github.io/xleda/#creating-workbooks-without-vba)</a> or the [VBA Code](https://infodesigner.github.io/xleda/#vba-code) section for more details<br>
 
-* Defaults to False<br>
+* Defaults to True<br>
 
   </div>
 </div>
@@ -567,7 +568,7 @@ xleda wb --help
   
   <div class="section-content" markdown="1">
 
-**bool** | Optional</strong>
+**bool** | Optional
 
 * Opens the workbook after creation<br>
 
@@ -599,7 +600,9 @@ xleda wb --help
 
 <br><br>
 
+
 <hr>
+
 
 ## CLI Basics
 
@@ -607,7 +610,7 @@ xleda wb --help
 
 <p>Installing the Python package also installs the <code>xleda</code> CLI<br><br>
 
-It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> argument</p><br>
+It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> or <code>export</code> arguments</p><br>
 
 
 <details>
@@ -664,200 +667,6 @@ xleda theme 262626
 </table><br><br>
 
 </details><br>
-
-
-<hr>
-
-
-## Examples
-
-<br>
-
-
-<details>
-  <summary>Example: Creating a workbook from a dictionary of dataframes<br><br></summary>
-
-```python
-import seaborn as sns
-from xleda import wb
-
-seaborn_datasets = ['diamonds', 'dots', 'dowjones']
-dataframe_dict = {df_name: sns.load_dataset(df_name) for df_name in seaborn_datasets}
-
-# Creates diamonds.xlsm in the current directory
-# Also includes dots and dow jones data
-wb(data=dataframe_dict)
-```
-
-<hr><br>
-
-</details>
-
-<details>
-  <summary>Example: Using wb_path as a directory or a file<br><br></summary>
-
-```python
-from xleda import wb
-from pathlib import Path
-
-# Creates "c:\my_target_folder\Penguins.xlsm"
-wb(data={"Penguins": df},
-   wb_path=Path(r"c:\my_target_folder"))
-
-# Creates "c:\my_awesome_workbook.xlsx"
-wb(data={"Penguins": df},
-   wb_path=r"c:\my_awesome_workbook.xlsx")
-```
-
-<hr><br>
-
-</details>
-<details>
-  <summary>Example: Adding custom plots to a workbook<br><br></summary>
-
-```python
-from xleda import wb
-import matplotlib.pyplot as plt
-import seaborn as sns
-import missingno as msno
-
-# < your dataframe goes here >
-df = penguins = sns.load_dataset("penguins")
-
-# Style the additional plots | optional
-plt.style.use("dark_background")
-
-# Create additional plots
-pair_plots = sns.pairplot(df, hue="species").figure
-null_matrix = msno.matrix(df).get_figure()
-
-# Resize the null matrix  | optional
-null_matrix.set_size_inches(9.35, 4.5)
-
-# Creates Penguins.xlsm with two extra plot sheets
-wb(data={"Penguins": df},
-   theme="#4C4C4C",
-   plots={'Pair Plots': pair_plots,
-          'Null Matrix': null_matrix})
-```
-
-<hr><br>
-
-</details>
-
-
-<details>
-<summary>Example: Creating workbooks without VBA<br><br></summary>
-
-```python
-from xleda import wb
-import seaborn as sns
-
-df = sns.load_dataset('penguins')
-
-# Creates "Penguins.xlsx" in the current directory and changes the default workbook style to .xlsx
-wb(data={"Penguins": df},
-   no_vba=True)
-
-# Also creates "Penguins.xlsx" but doesn't change the default workbook style 
-wb(data=df,
-   wb_path="Penguins.xlsx")
-```
-
-<hr><br>
-
-</details>
-
-<details>
-<summary>Example: Creating a workbook from a database<br><br></summary>
-
-<strong>From Python</strong>
-```python
-from xleda import wb
-
-# < your database goes here>
-sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
-
-# Creates "Chinook.xlsm" in the current directory with 11 dataframes
-wb(data=sqlite_db,
-   file_name="Chinook")
-```
-
-<strong>From the CLI</strong>
-```bash
-# Creates "Chinook.xlsm" in the current directory with 11 dataframes
-xleda wb chinook.db --name "Chinook"
-```
-
-<hr><br><br>
-
-</details>
-
-
-
-<details>
-<summary>Example: Basic Metadata Export<br><br></summary>
-
-Basic metadata export sources data from Python
-
-```python
-from xleda import wb
-import seaborn as sns
-
-# < your dataframe goes here >
-df = sns.load_dataset("titanic")
-  
-# Creates "Titanic.xlsm" and returns basic metadata
-export_dicts = wb(data={"Titanic": df},
-                  file_name="Titanic").export_dicts
-
-# returns ['field_overview', 'df_overview', 'source_data']
-print(export_dicts[0].keys())
-```
-
-<hr><br><br>
-
-</details>
-
-<details markdown="1">
-<summary>Example: Full Metadata Export<br><br></summary>
-
-Full export sources data from the workbook when possible<br>
-
-* The xleda workbook pictured here is used in for the export code example below .  
-
-* It can be found [here.](https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm).<br><br>
-
-<p align="center">
-  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
-	<br>
-	<em>A completed xleda workbook showing definitions, notes, lists, etc.</em>
-</p>
-<br>
-
-
-```python
-from xleda import wb
-import seaborn as sns
-
-# < your dataframe goes here >
-df = sns.load_dataset("titanic")
-
-# < your completed workbook goes here >
-edited_workbook_path = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm"
-
-# Performs a full export from "Titanic Completed.xlsm"
-export_dicts = wb(data={"Titanic": df},
-                  wb_path=edited_workbook_path,
-                  export=True).export_dicts
-
-# Returns ['description', 'definitions', 'notes', 'lists', 'field_overview', 'df_overview', 'source_data']
-print(export_dicts[0].keys())
-```
-
----
-
-</details><br><br>
 
 
 <hr>
@@ -942,9 +751,9 @@ On an average machine, xleda creates workbooks for most data sets less than 20 s
 
 Accessing your notes/lists/defintions from Python is easy
 
-* Metadata from all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, accessible through `xleda.wb().export_dicts`.
+* Metadata from all `xleda.wb()` objects is collected into a list of dictionary objects, one for each dataframe, and is accessible through `xleda.wb().export_dicts` as in this  [example](https://infodesigner.github.io/xleda/#basic-metadata-export).
 
-* You can also access expanded metadata, sourced from the workbook by using `export=True`.
+* You can also access expanded metadata, sourced from the workbook by using `export=True` as in this [example](https://infodesigner.github.io/xleda/#full-metadata-export-using-exporttrue)
 
 * Because expanded metadata reflects changes you've made in Excel, this will in effect make Excel a UI for editing your Python data. This should work reliably if you don't rename the Excel tables and care for data type changes in the round-trip.
 
@@ -963,8 +772,8 @@ Accessing your notes/lists/defintions from Python is easy
 <details>
   <summary>Expanded Metadata:<br><br></summary>
   <p>Using <code>export=True</code> also provides the default metadata though it is sourced from the 
-  workbook instead and includes any notes, lists, dataframe descriptions, and field definitions you've added to it</p>
-  <p>The following metadata is included for each provided dataframe when using <code>export=True</code>:</p>
+  workbook instead and includes any notes, lists, dataframe descriptions, and field definitions you've added to it</p><br>
+  <p>The following metadata is included for each provided dataframe when using <code>export=True</code>:</p><br>
   <ul>
     <li><code>df_overview</code>: Dataframe level metadata from all dataframes.  This includes any dataframe descriptions you've added to the workbook</li><br>
     <li><code>field_overview</code>: Field-level metadata from all dataframes.  This includes any field definitions and notes you've addeed to your fields</li><br>
@@ -1023,7 +832,7 @@ xleda will create the same workbooks in MacOS
       <tr>
         <td><strong>Remedy</strong></td>
         <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-        <td>You can either:<br><br>1. Create a VBA free workbook (see the next section for details).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+        <td>You can either:<br><br>1. Create a VBA free workbook (See [`vba`](https://infodesigner.github.io/xleda/#vba) and [VBA Code](https://infodesigner.github.io/xleda/#vba-code) for details<br>).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
       </tr>
     </tbody>
   </table>
@@ -1042,9 +851,9 @@ xleda will create the same workbooks in MacOS
 
 The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xleda/assets/mdl_xleda.bas) is short and easy to understand
 
-* You can create a VBA-free, `xlsx` workbook by either setting `no_vba=True` or providing a `wb_path` ending in `.xlsx`.
+* You can create a VBA-free, `xlsx` workbook by either setting `vba=False` or providing a `wb_path` ending in `.xlsx` as detailed in this [example](https://infodesigner.github.io/xleda#creating-workbooks-without-vba).
 
-* Providing the `no_vba` flag will change the default so that the setting will persist. Using `wb_path` doesn't work this way.
+* Using the `vba` argument will change the default so that the setting will persist. Using `wb_path` with a file name ending in `.xlsx` or `.xlsm` will create those files without changing the peristent setting.
 
 <details>
   <summary>What the VBA Code Does<br><br></summary>
@@ -1075,8 +884,245 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
   </div>
 </div>
 
+<hr>
+
+## Examples
+
+<br>
+
+#### Creating a workbook from a dictionary of dataframes
+
+* See [data](https://infodesigner.github.io/xleda/#data) for details<br>
+
+=== "Python"
+
+    ```python
+    import seaborn as sns
+    from xleda import wb
+
+    seaborn_datasets = ['diamonds', 'dots', 'dowjones']
+    dataframe_dict = {df_name: sns.load_dataset(df_name) for df_name in seaborn_datasets}
+
+    # Creates diamonds.xlsm in the current directory
+    # Also includes dots and dow jones data
+    wb(data=dataframe_dict)
+    ```
+
+<hr><br><br>
+
+
+#### Creating a workbook from a database
+
+* See [data](https://infodesigner.github.io/xleda/#data) for details<br>
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+
+    # < your database goes here>
+    sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
+
+    # Creates "Chinook.xlsm" in the current directory with 11 dataframes
+    wb(data=sqlite_db,
+    file_name="Chinook")
+    ```
+
+=== "CLI"
+
+    ```bash
+    # Creates "Chinook.xlsm" in the current directory with 11 dataframes
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db" --file_name "Chinook"
+    ```
+
+<hr><br><br>
+
+
+  
+#### Using wb_path as a directory or a file
+
+* See [wb_path](https://infodesigner.github.io/xleda/#wb_path) for details<br>
+
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    from pathlib import Path
+    
+    
+    # < your dataframe goes here >
+    df = sns.load_dataset("penguins")
+
+    # Creates "c:\target_folder\Penguins.xlsm"
+    wb(data={"Penguins": df},
+       wb_path=Path(r"c:\target_folder"))
+
+    # Creates "c:\target_folder\awesome_workbook.xlsx"
+    wb(data={"Penguins": df},
+       wb_path=r"c:\target_folder\awesome_workbook.xlsx")
+    ```
+
+=== "CLI"
+
+    ```bash
+    # Creates "c:\target_folder\penguins.xlsm"
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path c:\target_folder 
+    
+    # Creates "c:\target_folder\awesome_workbook.xlsx"
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path c:\target_folder\awesome_workbook.xlsx
+
+    ```
+
 
 <hr><br>
+
+
+#### Adding custom plots
+
+
+* See [plots](https://infodesigner.github.io/xleda/#plots) for details<br>
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import missingno as msno
+
+    # < your dataframe goes here >
+    df = sns.load_dataset("penguins")
+
+    # Style the additional plots | optional
+    plt.style.use("dark_background")
+
+    # Create additional plots
+    pair_plots = sns.pairplot(df, hue="species").figure
+    null_matrix = msno.matrix(df).get_figure()
+
+    # Resize the null matrix  | optional
+    null_matrix.set_size_inches(9.35, 4.5)
+
+    # Creates Penguins.xlsm with two extra plot sheets
+    wb(data={"Penguins": df},
+    theme="#4C4C4C",
+    plots={'Pair Plots': pair_plots,
+           'Null Matrix': null_matrix})
+    ```
+
+<hr><br>
+
+
+
+#### Creating workbooks without VBA
+
+* See [vba](https://infodesigner.github.io/xleda/#vba) and [VBA Code](https://infodesigner.github.io/xleda/#vba-code) for details<br>
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    import seaborn as sns
+
+    # < your dataframe goes here >
+    df = penguins = sns.load_dataset("penguins")
+
+    # Creates "Penguins.xlsx" in the current directory and changes the default workbook style to .xlsx
+    wb(data={"Penguins": df},
+       vba=False)
+
+    # Also creates "Penguins.xlsx" but doesn't change the default workbook style
+    wb(data=df,
+       wb_path="Penguins.xlsx")
+    ```
+
+=== "CLI"
+
+    ```bash
+    # Creates "penguins.xlsx" in the current directory and changes the default workbook style to .xlsx
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --no_vba
+    
+    # Creates "C:\TargetFolder\penguins.xlsx" but doesn't change the default workbook style
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path "C:\TargetFolder\penguins.xlsx"
+
+    # Toggles preference for VBA workbooks without creating a workbook
+    xleda vba
+
+    ```
+
+
+<hr><br>
+
+
+
+
+
+#### Basic metadata export 
+
+* Sources data from Python<br>
+
+* See [export](https://infodesigner.github.io/xleda/#export) and [Exporting Metadata](https://infodesigner.github.io/xleda/#exporting-metadata) for details<br>
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    import seaborn as sns
+
+    # < your dataframe goes here >
+    df = sns.load_dataset("titanic")
+    
+    # Creates "Titanic.xlsm" and returns basic metadata
+    export_dicts = wb(data={"Titanic": df},
+                      file_name="Titanic").export_dicts
+
+    # returns ['field_overview', 'df_overview', 'source_data']
+    print(export_dicts[0].keys())
+    ```
+
+<hr><br><br><br>
+
+
+
+#### Full metadata export using `export=True`
+
+* Sources data from the workbook when possible<br>
+
+* See [export](https://infodesigner.github.io/xleda/#export) and [Exporting Metadata](https://infodesigner.github.io/xleda/#exporting-metadata) for details<br><br>
+
+<p align="center">
+  <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/completed_field_analysis.webp?raw=true" width="800" alt="Completed Field Analysis">
+	<br>
+	<em>The workbook used for the export example showing definitions, notes, lists, etc.</em>
+</p>
+<br>
+
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    import seaborn as sns
+
+    # < your dataframe goes here >
+    df = sns.load_dataset("titanic")
+
+    # < your completed workbook goes here >
+    edited_workbook_path = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm"
+
+    # Performs a full export from "Titanic Completed.xlsm"
+    export_dicts = wb(data={"Titanic": df},
+                      wb_path=edited_workbook_path,
+                      export=True).export_dicts
+
+    # Returns ['description', 'definitions', 'notes', 'lists', 'field_overview', 'df_overview', 'source_data']
+    print(export_dicts[0].keys())
+    ```
+
+
+
+<hr>
 
 ## Troubleshooting
 
@@ -1125,7 +1171,7 @@ app = xw.App()
 
 </details><br>
 
-<hr><br>
+<hr>
 
 ## Changelog
 
@@ -1209,7 +1255,7 @@ app = xw.App()
           <ul>
             <li>wb_path now accepts strings or pathlib Path objects</li>
             <li>Also accepts full/partial paths with/without correct extensions.</li>
-            <li>Providing a path ending in .xlsx or .xlsm will set no_vba to True/False respectively.</li>
+            <li>Providing a path ending in .xlsx or .xlsm will set vba to False/True respectively.</li>
             <li>Illegal characters are now properly stripped from provided names before use.</li>
           </ul>
         <strong>Added production logging/debug worksheet</strong><br>
@@ -1337,6 +1383,27 @@ app = xw.App()
           <li>Updated, reorganized tests to be more robust and concise. They now create/test the examples included in the documentation and were expanded to include the new functionality and more of the potential error paths</li>
           <li>Added CLI/xleda for Non-Developers sections on readme</li>
           <li>Set up a proper website</li>
+        </ul>
+      </details><br>
+      </td>
+    </tr>  
+    <!-- Version 0.9.020 -->
+    <tr>
+      <td valign="top"><br><strong>Version 0.9.020</strong></td>
+      <td valign="top"><br>
+      <details>
+        <summary><strong>Small API Changes/website updates</strong><br><br></summary><br>
+        <strong>Small API Changes</strong><br>
+        <ul>
+          <li>Changed the vba flag from 'no_vba' to 'vba' for better semantics between the Python/CLI APIs. Default behaviors stayed the same</li>
+          <li>Added 'no_vba' flag to Python API for backwards compatibility</li>
+          <li>Removed 'export' command from the CLI</li>
+        </ul><br>
+        <strong>Website updates</strong><br>
+        <ul>
+          <li>Minor example updates/corrections</li>
+          <li>Moved the examples into Python or CLI tabs</li>
+          <li>Added links between configution, usage, and examples</li>
         </ul>
       </details><br>
       </td>

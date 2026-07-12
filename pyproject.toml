@@ -6,7 +6,7 @@ build-backend = "uv_build"
 # Project Metadta
 [project]
 name = "xleda"
-version = "0.9.015"
+version = "0.9.020"
 description = "xleda is a Python/Excel powered EDA tool"
 readme = "readme.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
@@ -22,11 +22,12 @@ dependencies = [
     "send2trash>=2.1.0",
     "tqdm>=4.66.0",
     "appscript>=1.4.0 ; sys_platform == 'darwin'",
+    "typer>=0.26.7",
     # Datasource readers
     "pyarrow>=24.0.0",
     "duckdb>=1.5.3",
     "rdata>=0.11.2",
-    "typer>=0.26.7",
+    "xmltodict>=1.0.0"
 ]
 
 classifiers = [
