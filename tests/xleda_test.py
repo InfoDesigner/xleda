@@ -55,14 +55,14 @@ feather_data_path = data_dir / 'feathers'
 # Dataframes
 nyc_taxi = pd.read_feather(data_dir / 'nyc_taxi.feather')
 air_bnb = pd.read_feather(data_dir / 'air_bnb.feather')
-og_penguins = pd.read_csv(data_dir / "penguins_raw.csv")
+og_penguins = pd.read_csv(data_dir / "penguins.csv")
 
 # File Paths
 duck_db = str((data_dir / 'duckdb.duckdb').resolve())
 sqlite = str((data_dir / 'chinook.db').resolve())
 air_bnb = str((data_dir / 'air_bnb.feather').resolve())
 csv = str((data_dir / 'titanic.csv').resolve())
-excel = str((data_dir / 'sample_workbook.xlsx').resolve())
+excel = str((data_dir / 'excel_example.xlsx').resolve())
 parquet = str((data_dir / 'userdata.parquet').resolve())
 json = str((data_dir / 'sample.json').resolve())
 pickle_source = str((data_dir / 'multiple_dfs.pkl').resolve())
@@ -222,7 +222,7 @@ def create_completed_example():
        # Name isn't being derived from this wb_path
        wb_path=titanic_incompleted,
        open_wb=False,
-       no_vba=False,
+       vba=True,
        theme='random',
        overwrite=True)
 
@@ -352,7 +352,7 @@ def test_invalids(args: dict):
             Path(expected_path).unlink(missing_ok=True)
             
             # Create the valid workbook example
-            wb(data=data, overwrite=True, open_wb=False, no_vba=False, **args)
+            wb(data=data, overwrite=True, open_wb=False, vba=True, **args)
             
             # Ensure it's there
             assert Path(expected_path).is_file()
@@ -447,7 +447,7 @@ def test_valids(args: dict):
     
     
     # Create the workbook
-    wb_object = wb(**args, overwrite=True, no_vba=False, open_wb=debug)
+    wb_object = wb(**args, overwrite=True, vba=True, open_wb=debug)
     
     
     # Calculate the Datasets externally

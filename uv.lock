@@ -3919,7 +3919,7 @@ wheels = [
 
 [[package]]
 name = "xleda"
-version = "0.9.15"
+version = "0.9.20"
 source = { editable = "." }
 dependencies = [
     { name = "appscript", marker = "sys_platform == 'darwin'" },
@@ -3939,6 +3939,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "typer" },
     { name = "xlwings" },
+    { name = "xmltodict" },
 ]
 
 [package.dev-dependencies]
@@ -3968,6 +3969,7 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.66.0" },
     { name = "typer", specifier = ">=0.26.7" },
     { name = "xlwings", specifier = ">=0.35.2" },
+    { name = "xmltodict", specifier = ">=1.0.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -4032,6 +4034,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/d3/9bee37082f04bb931e4b128d6a1ed6d0327d01a11d663d767af7178d5049/xlwings-0.36.6-cp314-cp314-musllinux_1_1_x86_64.whl", hash = "sha256:e5ae1b041aed3b80b5a0d4eacd2ab2be8732347c366c48e4c8d55900faa22313", size = 1613352, upload-time = "2026-06-17T09:31:19.061Z" },
     { url = "https://files.pythonhosted.org/packages/54/7a/3454dcf4fd948feabcab099e35e16ad8dcd387e5c35dcbf6d4ffb738b748/xlwings-0.36.6-cp314-cp314-win_amd64.whl", hash = "sha256:297e36733135dedc67dff0688018b2cc6a05747bb1cfe93a76794527b89c7c85", size = 1582042, upload-time = "2026-06-17T09:31:20.572Z" },
     { url = "https://files.pythonhosted.org/packages/ec/25/6259559cfb75eef45785369bd24d18fea7f2f3c5b5eb9a320c9382815f32/xlwings-0.36.6-py3-none-any.whl", hash = "sha256:facd7194ed008065d7f5e67546d3dedba2ff58dc2e44da64fd02a50959a98f5a", size = 697787, upload-time = "2026-06-17T09:31:21.748Z" },
+]
+
+[[package]]
+name = "xmltodict"
+version = "1.0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/70/80f3b7c10d2630aa66414bf23d210386700aa390547278c789afa994fd7e/xmltodict-1.0.4.tar.gz", hash = "sha256:6d94c9f834dd9e44514162799d344d815a3a4faec913717a9ecbfa5be1bb8e61", size = 26124, upload-time = "2026-02-22T02:21:22.074Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/34/98a2f52245f4d47be93b580dae5f9861ef58977d73a79eb47c58f1ad1f3a/xmltodict-1.0.4-py3-none-any.whl", hash = "sha256:a4a00d300b0e1c59fc2bfccb53d7b2e88c32f200df138a0dd2229f842497026a", size = 13580, upload-time = "2026-02-22T02:21:21.039Z" },
 ]
 
 [[package]]

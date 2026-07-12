@@ -125,10 +125,8 @@ class Settings():
         self.plots: dict[str, Figure] = locals.get('plots', {})
         self.data_argument: str = ''
 
-
-
         # Persistent setting defaults
-        self.no_vba: bool = False
+        self.vba: bool = True
         self.color: str = "#262626"
 
 
@@ -213,19 +211,33 @@ class Settings():
         Update persistent settings as needed
         
         """
+        
+        
+        vba = input_args.get('vba', None)
 
+        # TODO: Remove this on 8.18
         no_vba = input_args.get('no_vba', None)
+        
+        
+        # If the old flag is provided and the new one isn't, print an output and use it
+        if no_vba is not None and vba is None:
+            vba = not no_vba
+            
+            print("The 'no_vba' argument has changed to 'vba'")
+            
+
+        
         color = input_args.get('theme', '')
         vba_toggle = input_args.pop('vba_toggle', None)
 
         
         # if provided arguments are explicit, change class properties
-        if no_vba is not None:
-            self.no_vba = no_vba
+        if vba is not None:
+            self.vba = vba
         
         # If vba_toggle is provided, swap it
         if  vba_toggle:
-            self.no_vba = not self.no_vba
+            self.vba = not self.vba
             
             
         # if provided theme is explicit, change class properties
@@ -317,8 +329,17 @@ class Settings():
                     
                     
                     # Get persistent settings
+                    vba = json_data.get('vba', True)
+                    theme = json_data.get('theme', "#262626")
+                    
+                    
+                    # TODO: Remove this on 8.18
                     no_vba = json_data.get('no_vba', False)
-                    theme = json_data.get('theme', "#262626") 
+                    
+                    # If an old default of no_vba = True is stored, change VBA to false
+                    if no_vba:
+                        vba = False
+                    
                     
                     
                     # Validate/Save persistent settings
@@ -326,8 +347,8 @@ class Settings():
                     if self.validate_color(theme):
                         self.color = theme
                     
-                    if isinstance(no_vba, bool):
-                        self.no_vba = no_vba
+                    if isinstance(vba, bool):
+                        self.vba = vba
                                                     
                 
             except (json.JSONDecodeError, OSError):
@@ -359,7 +380,7 @@ class Settings():
         # Write to a temporary file first, then rename it
         tmp_path = path.with_suffix(".tmp")
         
-        persistent_settings = {'no_vba': self.no_vba,
+        persistent_settings = {'vba': self.vba,
                                'theme': self.color,
                                'python_executable': sys.executable}
         
@@ -807,14 +828,14 @@ class Template():
         
         # Set vars
         input_path = Path(self.settings.wb_path)
-        no_vba = self.settings.no_vba
+        vba = self.settings.vba
                        
         
         # Construct file name
-        if no_vba:
-            wb_file_name = f"{self.file_name}.xlsx"
-        else:
+        if vba:
             wb_file_name = f"{self.file_name}.xlsm"
+        else:
+            wb_file_name = f"{self.file_name}.xlsx"
         
         
         # Handle correct extension is passed
@@ -2301,7 +2322,7 @@ class Logger():
                   'large_report': settings.large_report,
                   'overwrite': settings.overwrite,
                   'open_wb': settings.open_wb,
-                  'no_vba': settings.open_wb,
+                  'vba': settings.vba,
                   'export': settings.export,
                   'debug': settings.debug}
 

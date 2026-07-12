@@ -40,10 +40,11 @@ class wb():
                  overwrite: bool = False,
                  wb_path: str | Path = '',
                  open_wb: bool = True,
-                 no_vba: bool | None = None,
+                 vba: bool | None = None,
                  
                  # TODO: Remove this on 8.18
-                 input_df: pd.DataFrame | None = None) -> None:
+                 input_df: pd.DataFrame | None = None,
+                 no_vba: bool | None = None) -> None:
         """
         Creates an xleda workbook
 
@@ -93,11 +94,11 @@ class wb():
                 depending on whether export=True is also selected.
             * Defaults to current working directory
 
-        no_vba : bool, optional
-            * Will create the workbook as a '.xlsx' file that has no VBA.
-            * Providing a 'wb_path' argument with a '.xlsx' extension has the same effect.
-            * Changing this setting changes the default.
-            * Defaults to False
+        vba : bool, optional
+            * Will create the workbook as a '.xlsm' file with VBA if 'True' or without VBA if 'False'.
+            * Using this argument changes the default workbook style.
+            * Providing a 'wb_path' argument with a 'xlsm' or '.xlsx' extension has the same effect without changing the default workbook style.
+            * Defaults to True
             
         open_wb: bool, optional
             * Whether to open the workbook after creating.  
@@ -127,6 +128,10 @@ class wb():
             
         input_df: pd.DataFrame, optional
             * A placeholder to retain backwards compatibility for the new 'data' argument
+            
+            
+        no_vba: str, optional
+            * A placeholder to retain backwards compatibility for the new 'vba' argument
 
         """
 

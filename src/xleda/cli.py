@@ -10,7 +10,7 @@ from pathlib import Path
 import shutil
 from importlib.resources import files, as_file
 import zipfile
-
+from typing import Annotated
 
 from packaging.version import parse
 
@@ -75,7 +75,7 @@ class CLI():
             f"[{color}]    {supported}[/]\n\n\n"
             f"[{color}] [/]\n\n"
             f"[{color}]Create an example workbook:[/]\n\n"
-            f"[{color}]    xleda wb 'https://github.com/InfoDesigner/xleda/blob/main/examples/data/penguins_raw.csv'[/]\n\n"
+            f"[{color}]    xleda wb 'https://github.com/InfoDesigner/xleda/blob/main/examples/data/penguins.csv'[/]\n\n"
             f"[{color}] [/]\n\n"
             f"[{color}]Set your theme without creating a workbook:[/]\n\n"
             f"[{color}]    xleda theme '#262626'[/]\n\n"
@@ -441,21 +441,23 @@ def vba():
     settings = Settings(locals={'vba_toggle': True},
                         logger=logger)
     
-    logger.print(f"Future workbooks will be created {'without' if settings.no_vba else 'with'} VBA")
+    logger.print(f"Future workbooks will be created {'with' if settings.vba else 'without'} VBA")
     
 
 
 @cli.command(name="wb", epilog=help_message)
-def cli_wb(data: str = typer.Argument(..., help="Path to a supported data file"),
-           file_name: str = typer.Option(None, "--file_name", show_default=False, help="Name of the created workbook. Defaults to the same name as the data file"),
-           theme: str = typer.Option(None, "--theme", help="Hex color used for theme in workbook. This setting will persist after using.  Defaults to a neutral color"),
-           export: bool = typer.Option(False, help="Export from an xleda workbook"),
-           large_report: bool = typer.Option(False, "--large_report", help="Only subsample when required to fit within Excel's worksheet limits"),
-           overwrite: bool = typer.Option(False, help="Overwrite existing workbook"),
-           wb_path: str = typer.Option('', "--wb_path", show_default=False, help="Workbook directory with/without filename"),
-           open_wb: bool | None = typer.Option(True, "--open_wb/--no_open_wb", help="Don't automatically open the workbook on finish"),
-           no_vba: bool | None = typer.Option(None, "--vba/--no_vba", help="Create a VBA-free xlsx file.  This setting will persist after using.  Defaults to False"),
-           debug: bool = typer.Option(False, "--debug", help="View the workbook while it's being created")):
+def cli_wb(data: Annotated[str, typer.Argument(..., help="Path to a supported data file")],
+
+
+
+           file_name: Annotated[str | None, typer.Option("--file_name", show_default=False, help="Name of the created workbook. Defaults to the same name as the data file")] = None,
+           theme: Annotated[str | None, typer.Option("--theme", show_default=False, help="Hex color used for theme in workbook. This setting will persist after using.  Defaults to a neutral color")] = None,
+           large_report: Annotated[bool, typer.Option("--large_report", show_default=False, help="Only subsample when required to fit within Excel's worksheet limits")] = False,
+           overwrite: Annotated[bool, typer.Option(help="Overwrite existing workbooks with the same name")] = False,
+           wb_path: Annotated[str, typer.Option("--wb_path", show_default=False, help="Workbook directory with/without filename")] = "",
+           open_wb: Annotated[bool, typer.Option("--open_wb/--no_open_wb", help="Don't automatically open the workbook on finish")] = True,
+           vba: Annotated[bool | None, typer.Option("--vba/--no_vba", show_default=False, help="Create a workbook with/without VBA.  This setting will persist after using.  Defaults to True")] = None,
+           debug: Annotated[bool | None, typer.Option("--debug", help="View the workbook while it's being created")] = False):
     
     """
     Create an xleda workbook from a supported data file.
@@ -466,4 +468,8 @@ def cli_wb(data: str = typer.Argument(..., help="Path to a supported data file")
     if not wb_path:
         cli_args["file_name"] = file_name
 
+
     return CLI().wb(**cli_args)
+
+
+
