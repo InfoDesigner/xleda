@@ -557,7 +557,7 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 * See this [example](https://infodesigner.github.io/xleda/#creating-workbooks-without-vba)</a> or the [VBA Code](https://infodesigner.github.io/xleda/#vba-code) section for more details<br>
 
-* Defaults to True<br>
+* Defaults to <code>True</code><br>
 
   </div>
 </div>
@@ -1006,8 +1006,8 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 
     # Creates Penguins.xlsm with two extra plot sheets
     wb(data={"Penguins": df},
-    theme="#4C4C4C",
-    plots={'Pair Plots': pair_plots,
+       theme="#4C4C4C",
+       plots={'Pair Plots': pair_plots,
            'Null Matrix': null_matrix})
     ```
 
