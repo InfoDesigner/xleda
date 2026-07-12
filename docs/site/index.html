@@ -631,6 +631,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#setting-theme" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Setting Theme
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#creating-workbooks-without-vba" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -936,14 +947,17 @@
 
 
 
-<strong>What's the Catch?</strong><br><br>
+<strong>Next Steps</strong><br><br>
 
 Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
 
-If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.  VBA preference persists in the same way after it's set.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.<br><br>
-
-If you've followed these steps, be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.
-
+<ul>
+  <li>Read the <a href="https://infodesigner.github.io/xleda/#usage-notes">Usage Notes</a> for tips on using your workbook.</li>
+  <li>If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.</li>
+  <li>VBA preference persists in the same way after it's set.</li>
+  <li>Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.</li>
+  <li>Be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.</li>
+</ul>
 <br><br>
 
 
@@ -1065,7 +1079,9 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <p><strong>DataFrame or dict[str, DataFrame] or Path or string</strong> | Mandatory<br></p>
 <ul>
 <li>Accepts a pandas dataframe, a dictionary of dataframes, or a supported data file</li>
+<li>Using a dictionary of dataframes lets you name your worksheets and workbook while providing data at the same time.</li>
 <li>For files, xleda will create a workbook from all tabular objects in the file</li>
+<li>See examples <a href="https://infodesigner.github.io/xleda/#creating-a-workbook-from-a-dictionary-of-dataframes">here</a> and <a href="https://infodesigner.github.io/xleda/#creating-a-workbook-from-a-database">here</a><br></li>
 </ul>
 <details>
 <summary>Data File Limitations<br><br></summary>
@@ -1074,7 +1090,7 @@ If you've followed these steps, be sure to periodically update xleda using <code
   <strong>Expect problems with</strong>:<br>
   <ul>
     <li>Deeply nested JSON/XML</li>
-    <li>A <code>.CSV</code> file with tabs instead of commas</li>
+    <li>A <code>.csv</code> file with tabs instead of commas</li>
     <li><code>.db</code> files that are neither SQLite nor DuckDB files</li>
     <li>DuckDB files with a <code>.txt</code> extension</li>
   </ul><br>
@@ -1108,19 +1124,19 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <p><strong>Path or string</strong> | Optional<br></p>
 <ul>
 <li>
-<p>Use a directory or file path<br></p>
+<p>Use a directory with or without a file<br></p>
 </li>
 <li>
 <p>If a directory is provided, the workbook is created there<br></p>
 </li>
 <li>
-<p>If a filename ends with <code>.xlsm</code> or <code>.xlsx</code>, xleda will create or export from that file<br></p>
+<p>If a file is also provided and has a <code>.xlsm</code> or <code>.xlsx</code> extension, xleda will create or export from that file<br></p>
 </li>
 <li>
 <p>Defaults to the current working directory or the source file directory<br></p>
 </li>
 <li>
-<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br></p>
+<p>See <a href="https://infodesigner.github.io/xleda/#using-wb_path-as-a-directory-or-a-file">Using wb_path</a> or <a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> for more details on using <code>wb_path</code><br></p>
 </li>
 </ul>
 </div>
@@ -1165,7 +1181,7 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <p>No automatic styling or sizing is applied<br></p>
 </li>
 <li>
-<p>See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br></p>
+<p>See the <a href="https://infodesigner.github.io/xleda/#adding-custom-plots">Adding Custom Plots</a> example for more details<br></p>
 </li>
 </ul>
 </div>
@@ -1201,6 +1217,9 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <li>
 <p>Defaults to <code>False</code><br></p>
 </li>
+<li>
+<p>See the <a href="https://infodesigner.github.io/xleda/#large-data-sets">Large Data Sets</a> section for more details<br></p>
+</li>
 </ul>
 </div>
 </div>
@@ -1219,10 +1238,10 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <p>Use an <code>.xlsx</code> or a <code>.xlsm</code> file for <code>wb_path</code> as an alternative though this won't change the default workbook preference<br></p>
 </li>
 <li>
-<p>See this <a href="https://infodesigner.github.io/xleda/#creating-workbooks-without-vba">example</a></a> or the <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> section for more details<br></p>
+<p>Defaults to <code>True</code><br></p>
 </li>
 <li>
-<p>Defaults to True<br></p>
+<p>See this <a href="https://infodesigner.github.io/xleda/#creating-workbooks-without-vba">example</a> or the <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> section for more details<br></p>
 </li>
 </ul>
 </div>
@@ -1236,7 +1255,7 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <p>Opens the workbook after creation<br></p>
 </li>
 <li>
-<p>Set to False when creating multiple workbooks<br></p>
+<p>When creating multiple workbooks, it is helpful to set this to <code>False</code><br></p>
 </li>
 <li>
 <p>Defaults to <code>True</code><br></p>
@@ -1265,11 +1284,17 @@ If you've followed these steps, be sure to periodically update xleda using <code
 <hr>
 
 <h2 id="cli-basics">CLI Basics<a class="headerlink" href="#cli-basics" title="Permanent link">&para;</a></h2>
-<p><br></p>
-<p>Installing the Python package also installs the <code>xleda</code> CLI<br><br>
-
-It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> or <code>export</code> arguments</p>
-<p><br></p>
+<ul>
+<li>
+<p><p>Installing the Python package also installs the <code>xleda</code> CLI</p></p>
+</li>
+<li>
+<p><p>It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> or <code>export</code> arguments</p></p>
+</li>
+<li>
+<p><p>For more details, see many of the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> or the <a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">Non-Developer Quick Start Guide</a></p><br></p>
+</li>
+</ul>
 <details>
   <summary>CLI Commands<br><br></summary>
 
@@ -1282,7 +1307,7 @@ It works almost the same way as the Python API except that it only accepts files
     <!-- xleda wb help -->
     <tr>
       <td valign="top"><br><code>xleda wb --help</code><br><br></td>
-      <td><br>Shows help for the wb command and it's flags</td>
+      <td><br>Shows help for the wb command</td>
     </tr>  
     <!-- xleda install -->
     <tr>
@@ -1310,12 +1335,6 @@ It works almost the same way as the Python API except that it only accepts files
       <td><br>
         This changes your theme preference without creating a workbook and persists once set<br><br>
 
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Sets theme to a dark grey</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="s1">&#39;#262626&#39;</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Also sets theme to a dark grey</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="m">262626</span>
-</span></code></pre></div>
 <br>
         </td>
     </tr>
@@ -1477,7 +1496,7 @@ It works almost the same way as the Python API except that it only accepts files
       <tr>
         <td><strong>Remedy</strong></td>
         <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy &amp; Security &gt; Full Disk Access</code>.</td>
-        <td>You can either:<br><br>1. Create a VBA free workbook (See [`vba`](https://infodesigner.github.io/xleda/#vba) and [VBA Code](https://infodesigner.github.io/xleda/#vba-code) for details<br>).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+        <td>You can either:<br><br>1. Create a VBA free workbook (See <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> and <a href="https://infodesigner.github.io/xleda/#vba">VBA</a> for details)<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
       </tr>
     </tbody>
   </table>
@@ -1531,20 +1550,25 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br></p>
 <h4 id="creating-a-workbook-from-a-dictionary-of-dataframes">Creating a workbook from a dictionary of dataframes<a class="headerlink" href="#creating-a-workbook-from-a-dictionary-of-dataframes" title="Permanent link">&para;</a></h4>
 <ul>
-<li>See <a href="https://infodesigner.github.io/xleda/#data">data</a> for details<br></li>
+<li>
+<p>Using a dataframe dictionary lets you name your worksheets and workbook while providing data at the same time.</p>
+</li>
+<li>
+<p>See <a href="https://infodesigner.github.io/xleda/#data">data</a> for details<br></p>
+</li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">seaborn_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;diamonds&#39;</span><span class="p">,</span> <span class="s1">&#39;dots&#39;</span><span class="p">,</span> <span class="s1">&#39;dowjones&#39;</span><span class="p">]</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">dataframe_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">df_name</span><span class="p">:</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">df_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">seaborn_datasets</span><span class="p">}</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Creates diamonds.xlsm in the current directory</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># Also includes dots and dow jones data</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataframe_dict</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">seaborn_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;diamonds&#39;</span><span class="p">,</span> <span class="s1">&#39;dots&#39;</span><span class="p">,</span> <span class="s1">&#39;dowjones&#39;</span><span class="p">]</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">dataframe_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">df_name</span><span class="p">:</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">df_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">seaborn_datasets</span><span class="p">}</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Creates diamonds.xlsm in the current directory</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Also includes dots and dow jones data</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataframe_dict</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1553,24 +1577,26 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br><br></p>
 <h4 id="creating-a-workbook-from-a-database">Creating a workbook from a database<a class="headerlink" href="#creating-a-workbook-from-a-database" title="Permanent link">&para;</a></h4>
 <ul>
+<li>Creating a workbook from a database file will create a workbook that includes each table in the database file.</li>
+<li>Supports duckdb and sqlite.</li>
 <li>See <a href="https://infodesigner.github.io/xleda/#data">data</a> for details<br></li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python</label><label for="__tabbed_2_2">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># &lt; your database goes here&gt;</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">sqlite_db</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db&quot;</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sqlite_db</span><span class="p">,</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Chinook&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># &lt; your database goes here &gt;</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">sqlite_db</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db&quot;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sqlite_db</span><span class="p">,</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Chinook&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db&quot;</span><span class="w"> </span>--file_name<span class="w"> </span><span class="s2">&quot;Chinook&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Creates &quot;Chinook.xlsm&quot; in the current directory with 11 dataframes</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db&quot;</span><span class="w"> </span>--file_name<span class="w"> </span><span class="s2">&quot;Chinook&quot;</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1579,33 +1605,34 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br><br></p>
 <h4 id="using-wb_path-as-a-directory-or-a-file">Using wb_path as a directory or a file<a class="headerlink" href="#using-wb_path-as-a-directory-or-a-file" title="Permanent link">&para;</a></h4>
 <ul>
-<li>See <a href="https://infodesigner.github.io/xleda/#wb_path">wb_path</a> for details<br></li>
+<li><code>wb_path</code> can be used to set the directory where you want your workbook, the directory and file name for your workbook, or be used to identify the workbook you want to export from.</li>
+<li>See <a href="https://infodesigner.github.io/xleda/#wb_path">wb_path</a> or <a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> for more details<br></li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Python</label><label for="__tabbed_3_2">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># Creates &quot;c:\target_folder\Penguins.xlsm&quot;</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;c:\target_folder&quot;</span><span class="p">))</span>
-</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
-</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="c1"># Creates &quot;c:\target_folder\awesome_workbook.xlsx&quot;</span>
-</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;c:\target_folder\awesome_workbook.xlsx&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="c1"># Creates &quot;c:\target_folder\Penguins.xlsm&quot;</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;c:\target_folder&quot;</span><span class="p">))</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="c1"># Creates &quot;c:\target_folder\awesome_workbook.xlsx&quot;</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;c:\target_folder\awesome_workbook.xlsx&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Creates &quot;c:\target_folder\penguins.xlsm&quot;</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span>c:<span class="se">\t</span>arget_folder<span class="w"> </span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Creates &quot;c:\target_folder\awesome_workbook.xlsx&quot;</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span>c:<span class="se">\t</span>arget_folder<span class="se">\a</span>wesome_workbook.xlsx
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Creates &quot;c:\target_folder\penguins.xlsm&quot;</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span><span class="s2">&quot;c:\target_folder&quot;</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Creates &quot;c:\target_folder\awesome_workbook.xlsx&quot;</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span><span class="s2">&quot;c:\target_folder\awesome_workbook.xlsx&quot;</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1614,34 +1641,72 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br></p>
 <h4 id="adding-custom-plots">Adding custom plots<a class="headerlink" href="#adding-custom-plots" title="Permanent link">&para;</a></h4>
 <ul>
+<li>You can add as many extra plot sheets as you want.</li>
+<li>Plots added this way aren't resized or themed.  </li>
+<li>Aiming for about 10" is a pretty good start for size.</li>
 <li>See <a href="https://infodesigner.github.io/xleda/#plots">plots</a> for details<br></li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:1"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">missingno</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">msno</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># Style the additional plots | optional</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;dark_background&quot;</span><span class="p">)</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1"># Create additional plots</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">pair_plots</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;species&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="n">null_matrix</span> <span class="o">=</span> <span class="n">msno</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="c1"># Resize the null matrix  | optional</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="n">null_matrix</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mf">9.35</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c1"># Creates Penguins.xlsm with two extra plot sheets</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>   <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;#4C4C4C&quot;</span><span class="p">,</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>   <span class="n">plots</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Pair Plots&#39;</span><span class="p">:</span> <span class="n">pair_plots</span><span class="p">,</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>       <span class="s1">&#39;Null Matrix&#39;</span><span class="p">:</span> <span class="n">null_matrix</span><span class="p">})</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<hr>
+<p><br></p>
+<h4 id="setting-theme">Setting Theme<a class="headerlink" href="#setting-theme" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Theme preference persists once set.<br></p>
+</li>
+<li>
+<p>See <a href="https://infodesigner.github.io/xleda/#theme">theme</a> for more details.<br></p>
+</li>
+</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Python</label><label for="__tabbed_5_2">CLI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">missingno</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">msno</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1"># Style the additional plots | optional</span>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;dark_background&quot;</span><span class="p">)</span>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1"># Create additional plots</span>
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="n">pair_plots</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;species&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span>
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="n">null_matrix</span> <span class="o">=</span> <span class="n">msno</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="c1"># Resize the null matrix  | optional</span>
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="n">null_matrix</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mf">9.35</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="c1"># Creates Penguins.xlsm with two extra plot sheets</span>
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="n">theme</span><span class="o">=</span><span class="s2">&quot;#4C4C4C&quot;</span><span class="p">,</span>
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="n">plots</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Pair Plots&#39;</span><span class="p">:</span> <span class="n">pair_plots</span><span class="p">,</span>
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>       <span class="s1">&#39;Null Matrix&#39;</span><span class="p">:</span> <span class="n">null_matrix</span><span class="p">})</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">penguins</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Creates &quot;Penguins.xlsm&quot; with a light blue theme and sets the default theme to light blue</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>   <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;#13b1fa&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Sets the theme default to a dark grey</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="s1">&#39;#262626&#39;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Also sets the theme default to a dark grey</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>xleda<span class="w"> </span>theme<span class="w"> </span><span class="m">262626</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1650,35 +1715,40 @@ It works almost the same way as the Python API except that it only accepts files
 <p><br></p>
 <h4 id="creating-workbooks-without-vba">Creating workbooks without VBA<a class="headerlink" href="#creating-workbooks-without-vba" title="Permanent link">&para;</a></h4>
 <ul>
-<li>See <a href="https://infodesigner.github.io/xleda/#vba">vba</a> and <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> for details<br></li>
+<li>
+<p>VBA preference persists once set.<br></p>
+</li>
+<li>
+<p>See <a href="https://infodesigner.github.io/xleda/#vba">vba</a> and <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> for details<br></p>
+</li>
 </ul>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Python</label><label for="__tabbed_5_2">CLI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Python</label><label for="__tabbed_6_2">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">penguins</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Creates &quot;Penguins.xlsx&quot; in the current directory and changes the default workbook style to .xlsx</span>
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>   <span class="n">vba</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># Also creates &quot;Penguins.xlsx&quot; but doesn&#39;t change the default workbook style</span>
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="s2">&quot;Penguins.xlsx&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">penguins</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;penguins&quot;</span><span class="p">)</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Creates &quot;Penguins.xlsx&quot; in the current directory and changes the default workbook style to .xlsx</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Penguins&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>   <span class="n">vba</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="c1"># Also creates &quot;Penguins.xlsx&quot; but doesn&#39;t change the default workbook style</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>   <span class="n">wb_path</span><span class="o">=</span><span class="s2">&quot;Penguins.xlsx&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Creates &quot;penguins.xlsx&quot; in the current directory and changes the default workbook style to .xlsx</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--no_vba
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Creates &quot;C:\TargetFolder\penguins.xlsx&quot; but doesn&#39;t change the default workbook style</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span><span class="s2">&quot;C:\TargetFolder\penguins.xlsx&quot;</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
-</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Toggles preference for VBA workbooks without creating a workbook</span>
-</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>xleda<span class="w"> </span>vba
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Creates &quot;penguins.xlsx&quot; in the current directory and changes the default workbook style to .xlsx</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--no_vba
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Creates &quot;C:\TargetFolder\penguins.xlsx&quot; but doesn&#39;t change the default workbook style</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>xleda<span class="w"> </span>wb<span class="w"> </span><span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv&quot;</span><span class="w"> </span>--wb_path<span class="w"> </span><span class="s2">&quot;C:\TargetFolder\penguins.xlsx&quot;</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># Toggles preference for VBA workbooks without creating a workbook</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>xleda<span class="w"> </span>vba
 </span></code></pre></div>
 </div>
 </div>
@@ -1694,21 +1764,21 @@ It works almost the same way as the Python API except that it only accepts files
 <p>See <a href="https://infodesigner.github.io/xleda/#export">export</a> and <a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> for details<br></p>
 </li>
 </ul>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:1"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Python</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:1"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
-</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
-</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># Creates &quot;Titanic.xlsm&quot; and returns basic metadata</span>
-</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>                  <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Titanic&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
-</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
-</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="c1"># returns [&#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
-</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># Creates &quot;Titanic.xlsm&quot; and returns basic metadata</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>                  <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Titanic&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="c1"># returns [&#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1730,25 +1800,25 @@ It works almost the same way as the Python API except that it only accepts files
     <em>The workbook used for the export example showing definitions, notes, lists, etc.</em>
 </p>
 <p><br></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:1"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Python</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:1"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># &lt; your completed workbook goes here &gt;</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">edited_workbook_path</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm&quot;</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>
-</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="c1"># Performs a full export from &quot;Titanic Completed.xlsm&quot;</span>
-</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
-</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>                  <span class="n">wb_path</span><span class="o">=</span><span class="n">edited_workbook_path</span><span class="p">,</span>
-</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>                  <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
-</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>
-</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="c1"># Returns [&#39;description&#39;, &#39;definitions&#39;, &#39;notes&#39;, &#39;lists&#39;, &#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
-</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">xleda</span><span class="w"> </span><span class="kn">import</span> <span class="n">wb</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># &lt; your dataframe goes here &gt;</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;titanic&quot;</span><span class="p">)</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="c1"># &lt; your completed workbook goes here &gt;</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="n">edited_workbook_path</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/Titanic%20Completed.xlsm&quot;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="c1"># Performs a full export from &quot;Titanic Completed.xlsm&quot;</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="n">export_dicts</span> <span class="o">=</span> <span class="n">wb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Titanic&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">},</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>                  <span class="n">wb_path</span><span class="o">=</span><span class="n">edited_workbook_path</span><span class="p">,</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>                  <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">export_dicts</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="c1"># Returns [&#39;description&#39;, &#39;definitions&#39;, &#39;notes&#39;, &#39;lists&#39;, &#39;field_overview&#39;, &#39;df_overview&#39;, &#39;source_data&#39;]</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="nb">print</span><span class="p">(</span><span class="n">export_dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1792,8 +1862,8 @@ It works almost the same way as the Python API except that it only accepts files
 <li>Be aware that xlwings has a ton of functionality and that for xleda to work, it only requires communication with Excel and not the addin, xlwings lite, udfs, or many of the other things xlwings can potentially do.<br></li>
 <li>If you can't get it to work and you're on Windows, <a href="https://www.google.com/search?q=win32+com+corruption+xlwings">this may help</a>.<br><br></li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">xlwings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xw</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">app</span> <span class="o">=</span> <span class="n">xw</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">xlwings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xw</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">app</span> <span class="o">=</span> <span class="n">xw</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
 </span></code></pre></div>
 </details>
 <p><br></p>

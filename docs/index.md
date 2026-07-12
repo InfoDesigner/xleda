@@ -248,14 +248,17 @@ xleda wb YourSourceData.xlsx --theme '#305CDE'
 
 
 
-<strong>What's the Catch?</strong><br><br>
+<strong>Next Steps</strong><br><br>
 
 Now that everything is installed, this guide is no longer necessary.  You can now create workbooks in the future without any terminal commands by right-clicking on supported files.<br><br>
 
-If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.  VBA preference persists in the same way after it's set.  Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.<br><br>
-
-If you've followed these steps, be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.
-
+<ul>
+  <li>Read the <a href="https://infodesigner.github.io/xleda/#usage-notes">Usage Notes</a> for tips on using your workbook.</li>
+  <li>If you want to change your theme, use that very last line to create a new workbook once and it will remember your preference.</li>
+  <li>VBA preference persists in the same way after it's set.</li>
+  <li>Run <code>xleda wb --help</code> in your terminal for guidance on how to set either with/without creating a workbook and other settings.</li>
+  <li>Be sure to periodically update xleda using <code>uv tool upgrade xleda</code>.</li>
+</ul>
 <br><br>
 
 
@@ -401,7 +404,11 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 **DataFrame or dict[str, DataFrame] or Path or string** | Mandatory<br>
     
   * Accepts a pandas dataframe, a dictionary of dataframes, or a supported data file
+  * Using a dictionary of dataframes lets you name your worksheets and workbook while providing data at the same time.
   * For files, xleda will create a workbook from all tabular objects in the file
+  * See examples [here](https://infodesigner.github.io/xleda/#creating-a-workbook-from-a-dictionary-of-dataframes) and [here](https://infodesigner.github.io/xleda/#creating-a-workbook-from-a-database)<br>
+  
+  
     
 <details>
   <summary>Data File Limitations<br><br></summary>
@@ -410,7 +417,7 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
   <strong>Expect problems with</strong>:<br>
   <ul>
     <li>Deeply nested JSON/XML</li>
-    <li>A <code>.CSV</code> file with tabs instead of commas</li>
+    <li>A <code>.csv</code> file with tabs instead of commas</li>
     <li><code>.db</code> files that are neither SQLite nor DuckDB files</li>
     <li>DuckDB files with a <code>.txt</code> extension</li>
   </ul><br>
@@ -448,15 +455,15 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 **Path or string** | Optional<br>
     
-* Use a directory or file path<br>
+* Use a directory with or without a file<br>
 
 * If a directory is provided, the workbook is created there<br>
 
-* If a filename ends with `.xlsm` or `.xlsx`, xleda will create or export from that file<br>
+* If a file is also provided and has a `.xlsm` or `.xlsx` extension, xleda will create or export from that file<br>
 
 * Defaults to the current working directory or the source file directory<br>
 
-* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
+* See <a href="https://infodesigner.github.io/xleda/#using-wb_path-as-a-directory-or-a-file">Using wb_path</a> or <a href="https://infodesigner.github.io/xleda/#exporting-metadata">Exporting Metadata</a> for more details on using <code>wb_path</code><br>
 
   </div>
 </div>
@@ -502,7 +509,7 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 * No automatic styling or sizing is applied<br>
 
-* See the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> for more details<br>
+* See the <a href="https://infodesigner.github.io/xleda/#adding-custom-plots">Adding Custom Plots</a> example for more details<br>
 
   </div>
 </div>
@@ -538,6 +545,9 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 * Defaults to `False`<br>
 
+* See the <a href="https://infodesigner.github.io/xleda/#large-data-sets">Large Data Sets</a> section for more details<br>
+
+
   </div>
 </div>
 
@@ -555,9 +565,9 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 * Use an `.xlsx` or a `.xlsm` file for `wb_path` as an alternative though this won't change the default workbook preference<br>
 
-* See this [example](https://infodesigner.github.io/xleda/#creating-workbooks-without-vba)</a> or the [VBA Code](https://infodesigner.github.io/xleda/#vba-code) section for more details<br>
-
 * Defaults to <code>True</code><br>
+
+* See this [example](https://infodesigner.github.io/xleda/#creating-workbooks-without-vba) or the [VBA Code](https://infodesigner.github.io/xleda/#vba-code) section for more details<br>
 
   </div>
 </div>
@@ -572,7 +582,7 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 * Opens the workbook after creation<br>
 
-* Set to False when creating multiple workbooks<br>
+* When creating multiple workbooks, it is helpful to set this to <code>False</code><br>
 
 * Defaults to `True`<br>
 
@@ -606,11 +616,12 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 ## CLI Basics
 
-<br>
 
-<p>Installing the Python package also installs the <code>xleda</code> CLI<br><br>
+* <p>Installing the Python package also installs the <code>xleda</code> CLI</p>
 
-It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> or <code>export</code> arguments</p><br>
+* <p>It works almost the same way as the Python API except that it only accepts files for <code>data</code> and doesn't accept the <code>plots</code> or <code>export</code> arguments</p>
+
+* <p>For more details, see many of the <a href="https://infodesigner.github.io/xleda/#examples">Examples</a> or the <a href="https://infodesigner.github.io/xleda/#xleda-for-non-developers">Non-Developer Quick Start Guide</a></p><br>
 
 
 <details>
@@ -625,7 +636,7 @@ It works almost the same way as the Python API except that it only accepts files
     <!-- xleda wb help -->
     <tr>
       <td valign="top"><br><code>xleda wb --help</code><br><br></td>
-      <td><br>Shows help for the wb command and it's flags</td>
+      <td><br>Shows help for the wb command</td>
     </tr>  
     <!-- xleda install -->
     <tr>
@@ -652,14 +663,7 @@ It works almost the same way as the Python API except that it only accepts files
       <td valign="top"><br><code>xleda theme</code><br><br></td>
       <td><br>
         This changes your theme preference without creating a workbook and persists once set<br><br>
-        
-```bash
-# Sets theme to a dark grey
-xleda theme '#262626'
 
-# Also sets theme to a dark grey
-xleda theme 262626
-```
 <br>
         </td>
     </tr>
@@ -832,7 +836,7 @@ xleda will create the same workbooks in MacOS
       <tr>
         <td><strong>Remedy</strong></td>
         <td>There's not a reliable remedy to this.<br><br>MacOS doesn't permit applications like Microsoft Excel real access to the file system, even after explicitly granting Excel Full Disk Access under <br><br><code>Settings &gt; Privacy & Security &gt; Full Disk Access</code>.</td>
-        <td>You can either:<br><br>1. Create a VBA free workbook (See [`vba`](https://infodesigner.github.io/xleda/#vba) and [VBA Code](https://infodesigner.github.io/xleda/#vba-code) for details<br>).<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
+        <td>You can either:<br><br>1. Create a VBA free workbook (See <a href="https://infodesigner.github.io/xleda/#vba-code">VBA Code</a> and <a href="https://infodesigner.github.io/xleda/#vba">VBA</a> for details)<br><br>2. Change Excel's default macro settings (shown) to one of the other two options.<br><br><img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/excel_macos_macro_options.webp?raw=true" width="350" alt="Excel MacOS macro settings"></td>
       </tr>
     </tbody>
   </table>
@@ -892,6 +896,8 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 
 #### Creating a workbook from a dictionary of dataframes
 
+* Using a dataframe dictionary lets you name your worksheets and workbook while providing data at the same time.
+
 * See [data](https://infodesigner.github.io/xleda/#data) for details<br>
 
 === "Python"
@@ -913,6 +919,8 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 
 #### Creating a workbook from a database
 
+* Creating a workbook from a database file will create a workbook that includes each table in the database file.
+* Supports duckdb and sqlite.
 * See [data](https://infodesigner.github.io/xleda/#data) for details<br>
 
 === "Python"
@@ -920,13 +928,14 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
     ```python
     from xleda import wb
 
-    # < your database goes here>
+    # < your database goes here >
     sqlite_db = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db"
 
     # Creates "Chinook.xlsm" in the current directory with 11 dataframes
     wb(data=sqlite_db,
     file_name="Chinook")
     ```
+    
 
 === "CLI"
 
@@ -935,13 +944,15 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
     xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/chinook.db" --file_name "Chinook"
     ```
 
+
 <hr><br><br>
 
 
   
 #### Using wb_path as a directory or a file
 
-* See [wb_path](https://infodesigner.github.io/xleda/#wb_path) for details<br>
+* `wb_path` can be used to set the directory where you want your workbook, the directory and file name for your workbook, or be used to identify the workbook you want to export from.
+* See [wb_path](https://infodesigner.github.io/xleda/#wb_path) or [Exporting Metadata](https://infodesigner.github.io/xleda/#exporting-metadata) for more details<br>
 
 
 === "Python"
@@ -967,10 +978,10 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 
     ```bash
     # Creates "c:\target_folder\penguins.xlsm"
-    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path c:\target_folder 
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path "c:\target_folder"
     
     # Creates "c:\target_folder\awesome_workbook.xlsx"
-    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path c:\target_folder\awesome_workbook.xlsx
+    xleda wb "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/penguins.csv" --wb_path "c:\target_folder\awesome_workbook.xlsx"
 
     ```
 
@@ -980,7 +991,9 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 
 #### Adding custom plots
 
-
+* You can add as many extra plot sheets as you want.
+* Plots added this way aren't resized or themed.  
+* Aiming for about 10" is a pretty good start for size.
 * See [plots](https://infodesigner.github.io/xleda/#plots) for details<br>
 
 === "Python"
@@ -1014,8 +1027,44 @@ The included [VBA code](https://github.com/InfoDesigner/xleda/blob/main/src/xled
 <hr><br>
 
 
+#### Setting Theme
+
+* Theme preference persists once set.<br>
+
+* See [theme](https://infodesigner.github.io/xleda/#theme) for more details.<br>
+
+=== "Python"
+
+    ```python
+    from xleda import wb
+    import seaborn as sns
+
+    # < your dataframe goes here >
+    df = penguins = sns.load_dataset("penguins")
+
+    # Creates "Penguins.xlsm" with a light blue theme and sets the default theme to light blue
+    wb(data={"Penguins": df},
+       theme='#13b1fa')
+    ```
+
+=== "CLI"
+        
+    ```bash
+    
+    # Sets the theme default to a dark grey
+    xleda theme '#262626'
+
+    # Also sets the theme default to a dark grey
+    xleda theme 262626
+    
+    ```
+
+<hr><br>
+
 
 #### Creating workbooks without VBA
+
+* VBA preference persists once set.<br>
 
 * See [vba](https://infodesigner.github.io/xleda/#vba) and [VBA Code](https://infodesigner.github.io/xleda/#vba-code) for details<br>
 
