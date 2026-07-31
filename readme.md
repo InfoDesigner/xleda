@@ -84,6 +84,102 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
 
 <hr>
 
+## Basic Usage
+
+<br>
+
+Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a dictionary of dataframes, or a supported data file.<br><br>
+
+
+
+**From a Dataframe**
+
+  ``` python
+  from xleda import wb
+  import seaborn as sns
+
+  # < your dataframe goes here >
+  df = sns.load_dataset("titanic")
+
+  # Creates xleda.xlsm in the current directory
+  wb(df)
+  ```
+
+<hr><br>
+
+**From a Dictionary of Dataframes**
+
+  ``` python
+  from xleda import wb
+  import seaborn as sns
+
+  # < your dataframes go here >
+  df1 = sns.load_dataset("titanic")
+  df2 = sns.load_dataset("penguins")
+
+  # Creates Titanic.xlsm in the current directory
+  wb({"Titanic": df1,
+      "Penguins": df2})
+  ```
+
+<hr><br>
+
+**From a File**
+
+  ```python
+  from xleda import wb
+  from pathlib import Path
+
+  # < your data file goes here >
+  duckdb_file = "https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/duckdb.duckdb"
+
+  # Creates duckdb.xlsm in the current directory
+  # Includes data from all tables in the db file
+  wb(duckdb_file)
+  ```
+
+<hr><br>
+
+**From the CLI**
+
+  ```bash
+  # Creates 'userdata.xlsm' in the current directory
+  xleda wb 'https://github.com/InfoDesigner/xleda/raw/refs/heads/main/examples/data/userdata.parquet'
+
+  # Shows the help command
+  xleda --help
+
+  # Shows the wb help command
+  xleda wb --help
+  ```
+
+<hr><br>
+
+**From Right-Clicking | After running `xleda install`**
+
+  <table>
+    <tbody>
+      <tr>
+        <td width="50%" valign="top"><br><strong>Windows</strong><br><br></td>
+        <td width="50%" valign="top"><br><strong>MacOS</strong><br><br></td>
+      </tr>
+      <tr>
+        <td valign="top"><br>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_win.webp?raw=true" width="400" alt="From right-click Win">
+          </p><br>
+        </td>
+        <td valign="top"><br>
+          <p align="left">
+            <img src="https://github.com/InfoDesigner/xleda/blob/main/docs/assets/images/right_click_mac.webp?raw=true" width="400" alt="From right-click MacOS">
+          </p><br>
+        </td>
+      </tr>
+    </tbody>
+  </table><br><br>
+
+<hr>
+
 ## Compatibility
 
 <br>
@@ -108,3 +204,5 @@ xleda is a Python/Excel powered EDA tool that creates workbooks from dataframes 
     </tr>
   </tbody>
 </table><br>
+
+
