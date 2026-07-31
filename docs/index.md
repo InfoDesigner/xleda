@@ -339,7 +339,7 @@ Use <code>wb()</code> to quickly create an xleda workbook from a dataframe, a di
 
 <hr><br>
 
-**From Right-Clicking**
+**From Right-Clicking | After running `xleda install`**
 
   <table>
     <tbody>
