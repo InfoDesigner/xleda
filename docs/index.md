@@ -1,3 +1,7 @@
+---
+title: "xleda"
+description: "An open-source Python library and Exploratory Data Analysis (EDA) tool integrated with Microsoft Excel."
+---
 
 
 
