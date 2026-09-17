@@ -3,10 +3,10 @@
 requires = ["uv_build>=0.11.2,<0.12.0"]
 build-backend = "uv_build"
 
-# Project Metadta
+# Project Metadata
 [project]
 name = "xleda"
-version = "0.9.025"
+version = "0.9.026"
 description = "xleda is a Python/Excel powered EDA tool"
 readme = "readme.md"
 authors = [{ name = "InfoDesigner", email = "101991676+InfoDesigner@users.noreply.github.com" }]
