@@ -2,19 +2,14 @@
 
 {% block analytics %}
   {{ super() }}
-  <!-- Google Tag Manager (Script) -->
+  <!-- Google Search Console Verification Meta Tag -->
+  <meta name="google-site-verification" content="Zx2YLMbVhEqNSR8Ga3cZqBLeTB858R8okGM1ShysRXg" />
+
+  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  'https://googletagmanager.com;
   })(window,document,'script','dataLayer','GTM-KGHCBJ3L');</script>
-  <!-- End Google Tag Manager (Script) -->
-{% endblock %}
-
-{% block container %}
-  <!-- Google Tag Manager (Noscript) -->
-  <noscript><iframe src="https://googletagmanager.com"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (Noscript) -->
-  {{ super() }}
+  <!-- End Google Tag Manager -->
 {% endblock %}
